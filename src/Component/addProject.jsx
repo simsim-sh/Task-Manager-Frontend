@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createProject } from "../api/service";
+import { createProject, updateProjectById } from "../api/service";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -34,14 +34,29 @@ const addProject = ({ closePopup, selectedProject }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const createProjectResponse = await createProject(formData);
-      if (!createProjectResponse?.success) {
-        return toast.error(createProjectResponse?.message);
+      if (selectedProject?._id) {
+        // If project exists, update it
+        const updateProjectResponse = await updateProjectById(
+          selectedProject._id,
+          formData
+        );
+        if (!updateProjectResponse?.success) {
+          return toast.error(updateProjectResponse?.message);
+        }
+        toast.success(
+          updateProjectResponse?.message || "Project Updated Successfully"
+        );
+      } else {
+        // Create new project
+        const createProjectResponse = await createProject(formData);
+        if (!createProjectResponse?.success) {
+          return toast.error(createProjectResponse?.message);
+        }
+        toast.success(
+          createProjectResponse?.message || "Project Created Successfully"
+        );
       }
-      toast.success(
-        createProjectResponse?.message || "Project Created Successfully"
-      );
-      // Close the modal here
+
       closePopup();
       navigate("/project");
     } catch (error) {
@@ -91,7 +106,6 @@ const addProject = ({ closePopup, selectedProject }) => {
               {selectedProject?._id ? "VIEW PROJECT" : "ADD NEW PROJECT"}
             </h2>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-800">
@@ -103,7 +117,7 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.title}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-md"
-                readOnly={isReadOnly}
+                // readOnly={isReadOnly}
               />
             </div>
             <div>
@@ -115,7 +129,7 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.category}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-md"
-                disabled={isReadOnly}
+                // disabled={isReadOnly}
               >
                 <option value="development">Development</option>
                 <option value="design">Design</option>
@@ -123,7 +137,6 @@ const addProject = ({ closePopup, selectedProject }) => {
               </select>
             </div>
           </div>
-
           <div>
             <label className="text-xs font-medium text-gray-800">
               PROJECT DESCRIPTION
@@ -134,11 +147,9 @@ const addProject = ({ closePopup, selectedProject }) => {
               onChange={handleInputChange}
               rows="3"
               className="w-full px-3 py-2 border rounded-md"
-              readOnly={isReadOnly}
+              // readOnly={isReadOnly}
             ></textarea>
           </div>
-
-          {/* CLIENT DETAILS */}
           <div className="bg-gray-50 p-3 rounded-lg border">
             <label className="text-xs font-bold text-gray-800">
               CLIENT DETAILS
@@ -151,7 +162,7 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.companyName}
                 onChange={handleInputChange}
                 className="px-3 py-2 border rounded-md"
-                readOnly={isReadOnly}
+                // readOnly={isReadOnly}
               />
               <input
                 type="text"
@@ -160,7 +171,7 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.contactPerson}
                 onChange={handleInputChange}
                 className="px-3 py-2 border rounded-md"
-                readOnly={isReadOnly}
+                // readOnly={isReadOnly}
               />
               <input
                 type="text"
@@ -169,7 +180,7 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.contactPhone}
                 onChange={handleInputChange}
                 className="px-3 py-2 border rounded-md"
-                readOnly={isReadOnly}
+                // readOnly={isReadOnly}
               />
               <input
                 type="email"
@@ -178,7 +189,7 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.contactEmail}
                 onChange={handleInputChange}
                 className="px-3 py-2 border rounded-md"
-                readOnly={isReadOnly}
+                // readOnly={isReadOnly}
               />
               <input
                 type="text"
@@ -187,12 +198,10 @@ const addProject = ({ closePopup, selectedProject }) => {
                 value={formData.address}
                 onChange={handleInputChange}
                 className="col-span-2 px-3 py-2 border rounded-md"
-                readOnly={isReadOnly}
+                // readOnly={isReadOnly}
               />
             </div>
           </div>
-
-          {/* ASSIGNED TO */}
           <div className="bg-gray-50 p-3 rounded-lg border">
             <label className="text-xs font-bold text-gray-800">
               ASSIGNED GROUP
@@ -202,15 +211,13 @@ const addProject = ({ closePopup, selectedProject }) => {
               value={formData.assignedTo}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border rounded-md"
-              disabled={isReadOnly}
+              // disabled={isReadOnly}
             >
               <option value="Dev Team">Dev Team</option>
               <option value="Design Team">Design Team</option>
               <option value="Marketing Team">Marketing Team</option>
             </select>
           </div>
-
-          {/* TASKS and notes */}
           <div>
             <label className="text-xs font-medium text-gray-800">Notes</label>
             <textarea
@@ -219,20 +226,16 @@ const addProject = ({ closePopup, selectedProject }) => {
               onChange={handleInputChange}
               rows="3"
               className="w-full px-3 py-2 border rounded-md"
-              readOnly={isReadOnly}
+              // readOnly={isReadOnly}
             ></textarea>
           </div>
-
-          {/* ACTION BUTTONS */}
           <div className="flex justify-end pt-2 gap-2">
-            {!isReadOnly && (
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-500 text-white rounded-md"
-              >
-                SAVE PROJECT
-              </button>
-            )}
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-500 text-white rounded-md"
+            >
+              {selectedProject?._id ? "UPDATE PROJECT" : "SAVE PROJECT"}
+            </button>
             <button
               type="button"
               onClick={closePopup}

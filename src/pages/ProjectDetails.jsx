@@ -7,7 +7,6 @@ import { toast } from "react-hot-toast";
 import {
   getProjectById,
   deleteProjectById,
-  updateProjectById,
   getAllProject,
 } from "../api/service";
 import AddProjects from "../Component/addProject";
@@ -15,20 +14,18 @@ import { MdEdit, MdDeleteForever } from "react-icons/md";
 
 function ProjectDashboardFile() {
   const { projectId } = useParams();
-  const [currentPage, setCurrentPage] = useState(1);
-  const projectsPerPage = 2;
   const [showPopup, setShowPopup] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
-
-  // Get current projects
-  const indexOfLastProject = currentPage * projectsPerPage;
-  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 3;
+  const totalPages = Math.ceil(allProjects.length / projectsPerPage);
+  const startIndex = (currentPage - 1) * projectsPerPage;
   const currentProjects = allProjects.slice(
-    indexOfFirstProject,
-    indexOfLastProject
+    startIndex,
+    startIndex + projectsPerPage
   );
 
   //get all project
@@ -80,27 +77,6 @@ function ProjectDashboardFile() {
     }
   };
 
-  // Handle update project
-  // const handleUpdateProject = async (projectId, formData) => {
-  //   try {
-  //     const updateProjectResponse = await updateProjectById(
-  //       projectId,
-  //       formData
-  //     );
-  //     if (updateProjectResponse?.success) {
-  //       toast.success("Project updated successfully!");
-  //       fetchProject(projectId);
-  //       closePopup();
-  //     } else {
-  //       toast.error(
-  //         updateProjectResponse?.message || "Failed to update project"
-  //       );
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error updating project.");
-  //   }
-  // };
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -115,7 +91,10 @@ function ProjectDashboardFile() {
   const openPopup = async (project) => {
     setShowPopup(true);
     setSelectedProject(project);
-    await fetchProject(project._id);
+    // Fetch project details and ensure form fields are editable
+    if (project?._id) {
+      await fetchProject(project._id);
+    }
   };
 
   // Close popup
@@ -263,14 +242,9 @@ function ProjectDashboardFile() {
             {/* Projects List */}
             <div className="p-6">
               <div className="space-y-5">
-                {allProjects.map((project) => (
-                  <div
-                    key={project._id}
-                    className="p-3 cursor-pointer"
-                    onClick={() => openPopup(project)}
-                  >
+                {currentProjects.map((project) => (
+                  <div key={project._id} className="p-3 cursor-pointer">
                     <div className="flex flex-col md:flex-row md:items-center">
-                      {/* Left content - project info */}
                       <div className="flex items-start mb-4 md:mb-0">
                         <div className="bg-white shadow-md h-16 w-16 rounded-full flex-shrink-0 mr-4 overflow-hidden border-2 border-white">
                           <img
@@ -293,7 +267,6 @@ function ProjectDashboardFile() {
                           </div>
                         </div>
                       </div>
-                      {/* Right content - project stats */}
                       <div className="md:ml-auto flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
                         <div className="text-center md:text-left">
                           <p className="text-gray-900 text-sm mb-1 font-semibold">
@@ -328,7 +301,7 @@ function ProjectDashboardFile() {
                               e.stopPropagation();
                               openPopup(project);
                             }}
-                            className="size-6"
+                            className="size-6 cursor-pointer text-blue-600"
                           />
                           <MdDeleteForever
                             onClick={(e) => {
@@ -343,12 +316,11 @@ function ProjectDashboardFile() {
                   </div>
                 ))}
               </div>
-
               {/* Pagination */}
               <div className="flex justify-center items-center mt-6 space-x-2">
                 <button
                   onClick={() =>
-                    setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
                   className={`px-4 py-1 rounded-md ${
@@ -360,37 +332,32 @@ function ProjectDashboardFile() {
                   Previous
                 </button>
 
-                {Array.from({
-                  length: Math.ceil(allProjects.length / projectsPerPage),
-                }).map((_, index) => (
+                {/* Page Numbers */}
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1
+                ).map((page) => (
                   <button
-                    key={index}
-                    onClick={() => setCurrentPage(index + 1)}
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
                     className={`px-4 py-1 rounded-md ${
-                      currentPage === index + 1
+                      currentPage === page
                         ? "bg-blue-600 text-white"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    {index + 1}
+                    {page}
                   </button>
                 ))}
 
+                {/* Next Button */}
                 <button
                   onClick={() =>
-                    setCurrentPage((prev) =>
-                      prev < Math.ceil(allProjects.length / projectsPerPage)
-                        ? prev + 1
-                        : prev
-                    )
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                   }
-                  disabled={
-                    currentPage ===
-                    Math.ceil(allProjects.length / projectsPerPage)
-                  }
+                  disabled={currentPage === totalPages}
                   className={`px-4 py-1 rounded-md ${
-                    currentPage ===
-                    Math.ceil(allProjects.length / projectsPerPage)
+                    currentPage === totalPages
                       ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-50"
                   }`}
@@ -402,7 +369,6 @@ function ProjectDashboardFile() {
           </div>
         </div>
       </div>
-
       {/* Popup Form */}
       {showPopup && (
         <AddProjects
