@@ -2,7 +2,7 @@ import { AUTHURL, PROJECTURL } from "./client";
 import { catchError } from "../utlis/helper";
 import axios from "axios";
 
-//register
+// Register
 export const register = async (formData) => {
   try {
     const response = await axios.post(`${AUTHURL}/register`, formData);
@@ -12,7 +12,7 @@ export const register = async (formData) => {
   }
 };
 
-//login
+// Login
 export const login = async (formData) => {
   try {
     const response = await axios.post(`${AUTHURL}/login`, formData);
@@ -22,7 +22,7 @@ export const login = async (formData) => {
   }
 };
 
-//create project
+// Create project
 export const createProject = async (formData) => {
   try {
     const response = await axios.post(`${PROJECTURL}/createProject`, formData);
@@ -32,12 +32,44 @@ export const createProject = async (formData) => {
   }
 };
 
-//Get project
-export const GetProject = async (titleName) => {
+// Get project by title
+export const GetAllProject = async (projectId) => {
   try {
     const response = await axios.get(
-      `${PROJECTURL}/getProjectByTitle?title=${titleName}`
+      `${PROJECTURL}/getAllProjects${projectId}`
     );
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+
+//  Get project by ID
+export const getProjectById = async (projectId) => {
+  try {
+    const response = await axios.get(`${PROJECTURL}/${projectId}`);
+    console.log(`${PROJECTURL}/${projectId}`);  // Debugging log
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+ 
+//Update project by ID
+export const updateProjectById = async (projectId, updatedData) => {
+  try {
+    const response = await axios.put(`${PROJECTURL}/updateProject/${projectId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// Delete project by ID
+export const deleteProjectById = async (projectId) => {
+  try {
+    const response = await axios.delete(`${PROJECTURL}/deleteProject/${projectId}`);
     return response.data;
   } catch (error) {
     return catchError(error);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import smart from "../assets/smart.jpeg";
@@ -14,6 +14,12 @@ import {
   Tag,
   AlertTriangle,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
+import {
+  getProjectById,
+  deleteProjectById,
+  updateProjectById,
+} from "../api/service";
 
 function ProjectDashboardFile() {
   // Project state
@@ -98,8 +104,8 @@ function ProjectDashboardFile() {
 
   const handleTaskChange = (e, index) => {
     const { name, value } = e.target;
-    const updatedTasks = [...projectData.tasks];
-    updatedTasks[index][name] = value;
+    const updatedTasks = [...(projectData.tasks || [])]; // Ensure tasks exist
+    updatedTasks[index] = { ...updatedTasks[index], [name]: value };
 
     setProjectData((prevData) => ({
       ...prevData,
@@ -148,31 +154,84 @@ function ProjectDashboardFile() {
     });
   };
 
+  // Fetch project by ID (Replace 'your_project_id' with actual ID)
+  const fetchProject = async (projectId) => {
+    try {
+      const response = await getProjectById(projectId);
+      if (response.success) {
+        setSelectedProject(response.data);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error("Error fetching project.");
+    }
+  };
+
+  // Handle delete project
+  const handleDeleteProject = async (projectId) => {
+    try {
+      const response = await deleteProjectById(projectId);
+      if (response.success) {
+        toast.success("Project deleted successfully!");
+        setProjects(projects.filter((project) => project.id !== projectId));
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error("Error deleting project.");
+    }
+  };
+
+  // Handle update project
+  const handleUpdateProject = async (projectId, updatedData) => {
+    try {
+      const response = await updateProjectById(projectId, updatedData);
+      if (response.success) {
+        toast.success("Project updated successfully!");
+        fetchProject(projectId); // Refresh project details
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error("Error updating project.");
+    }
+  };
+
+  useEffect(() => {
+    fetchProject("67eae84feb98a8c0d3b9dc3e"); // Replace with actual project ID
+  }, []);
+
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add the new project to the projects array
-    const newId =
-      projects.length > 0 ? Math.max(...projects.map((p) => p.id)) + 1 : 1;
-    const projectToAdd = {
-      ...newProject,
-      id: newId,
-    };
+    try {
+      const response = await createProject(newProject);
+      if (response.success) {
+        toast.success(`Project added: ${response.data}`);
 
-    setProjects([...projects, projectToAdd]);
+        // ✅ Update projects state to reflect new project
+        setProjects([...projects, response.data]);
 
-    // Reset form and close popup
-    setNewProject({
-      name: "",
-      subtitle: "",
-      creator: "VIKASH ARYA",
-      deadline: "",
-      members: 1,
-      status: "RUNNING",
-      color: "bg-gray-50",
-      progress: 0,
-    });
-    setShowPopup(false);
+        setNewProject({
+          name: "",
+          subtitle: "",
+          creator: "VIKASH ARYA",
+          deadline: "",
+          members: 1,
+          status: "RUNNING",
+          color: "bg-gray-50",
+          progress: 0,
+        });
+        navigate("/projectdashboard");
+      } else {
+        toast.error(
+          `Project adding failed: ${response.message || "Unknown error"}`
+        );
+      }
+    } catch (error) {
+      toast.error(`Project Creation Error: ${error.message || error}`);
+    }
   };
 
   // Close popup
@@ -187,7 +246,6 @@ function ProjectDashboardFile() {
       {/* Main content area */}
       <div className="flex-1 flex flex-col">
         <Header />
-
         {/* Content below header */}
         <div className="flex-1 p-6 lg:p-8">
           {/* Breadcrumb navigation */}

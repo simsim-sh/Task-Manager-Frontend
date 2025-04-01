@@ -67,22 +67,13 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {/* Sidebar*/}
-      <div
-        className={`fixed left-0 top-0 h-full bg-white z-40 transition-all duration-300 ease-in-out shadow-lg
-                    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-                    w-64 md:translate-x-0`}
-      >
-        <Sidebar />
-      </div>
-
       {/* Main Content */}
-      <div className="flex flex-col flex-1 md:ml-64 bg-gradient-to-r from-blue-50 to-purple-50">
-        {/* Header */}
-        <Header toggleSidebar={toggleSidebar} />
-
+      <div className="flex flex-1 bg-gradient-to-r from-blue-50 to-purple-50">
+        <Sidebar />
         {/* Dashboard Content */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6">
+        <main className="flex-1 p-3 pt-1 sm:pt-1  md:pt-1 sm:p-4 md:p-6">
+          {/* Header */}
+          <Header toggleSidebar={toggleSidebar} />
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* 7 columns*/}
             <div className="col-span-1 md:col-span-7 space-y-6">

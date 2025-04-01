@@ -8,7 +8,6 @@ import TaskManagement from "./Component/TaskManagement";
 import TaskDetailsPage from "./Component/TaskDetailsPage";
 import AddTask from "./Component/AddTask";
 import AddProjectForm from "./Component/AddProjectForm";
-import SignUpPage from "./Component/SignUp";
 
 function App() {
   const router = createBrowserRouter([

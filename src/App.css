@@ -15,3 +15,16 @@
   font-style: normal;
   font-display: swap;
 }
+
+
+  // Apply Theme on Load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+      document.documentElement.classList.add("dark");
+    } else {
+      setDarkMode(false);
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);

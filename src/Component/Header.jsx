@@ -2,7 +2,6 @@ import { Fragment, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import girlpicture from "../assets/girlpicture.png";
-
 import {
   Bars3Icon,
   XMarkIcon,
@@ -21,6 +20,7 @@ const Header = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/"); // redirect
@@ -28,8 +28,15 @@ const Header = () => {
 
   // Dark Mode Toggle
   const handleThemeChange = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem("theme", !darkMode ? "dark" : "light");
+    const newTheme = !darkMode;
+    setDarkMode(newTheme);
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+
+    if (newTheme) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   };
 
   // Apply Theme on Load
