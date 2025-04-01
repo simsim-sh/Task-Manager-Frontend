@@ -33,10 +33,20 @@ export const createProject = async (formData) => {
 };
 
 // Get project by title
-export const GetAllProject = async (projectId) => {
+export const getAllProject = async () => {
+  try {
+    const response = await axios.get(`${PROJECTURL}/getAllProjects`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// http://localhost:3000/api/project/getProjectById/67eb6a63bf394bd8fd568142
+export const getProjectById = async (projectId) => {
   try {
     const response = await axios.get(
-      `${PROJECTURL}/getAllProjects${projectId}`
+      `${PROJECTURL}/getProjectById/${projectId}`
     );
     return response.data;
   } catch (error) {
@@ -44,22 +54,13 @@ export const GetAllProject = async (projectId) => {
   }
 };
 
-
-//  Get project by ID
-export const getProjectById = async (projectId) => {
-  try {
-    const response = await axios.get(`${PROJECTURL}/${projectId}`);
-    console.log(`${PROJECTURL}/${projectId}`);  // Debugging log
-    return response.data;
-  } catch (error) {
-    return catchError(error);
-  }
-};
- 
 //Update project by ID
-export const updateProjectById = async (projectId, updatedData) => {
+export const updateProjectById = async (projectId, formData) => {
   try {
-    const response = await axios.put(`${PROJECTURL}/updateProject/${projectId}`, updatedData);
+    const response = await axios.put(
+      `${PROJECTURL}/updateProject/${projectId}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     return catchError(error);
@@ -69,7 +70,9 @@ export const updateProjectById = async (projectId, updatedData) => {
 // Delete project by ID
 export const deleteProjectById = async (projectId) => {
   try {
-    const response = await axios.delete(`${PROJECTURL}/deleteProject/${projectId}`);
+    const response = await axios.delete(
+      `${PROJECTURL}/deleteProject/${projectId}`
+    );
     return response.data;
   } catch (error) {
     return catchError(error);
