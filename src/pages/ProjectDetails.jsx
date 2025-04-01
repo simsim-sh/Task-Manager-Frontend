@@ -243,7 +243,11 @@ function ProjectDashboardFile() {
             <div className="p-6">
               <div className="space-y-5">
                 {currentProjects.map((project) => (
-                  <div key={project._id} className="p-3 cursor-pointer">
+                  <div
+                    key={project._id}
+                    onClick={() => openPopup(project)}
+                    className="p-3 cursor-pointer"
+                  >
                     <div className="flex flex-col md:flex-row md:items-center">
                       <div className="flex items-start mb-4 md:mb-0">
                         <div className="bg-white shadow-md h-16 w-16 rounded-full flex-shrink-0 mr-4 overflow-hidden border-2 border-white">
