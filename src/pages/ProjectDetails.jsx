@@ -20,7 +20,7 @@ function ProjectDashboardFile() {
   const [allProjects, setAllProjects] = useState([]);
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const projectsPerPage = 3;
+  const projectsPerPage = 10;
   const totalPages = Math.ceil(allProjects.length / projectsPerPage);
   const startIndex = (currentPage - 1) * projectsPerPage;
   const currentProjects = allProjects.slice(

@@ -101,7 +101,7 @@ const addProject = ({ closePopup, selectedProject }) => {
         </div>
         {/* FORM FIELDS */}
         <form onSubmit={handleSubmit} className="overflow-auto  space-y-4">
-          <div className="p-2 rounded-lg mb-3">
+          <div className="p-2 rounded-lg mb-1">
             <h2 className="text-blue-600 text-2xl font-bold text-center">
               {selectedProject?._id ? "VIEW PROJECT" : "ADD NEW PROJECT"}
             </h2>

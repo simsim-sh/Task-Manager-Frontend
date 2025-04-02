@@ -78,3 +78,44 @@ export const deleteProjectById = async (projectId) => {
     return catchError(error);
   }
 };
+
+
+// Get all tasks
+export const getAllTasks = async () => {
+  try {
+    const response = await axios.get(`${TASKURL}/getAllTasks`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// Get task by ID
+export const getTaskById = async (taskId) => {
+  try {
+    const response = await axios.get(`${TASKURL}/getTaskById/${taskId}`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// Update task by ID
+export const updateTaskById = async (taskId, formData) => {
+  try {
+    const response = await axios.put(`${TASKURL}/updateTask/${taskId}`, formData);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// Delete task by ID
+export const deleteTaskById = async (taskId) => {
+  try {
+    const response = await axios.delete(`${TASKURL}/deleteTask/${taskId}`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
