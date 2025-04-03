@@ -1,4 +1,4 @@
-import { AUTHURL, PROJECTURL } from "./client";
+import { AUTHURL, PROJECTURL, TASKURL } from "./client";
 import { catchError } from "../utlis/helper";
 import axios from "axios";
 
@@ -80,6 +80,16 @@ export const deleteProjectById = async (projectId) => {
 };
 
 
+
+// Create task
+export const createTask = async (formData) => {
+  try {
+    const response = await axios.post(`${TASKURL}/createTask`, formData);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
 // Get all tasks
 export const getAllTasks = async () => {
   try {

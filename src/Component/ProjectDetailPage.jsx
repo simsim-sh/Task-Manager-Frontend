@@ -35,36 +35,7 @@ import Sidebar from "./Sidebar";
 import smart from "../assets/smart.jpeg";
 import { toast } from "react-hot-toast";
 import { getTaskById, deleteTaskById, getAllTasks } from "../api/service";
-
-const tasks = [
-  {
-    sr: 1,
-    name: "Smart Reality",
-    category1: "Dev",
-    category2: "UI",
-    status: "FRESH",
-    deadline: "2025-03-10",
-    assignedTo: "Simran sharma",
-  },
-  {
-    sr: 2,
-    name: "Euphorica",
-    category1: "Design",
-    category2: "UX",
-    status: "IN PROGRESS",
-    deadline: "2025-03-15",
-    assignedTo: "Gazel",
-  },
-  {
-    sr: 3,
-    name: "Bhutani",
-    category1: "Testing",
-    category2: "QA",
-    status: "COMPLETED",
-    deadline: "2025-03-20",
-    assignedTo: "Sunny",
-  },
-];
+import { useEffect, useState } from "react";
 
 // Status to icon mapping
 const getStatusIcon = (status) => {
@@ -94,9 +65,38 @@ const getStatusColor = (status) => {
   }
 };
 
+// Helper functions to calculate statistics - moved outside component
+const calculateTotalMembers = (tasksData) => {
+  // Extract unique member IDs from tasks
+  const uniqueMembers = new Set();
+  tasksData.forEach((task) => {
+    if (task.assignedTo) {
+      uniqueMembers.add(task.assignedTo);
+    }
+  });
+  return uniqueMembers.size;
+};
+
+const isTaskFresh = (task) => {
+  // Define what makes a task "fresh" - for example, created in the last 24 hours
+  const twentyFourHoursAgo = new Date();
+  twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+  return new Date(task.createdAt) > twentyFourHoursAgo;
+};
+
+const isTaskOverdue = (task) => {
+  // Check if task is overdue
+  return (
+    task.dueDate &&
+    new Date(task.dueDate) < new Date() &&
+    task.status !== "completed"
+  );
+};
+
 const ProjectDetailPage = () => {
-  // Sample project data
-  const project = {
+  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState([]);
+  const [projectData, setProjectData] = useState({
     name: "SMART REALTY CRM SOFTWARE",
     status: "RUNNING",
     category: "DEVELOPMENT, BILLING",
@@ -119,62 +119,107 @@ const ProjectDetailPage = () => {
     },
     completionPercentage: 25,
     priority: "High",
-  };
+  });
 
-  // Progress calculation
-  const progressPercentage =
-    (project.stats.completedTasks / project.stats.totalTasks) * 100;
+  // Fetch all data when component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch all tasks
+        const tasksData = await getAllTasks();
+        setTasks(
+          tasksData.length > 0
+            ? tasksData
+            : [
+                {
+                  sr: 1,
+                  name: "Smart Reality",
+                  category1: "Dev",
+                  category2: "UI",
+                  status: "FRESH",
+                  deadline: "2025-03-10",
+                  assignedTo: "Simran sharma",
+                },
+                {
+                  sr: 2,
+                  name: "Euphorica",
+                  category1: "Design",
+                  category2: "UX",
+                  status: "IN PROGRESS",
+                  deadline: "2025-03-15",
+                  assignedTo: "Gazel",
+                },
+                {
+                  sr: 3,
+                  name: "Bhutani",
+                  category1: "Testing",
+                  category2: "QA",
+                  status: "COMPLETED",
+                  deadline: "2025-03-20",
+                  assignedTo: "Sunny",
+                },
+              ]
+        );
+
+        // Process the tasks data to calculate statistics
+        const stats = {
+          totalTasks: tasksData.length,
+          totalMembers: calculateTotalMembers(tasksData),
+          activeTasks: tasksData.filter((task) => task.status === "active")
+            .length,
+          freshTasks: tasksData.filter((task) => isTaskFresh(task)).length,
+          completedTasks: tasksData.filter(
+            (task) => task.status === "completed"
+          ).length,
+          inactiveTasks: tasksData.filter((task) => task.status === "inactive")
+            .length,
+          overdueTasks: tasksData.filter((task) => isTaskOverdue(task)).length,
+        };
+
+        // Update project data with new stats
+        setProjectData((prevState) => ({
+          ...prevState,
+          stats: stats,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        // Fallback to sample data in case of error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleAdd = () => {
     window.location.href = "/addtask";
   };
 
-  //get all project
-  const fetchData = async () => {
+  // Function to handle task deletion
+  const handleDelete = async (taskId) => {
     try {
-      const getAllProjectResponse = await getAllProject();
-      if (getAllProjectResponse?.success) {
-        setAllProjects(getAllProjectResponse?.data);
-        // console.log("allProjects", getAllProjectResponse?.data);
-      } else {
-        toast.error(getAllProjectResponse?.message);
-      }
+      await deleteTaskById(taskId);
+      // Remove task from state after successful deletion
+      setTasks(tasks.filter((task) => task.id !== taskId));
     } catch (error) {
-      toast.error("Error fetching project.");
+      console.error("Failed to delete task:", error);
     }
   };
 
-  // Fetch project by ID
-  const fetchTask = async (id) => {
-    if (!id) return;
-    try {
-      const TaskByIDResponse = await getTaskById(id);
-      if (projectByIDResponse?.success) {
-        setSelectedTAsk(TaskByIDResponse?.data);
-        // console.log("Fetched Project:", projectByIDResponse?.data);
-      } else {
-        toast.error(TaskByIDResponse?.message);
-      }
-    } catch (error) {
-      toast.error("Error fetching project.");
-    }
-  };
+  // Progress calculation
+  const progressPercentage =
+    (projectData.stats.completedTasks / projectData.stats.totalTasks) * 100;
 
-  // Handle delete project
-  const handleDeleteTask = async (projectId) => {
-    try {
-      const deleteTaskResponse = await deleteTaskById(projectId);
-      if (deleteTaskResponse?.success) {
-        toast.success("Task deleted successfully!");
-        setTask(Task.filter((Task) => project._id !== projectId));
-        fetchData();
-      } else {
-        toast.error(deleteTaskResponse?.message || "Failed to delete Task");
-      }
-    } catch (error) {
-      toast.error("Error deleting Task.");
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        Loading project data...
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -231,7 +276,7 @@ const ProjectDetailPage = () => {
                 <div>
                   <h1 className="text-2xl font-bold">Project Detail</h1>
                   <p className="text-blue-100 text-sm">
-                    Viewing all details for {project.name}
+                    Viewing all details for {projectData.name}
                   </p>
                 </div>
               </div>
@@ -255,12 +300,13 @@ const ProjectDetailPage = () => {
                   <div className="flex justify-between items-center mb-6">
                     <span
                       className={`bg-green-100 text-green-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center ${
-                        project.status === "RUNNING"
+                        projectData.status === "RUNNING"
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      <Activity className="w-3 h-3 mr-1.5" /> {project.status}
+                      <Activity className="w-3 h-3 mr-1.5" />{" "}
+                      {projectData.status}
                     </span>
                     <div className="flex items-center space-x-2">
                       <Bookmark className="w-4 h-4 text-blue-400 cursor-pointer hover:text-blue-600 transition-colors duration-200" />
@@ -276,7 +322,7 @@ const ProjectDetailPage = () => {
                       />
                     </div>
                     <h2 className="text-xl font-bold text-gray-800 text-center mb-1">
-                      {project.name}
+                      {projectData.name}
                     </h2>
                     <div className="text-xs text-gray-500 mb-3">
                       Project #SR-2025
@@ -286,7 +332,7 @@ const ProjectDetailPage = () => {
                     <div className="flex items-center bg-red-50 px-3 py-1.5 rounded-full">
                       <span className="h-2 w-2 rounded-full bg-red-500 mr-2"></span>
                       <span className="text-xs font-medium text-red-700">
-                        {project.priority} Priority
+                        {projectData.priority} Priority
                       </span>
                     </div>
                   </div>
@@ -316,7 +362,7 @@ const ProjectDetailPage = () => {
                       <Tag className="w-4 h-4 mr-2 text-blue-600" /> CATEGORY
                     </span>
                     <span className="font-medium text-gray-800 text-sm">
-                      {project.category}
+                      {projectData.category}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
@@ -325,7 +371,7 @@ const ProjectDetailPage = () => {
                       CATEGORY
                     </span>
                     <span className="font-medium text-gray-800 text-sm">
-                      {project.subCategory}
+                      {projectData.subCategory}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
@@ -334,7 +380,7 @@ const ProjectDetailPage = () => {
                       DATE
                     </span>
                     <span className="font-medium text-gray-800 text-sm">
-                      {project.startDate}
+                      {projectData.startDate}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
@@ -342,7 +388,7 @@ const ProjectDetailPage = () => {
                       <Clock className="w-4 h-4 mr-2 text-red-600" /> DEADLINE
                     </span>
                     <span className="text-red-600 text-sm font-medium">
-                      {project.deadline}
+                      {projectData.deadline}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
@@ -350,7 +396,7 @@ const ProjectDetailPage = () => {
                       <User className="w-4 h-4 mr-2 text-blue-600" /> CREATED BY
                     </span>
                     <span className="font-medium text-gray-800 text-sm">
-                      {project.createdBy}
+                      {projectData.createdBy}
                     </span>
                   </div>
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
@@ -359,7 +405,7 @@ const ProjectDetailPage = () => {
                       AT
                     </span>
                     <span className="font-medium text-gray-800 text-sm">
-                      {project.createdAt}
+                      {projectData.createdAt}
                     </span>
                   </div>
 
@@ -372,25 +418,25 @@ const ProjectDetailPage = () => {
                       <div className="text-gray-700 text-sm flex items-center">
                         <User className="w-4 h-4 mr-2 text-indigo-600" />
                         <span className="font-medium">
-                          {project.clientName}
+                          {projectData.clientName}
                         </span>
                       </div>
                       <div className="text-gray-700 text-sm flex items-center">
                         <Phone className="w-4 h-4 mr-2 text-indigo-600" />
                         <a
-                          href={`tel:${project.clientPhone}`}
+                          href={`tel:${projectData.clientPhone}`}
                           className="hover:text-blue-600 transition-colors duration-200"
                         >
-                          {project.clientPhone}
+                          {projectData.clientPhone}
                         </a>
                       </div>
                       <div className="text-gray-700 text-sm flex items-center">
                         <Mail className="w-4 h-4 mr-2 text-indigo-600" />
                         <a
-                          href={`mailto:${project.clientEmail}`}
+                          href={`mailto:${projectData.clientEmail}`}
                           className="hover:text-blue-600 transition-colors duration-200"
                         >
-                          {project.clientEmail.toLowerCase()}
+                          {projectData.clientEmail.toLowerCase()}
                         </a>
                       </div>
                     </div>
@@ -421,7 +467,7 @@ const ProjectDetailPage = () => {
                       <FileText className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="text-2xl font-bold text-gray-800 mb-1">
-                      {project.stats.totalTasks}
+                      {projectData.stats.totalTasks}
                     </div>
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Total Tasks
@@ -436,7 +482,7 @@ const ProjectDetailPage = () => {
                       <Users className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div className="text-2xl font-bold text-gray-800 mb-1">
-                      {project.stats.totalMembers}
+                      {projectData.stats.totalMembers}
                     </div>
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Team Members
@@ -451,7 +497,7 @@ const ProjectDetailPage = () => {
                       <PlayCircle className="w-6 h-6 text-green-600" />
                     </div>
                     <div className="text-2xl font-bold text-gray-800 mb-1">
-                      {project.stats.activeTasks}
+                      {projectData.stats.activeTasks}
                     </div>
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Active Tasks
@@ -466,7 +512,7 @@ const ProjectDetailPage = () => {
                       <Zap className="w-6 h-6 text-cyan-600" />
                     </div>
                     <div className="text-2xl font-bold text-gray-800 mb-1">
-                      {project.stats.freshTasks}
+                      {projectData.stats.freshTasks}
                     </div>
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Fresh Tasks
@@ -481,7 +527,7 @@ const ProjectDetailPage = () => {
                       <CheckCircle className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div className="text-2xl font-bold text-gray-800 mb-1">
-                      {project.stats.completedTasks}
+                      {projectData.stats.completedTasks}
                     </div>
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Completed
@@ -496,7 +542,7 @@ const ProjectDetailPage = () => {
                       <AlertTriangle className="w-6 h-6 text-gray-500" />
                     </div>
                     <div className="text-2xl font-bold text-gray-800 mb-1">
-                      {project.stats.inactiveTasks}
+                      {projectData.stats.inactiveTasks}
                     </div>
                     <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Inactive
@@ -511,50 +557,13 @@ const ProjectDetailPage = () => {
                       <AlertTriangle className="w-6 h-6 text-red-600" />
                     </div>
                     <div className="text-2xl font-bold text-red-600 mb-1">
-                      {project.stats.overdueTasks}
+                      {projectData.stats.overdueTasks}
                     </div>
                     <div className="text-xs font-medium text-red-500 uppercase tracking-wider">
                       Overdue Tasks
                     </div>
                   </NavLink>
                 </div>
-
-                {/* Analytics Card */}
-                {/* <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-bold text-gray-800 flex items-center">
-                      <BarChart className="w-5 h-5 mr-2 text-blue-600" /> Project Analytics
-                    </h3>
-                    <div className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                      Last 30 days
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4">
-                      <div className="text-xs text-gray-500 mb-1">Task Completion Rate</div>
-                      <div className="text-2xl font-bold text-gray-800">{(project.stats.completedTasks / project.stats.totalTasks * 100).toFixed(0)}%</div>
-                      <div className="mt-2 w-full bg-white bg-opacity-50 rounded-full h-1.5">
-                        <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${(project.stats.completedTasks / project.stats.totalTasks * 100)}%` }}></div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4">
-                      <div className="text-xs text-gray-500 mb-1">Time Remaining</div>
-                      <div className="text-2xl font-bold text-gray-800">2 Days</div>
-                      <div className="text-xs text-gray-500 mt-1">Before deadline</div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4">
-                      <div className="text-xs text-gray-500 mb-1">Team Efficiency</div>
-                      <div className="text-2xl font-bold text-gray-800">High</div>
-                      <div className="flex items-center mt-1">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
-                        <span className="text-xs text-gray-500">Above average</span>
-                      </div>
-                    </div>
-                  </div>
-                </div> */}
 
                 {/* Task Actions */}
                 <div className="flex flex-col md:flex-row gap-4">
@@ -581,7 +590,6 @@ const ProjectDetailPage = () => {
                         Task Management
                       </h2>
                     </div>
-
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>

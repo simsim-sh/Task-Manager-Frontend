@@ -218,7 +218,7 @@ const addProject = ({ closePopup, selectedProject }) => {
               <option value="Marketing Team">Marketing Team</option>
             </select>
           </div>
-          <div>
+          {/* <div>
             <label className="text-xs font-medium text-gray-800">Notes</label>
             <textarea
               name="notes"
@@ -228,7 +228,7 @@ const addProject = ({ closePopup, selectedProject }) => {
               className="w-full px-3 py-2 border rounded-md"
               // readOnly={isReadOnly}
             ></textarea>
-          </div>
+          </div> */}
           <div className="flex justify-end pt-2 gap-2">
             <button
               type="submit"

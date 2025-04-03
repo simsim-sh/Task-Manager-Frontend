@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/logo.svg";
+import { useNavigate } from "react-router-dom";
 import {
   Home,
   Users,
@@ -17,6 +18,7 @@ import {
 import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const [openSubMenus, setOpenSubMenus] = useState({
     sales: false,
     customers: false,
@@ -167,45 +169,13 @@ const Sidebar = () => {
           {/* user-start */}
           <div>
             <button
-              onClick={() => toggleSubMenu("users")}
-              className="w-full flex items-center justify-between px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
+              className="w-full flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
+              onClick={() => navigate("/adduser")} // Correctly placed onClick
             >
-              <div className="flex items-center">
-                <Users2 className="h-5 w-5" />
-                {isExpanded && <span className="ml-3">All Users</span>}
-              </div>
-              {isExpanded &&
-                (openSubMenus.users ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                ))}
+              <Users2 className="h-5 w-5" />
+              {isExpanded && <span className="ml-3">Add Users</span>}
             </button>
-
-            {/* Submenu items */}
-            {openSubMenus.users && (
-              <div className="flex justify-center mt-2">
-                <NavLink
-                  to="/signup"
-                  className="w-full px-4 py-2 text-white text-center"
-                >
-                  Add Users
-                </NavLink>
-              </div>
-            )}
-            {openSubMenus.users && (
-              <div className="flex justify-center mt-2">
-                <NavLink
-                  to="/signup"
-                  className="w-full px-4 py-2 text-white text-center"
-                >
-                  {" "}
-                  Sign Up
-                </NavLink>
-              </div>
-            )}
           </div>
-
           {/* user-end */}
 
           {/* Communications */}

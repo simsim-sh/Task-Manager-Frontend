@@ -9,7 +9,7 @@ import {
   deleteProjectById,
   getAllProject,
 } from "../api/service";
-import AddProjects from "../Component/addProject";
+import AddProjects from "../Component/addProjectpopup";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
 
 function ProjectDashboardFile() {
