@@ -1,15 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
-import SignIn from "./Component/SignIn";
-import SignUp from "./Component/SignUp";
-import Dashboard from "./Component/Dashboard";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
 import ProjectDetails from "./pages/ProjectDashboard";
-import ProjectDetailPage from "./Component/ProjectDetailPage";
-// import TaskManagement from "./Component/TaskManagement";
-import TaskDetailsPage from "./Component/TaskDetailsPage";
-import AddTask from "./Component/AddTask";
-import AddProjectForm from "./Component/AddProjectForm";
-import AddUserPage from "./Component/AddUser";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
+// import TaskManagement from "./pages/TaskManagement";
+import TaskDetailsPage from "./pages/TaskDetailsPage";
+import AddTask from "./pages/AddTask";
+import AddProjectForm from "./pages/AddProjectForm";
+import AddUserPage from "./pages/adduser";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignIn /> },

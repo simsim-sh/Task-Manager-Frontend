@@ -79,8 +79,6 @@ export const deleteProjectById = async (projectId) => {
   }
 };
 
-
-
 // Create task
 export const createTask = async (formData) => {
   try {
@@ -90,6 +88,7 @@ export const createTask = async (formData) => {
     return catchError(error);
   }
 };
+
 // Get all tasks
 export const getAllTasks = async () => {
   try {
@@ -113,7 +112,10 @@ export const getTaskById = async (taskId) => {
 // Update task by ID
 export const updateTaskById = async (taskId, formData) => {
   try {
-    const response = await axios.put(`${TASKURL}/updateTask/${taskId}`, formData);
+    const response = await axios.put(
+      `${TASKURL}/updateTask/${taskId}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     return catchError(error);

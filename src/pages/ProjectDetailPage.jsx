@@ -30,9 +30,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
-import smart from "../assets/smart.jpeg";
+import Header from "../Component/Header";
+import Sidebar from "../Component/Sidebar";
+import smart from "../assets/images/smart.jpeg";
 import { toast } from "react-hot-toast";
 import { getTaskById, deleteTaskById, getAllTasks } from "../api/service";
 import { useEffect, useState } from "react";

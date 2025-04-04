@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
-import smart from "../assets/smart.jpeg";
+import smart from "../assets/images/smart.jpeg";
 import { NavLink, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import {

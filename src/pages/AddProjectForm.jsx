@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Header from "../Component/Header";
+import Sidebar from "../Component/Sidebar";
 
 const AddProjectForm = () => {
   const [formData, setFormData] = useState({

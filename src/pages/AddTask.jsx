@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { createTask, updateTaskById } from "../api/service";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Header from "../Component/Header";
+import Sidebar from "../Component/Sidebar";
 import {
   FileUp,
   ChevronRight,

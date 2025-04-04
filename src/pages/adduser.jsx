@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-import AddUserForm from "./adduserform";
+import Sidebar from "../Component/Sidebar";
+import Header from "../Component/Header";
+import AddUserForm from "../Component/adduserform";
 import { MdPersonAdd, MdDelete } from "react-icons/md";
 import { LiaUserEditSolid } from "react-icons/lia";
-import girlpicture from "../assets/girlpicture.png";
+import girlpicture from "../assets/images/girlpicture.png";
 
 const UserManagementPage = () => {
   const [showPopup, setShowPopup] = useState(false);

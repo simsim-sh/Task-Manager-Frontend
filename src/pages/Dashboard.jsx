@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  FileText, // For All Project
-  PlayCircle, // For Running Project
-  CheckCircle, // For Completed
-  PlusCircle, // For New Project
-  Calendar, // For Upcoming Deadlines
+  FileText,
+  PlayCircle,
+  CheckCircle,
+  PlusCircle,
+  Calendar,
   Users,
 } from "lucide-react";
 import {
@@ -15,14 +15,12 @@ import {
   Truck,
   RefreshCw,
 } from "lucide-react";
-
-import ChartComponent from "./ChartComponent";
-import BarChartComponent from "./BarChartComponent";
-
-import backgroundImg from "../assets/background.jpg";
+import ChartComponent from "../Component/ChartComponent";
+import BarChartComponent from "../Component/BarChartComponent";
+import backgroundImg from "../assets/images/background.jpg";
 import { NavLink } from "react-router-dom";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Header from "../Component/Header";
+import Sidebar from "../Component/Sidebar";
 
 const Dashboard = () => {
   const [isMobile, setIsMobile] = useState(false);

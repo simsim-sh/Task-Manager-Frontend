@@ -1,7 +1,7 @@
 import { Fragment, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import girlpicture from "../assets/girlpicture.png";
+import girlpicture from "../assets/images/girlpicture.png";
 import {
   Bars3Icon,
   XMarkIcon,
