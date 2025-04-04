@@ -1,13 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../Component/Sidebar";
 import Header from "../Component/Header";
 import AddUserForm from "../Component/adduserform";
 import { MdPersonAdd, MdDelete } from "react-icons/md";
 import { LiaUserEditSolid } from "react-icons/lia";
 import girlpicture from "../assets/images/girlpicture.png";
+import toast from "react-hot-toast";
+import { getAllUsers } from "../api/service";
+import Profile from "../assets/images/girlpicture.png";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../component/ui/table";
 
 const UserManagementPage = () => {
   const [showPopup, setShowPopup] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -41,6 +53,20 @@ const UserManagementPage = () => {
     },
   ]);
 
+  //api integration
+  const fetchData = async () => {
+    try {
+      const getAllUsersResponse = await getAllUsers();
+      if (getAllUsersResponse?.success) {
+        return toast.message(getAllUsersResponse?.message);
+      }
+      setAllUsers(getAllUsersResponse?.data);
+      // console.log("getAllUsersResponse", getAllUsersResponse?.data);
+    } catch (error) {
+      toast.error("Error fetching users.");
+    }
+  };
+
   const openPopup = () => setShowPopup(true);
   const closePopup = () => setShowPopup(false);
 
@@ -54,73 +80,88 @@ const UserManagementPage = () => {
     setUsers([...users, { ...newUser, id: users.length + 1 }]);
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
-        <div className="p-6 bg-gray-100 min-h-screen">
-          <div className="bg-white rounded shadow p-4">
-            <div className="mb-4">
-              <button
-                className="bg-blue-600 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
-                onClick={openPopup}
-              >
-                <MdPersonAdd className="inline-block mr-2" /> Add Team Member
-              </button>
-            </div>
-            <div className="grid grid-cols-8 bg-blue-800 text-white font-semibold">
-              <div className="p-4">Profile</div>
-              <div className="p-4">Name</div>
-              <div className="p-4">Email</div>
-              <div className="p-4">Department</div>
-              <div className="p-4"> Designation</div>
-              <div className="p-4">Assigned Project</div>
-              <div className="p-4">Status</div>
-              <div className="p-4">Actions</div>
-            </div>
-            {users.map((user) => (
-              <div
-                key={user.id}
-                className="grid grid-cols-8 border-b text-gray-700 items-center"
-              >
-                <div className="p-4 flex justify-center">
-                  <img
-                    src={user.profileImage}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                </div>
-                <div className="p-4">{user.name}</div>
-                <div className="p-4">{user.email}</div>
-                <div className="p-4 ps-12">{user.Department}</div>
-                <div className="p-4">{user.Designation}</div>
-                <div className="p-4">{user.project}</div>
-                <div
-                  className={`p-4 font-bold ${
-                    user.status === "Active"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  }`}
-                >
-                  {user.status}
-                </div>
-                <div className="p-4 flex space-x-2">
-                  <button
-                    className="text-blue-500 hover:text-blue-700 text-xl pr-6"
-                    onClick={() => alert("Edit user details")}
-                  >
-                    <LiaUserEditSolid />
-                  </button>
-                  <button
-                    className="text-red-500 hover:text-red-700 text-xl"
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    <MdDelete />
-                  </button>
-                </div>
-              </div>
-            ))}
+        <div className="p-6 w-full bg-gray-100 min-h-screen">
+          <div className="mb-4">
+            <button
+              className="bg-blue-600  rounded shadow p-4 hover:bg-blue-800 text-white font-bold py-2 px-4 "
+              onClick={openPopup}
+            >
+              <MdPersonAdd className="inline-block mr-2" /> Add Team Member
+            </button>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-center">Profile</TableHead>
+                  <TableHead className="text-center">Name</TableHead>
+                  <TableHead className="text-center">Email</TableHead>
+                  <TableHead className="text-center">Department</TableHead>
+                  <TableHead className="text-center">Designation</TableHead>
+                  <TableHead className="text-center">
+                    Assigned Project
+                  </TableHead>
+                  <TableHead className="text-center">Permission</TableHead>
+                  <TableHead className="text-center">Post Module</TableHead>
+                  <TableHead className="text-center">User Type</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead className="text-center">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allUsers.map((row, index) => (
+                  <TableRow key={row._id}>
+                    <TableCell>
+                      <img
+                        src={row.profileImage || Profile}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    </TableCell>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>{row.email}</TableCell>
+                    <TableCell>{row.department || "N/A"}</TableCell>
+                    <TableCell>{row.designation || "N/A"}</TableCell>
+                    <TableCell>{row.project || "N/A"}</TableCell>
+                    <TableCell>
+                      {row.permission?.join(", ") || "None"}
+                    </TableCell>
+                    <TableCell>
+                      {row.postModule?.join(", ") || "None"}
+                    </TableCell>
+                    <TableCell>{row.userType || "N/A"}</TableCell>
+                    <TableCell
+                      className={`p-4 font-bold ${
+                        row.status?.toLowerCase() === "active"
+                          ? "text-green-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
+                      {row.status || "Inactive"}
+                    </TableCell>
+                    <TableCell
+                      className="text-blue-500 hover:text-blue-700 text-xl pr-6"
+                      onClick={() => alert("Edit User details")}
+                    >
+                      <LiaUserEditSolid />
+                    </TableCell>
+                    <TableCell
+                      className="text-red-500 hover:text-red-700 text-xl"
+                      onClick={() => handleDelete(row._id)}
+                    >
+                      <MdDelete />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

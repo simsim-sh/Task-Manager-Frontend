@@ -131,3 +131,13 @@ export const deleteTaskById = async (taskId) => {
     return catchError(error);
   }
 };
+
+// Get all tasks
+export const getAllUsers = async () => {
+  try {
+    const response = await axios.get(`${AUTHURL}/getAllUsers`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
