@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { TbCancel } from "react-icons/tb";
-import { IoIosPersonAdd } from "react-icons/io";
+import { TbCamera, TbX } from "react-icons/tb";
 
-const AddUserForm = ({ closePopup }) => {
+const UserForm = ({ closePopup }) => {
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
-    role: "User",
-    post: "",
-    permissions: [],
-    module: "",
-    status: "Active",
+    phone: "",
+    department: "",
+    designation: "",
+    description: "",
+    profileImage: null,
   });
 
   const handleChange = (e) => {
@@ -18,98 +17,128 @@ const AddUserForm = ({ closePopup }) => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, profileImage: URL.createObjectURL(file) });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("User Added:", formData);
-    closePopup(); // Close the popup after submission
+    console.log("User Data Submitted:", formData);
+    closePopup();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50 transition-all duration-300">
-      <div className="bg-white p-6  rounded-2xl shadow-lg w-[500px] transform scale-100 transition-all duration-300">
-        {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
-          <IoIosPersonAdd className="inline-block mr-2" /> Add New User
-        </h2>
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-xl shadow-lg w-[500px]">
+        {/* Profile Image Upload */}
+        <div className="flex flex-col items-center">
+          <div className="relative w-24 h-24 rounded-full border border-gray-300 flex items-center justify-center">
+            {formData.profileImage ? (
+              <img
+                src={formData.profileImage}
+                alt="Profile"
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-gray-200"></div>
+            )}
+            <label className="absolute bottom-0 right-0 bg-white border p-1 rounded-full cursor-pointer">
+              <TbCamera />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
+        </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name Field */}
+        {/* Form Fields */}
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block">
-            <span className="text-gray-700 font-medium">Name:</span>
+            <span className="text-gray-700 font-medium">Full Name *</span>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="fullName"
+              placeholder="Enter Full Name"
+              value={formData.fullName}
               onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </label>
 
-          {/* Email Field */}
           <label className="block">
-            <span className="text-gray-700 font-medium">Email:</span>
+            <span className="text-gray-700 font-medium">Email *</span>
             <input
               type="email"
               name="email"
+              placeholder="Enter email address"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               required
             />
           </label>
 
-          {/* Role Dropdown */}
           <label className="block">
-            <span className="text-gray-700 font-medium">Role:</span>
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
-            >
-              <option value="Admin">Admin</option>
-              <option value="User">User</option>
-            </select>
-          </label>
-
-          {/* Post Field */}
-          <label className="block">
-            <span className="text-gray-700 font-medium">Post:</span>
+            <span className="text-gray-700 font-medium">Phone</span>
             <input
               type="text"
-              name="post"
-              value={formData.post}
+              name="phone"
+              placeholder="Enter phone number"
+              value={formData.phone}
               onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             />
           </label>
 
-          {/* Module Field */}
           <label className="block">
-            <span className="text-gray-700 font-medium">Module:</span>
-            <input
-              type="text"
-              name="module"
-              value={formData.module}
+            <span className="text-gray-700 font-medium">Department *</span>
+            <select
+              name="department"
+              value={formData.department}
               onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
-            />
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              required
+            >
+              <option value="">Select Department</option>
+              <option value="HR">HR</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Finance">Finance</option>
+            </select>
           </label>
 
-          {/* Status Dropdown */}
           <label className="block">
-            <span className="text-gray-700 font-medium">Status:</span>
+            <span className="text-gray-700 font-medium">Designation *</span>
             <select
-              name="status"
-              value={formData.status}
+              name="designation"
+              value={formData.designation}
               onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              required
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="">Select Designation</option>
+              <option value="Manager">Manager</option>
+              <option value="Senior Executive">Senior Executive</option>
+              <option value="Junior Executive">Junior Executive</option>
+              <option value="Intern">Intern</option>
             </select>
+          </label>
+
+          <label className="block">
+            <span className="text-gray-700 font-medium">Description</span>
+            <textarea
+              name="description"
+              placeholder="Write description..."
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            />
           </label>
 
           {/* Buttons */}
@@ -117,17 +146,16 @@ const AddUserForm = ({ closePopup }) => {
             <button
               type="button"
               onClick={closePopup}
-              className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition duration-300"
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
             >
-              <TbCancel className="inline-block mr-2" />
+              <TbX className="inline-block mr-2" />
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg transition duration-300"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg transition"
             >
-              <IoIosPersonAdd className="inline-block mr-2" />
-              Add User
+              Save
             </button>
           </div>
         </form>
@@ -136,4 +164,4 @@ const AddUserForm = ({ closePopup }) => {
   );
 };
 
-export default AddUserForm;
+export default UserForm;

@@ -246,81 +246,85 @@ function ProjectDashboardFile() {
                   <div
                     key={project._id}
                     onClick={() => openPopup(project)}
-                    className="p-3 cursor-pointer"
+                    className="p-3 cursor-pointer border-b"
                   >
-                    <div className="flex flex-col md:flex-row md:items-center">
-                      <div className="flex items-start mb-4 md:mb-0">
-                        <div className="bg-white shadow-md h-16 w-16 rounded-full flex-shrink-0 mr-4 overflow-hidden border-2 border-white">
+                    <div className="grid grid-cols-1 md:grid-cols-6 items-center gap-4">
+                      {/* Image + Project Title */}
+                      <div className="flex items-start space-x-4 col-span-2">
+                        <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-white shadow-md">
                           <img
                             src={smart}
                             alt={project.title}
                             className="w-full h-full object-cover rounded-full"
                           />
                         </div>
-                        <div>
-                          <h2 className="text-xs sm:text-sm md:text-base lg:text-md xl:text-sm font-bold text-gray-800">
+                        <div className="min-w-0">
+                          <h2 className="text-sm md:text-base font-bold text-gray-800 truncate">
                             {project.title}
                           </h2>
                           <p className="text-gray-600 text-xs">
                             {project.category}
                           </p>
-                          <div className="flex items-center mt-1">
-                            <p className="text-xs text-gray-600">
-                              {project.assignedTo}
-                            </p>
-                          </div>
+                          <p className="text-xs text-gray-600">
+                            {project.assignedTo}
+                          </p>
                         </div>
                       </div>
-                      <div className="md:ml-auto flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                        <div className="text-center md:text-left">
-                          <p className="text-gray-900 text-sm mb-1 font-semibold">
-                            STATUS
-                          </p>
-                          <div>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                              <span className="w-2 h-2 mr-1 bg-indigo-500 rounded-full"></span>
-                              {project.status}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-center md:text-left">
-                          <p className="text-gray-900 text-sm mb-1 font-semibold">
-                            CONTACT
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {project.contactPerson} ({project.contactEmail})
-                          </p>
-                        </div>
-                        <div className="text-center md:text-left">
-                          <p className="text-gray-900 text-sm mb-1 font-semibold">
-                            COMPANY
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {project.companyName}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <MdEdit
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openPopup(project);
-                            }}
-                            className="size-6 cursor-pointer text-blue-600"
-                          />
-                          <MdDeleteForever
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(project._id);
-                            }}
-                            className="size-6"
-                          />
-                        </div>
+
+                      {/* Status */}
+                      <div className="text-center">
+                        <p className="text-gray-900 text-sm mb-1 font-semibold">
+                          STATUS
+                        </p>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                          <span className="w-2 h-2 mr-1 bg-indigo-500 rounded-full"></span>
+                          {project.status}
+                        </span>
+                      </div>
+
+                      {/* Contact */}
+                      <div className="text-center">
+                        <p className="text-gray-900 text-sm mb-1 font-semibold">
+                          CONTACT
+                        </p>
+                        <p className="text-xs text-gray-600 truncate">
+                          {project.contactPerson} ({project.contactEmail})
+                        </p>
+                      </div>
+
+                      {/* Company Name (Fixed Alignment) */}
+                      <div className="text-center">
+                        <p className="text-gray-900 text-sm mb-1 font-semibold">
+                          COMPANY
+                        </p>
+                        <p className="text-xs text-gray-600 truncate">
+                          {project.companyName}
+                        </p>
+                      </div>
+
+                      {/* Edit & Delete Buttons (At the End) */}
+                      <div className="flex gap-2 justify-end">
+                        <MdEdit
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openPopup(project);
+                          }}
+                          className="size-6 cursor-pointer text-blue-600"
+                        />
+                        <MdDeleteForever
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteProject(project._id);
+                          }}
+                          className="size-6 cursor-pointer text-red-600"
+                        />
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              {/* Pagination */}
+
+              {/* Pagination Section */}
               <div className="flex justify-center items-center mt-6 space-x-2">
                 <button
                   onClick={() =>

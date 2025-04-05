@@ -16,6 +16,7 @@ import {
   Users2,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { FaRegFolderOpen } from "react-icons/fa";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ const Sidebar = () => {
               className="w-full flex items-center justify-between px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
             >
               <div className="flex items-center">
-                <Users className="h-5 w-5" />
+                <FaRegFolderOpen />
                 {isExpanded && <span className="ml-3">Project</span>}
               </div>
               {isExpanded &&
@@ -173,7 +174,7 @@ const Sidebar = () => {
               onClick={() => navigate("/adduser")} // Correctly placed onClick
             >
               <Users2 className="h-5 w-5" />
-              {isExpanded && <span className="ml-3">Add Users</span>}
+              {isExpanded && <span className="ml-3">Users</span>}
             </button>
           </div>
           {/* user-end */}
