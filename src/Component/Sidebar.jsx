@@ -66,13 +66,13 @@ const Sidebar = () => {
           {/* Logo area */}
           <div
             className={`flex-grow flex items-center justify-center bg-white rounded-2xl ${
-              isExpanded ? "" : "p-1"
+              isExpanded ? "" : ""
             }`}
           >
             {isExpanded ? (
               <img src={logo} alt="Logo" className="h-12 w-40 rounded-xl" />
             ) : (
-              <img src={logo} alt="Logo" className="h-8 w-8 rounded-xl" />
+              <img src={logo} alt="Logo" className="h-12 w-40 rounded-xl" />
             )}
           </div>
 
