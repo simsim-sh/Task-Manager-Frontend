@@ -5,119 +5,218 @@ import {
   Zap,
   CheckCircle,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { getAllTasks } from "../api/service";
 
-const statusDashboard = ({ projectData }) => {
+// Create a context for task updates (add this to a separate context file in a real app)
+export const TaskUpdateContext = React.createContext({
+  lastUpdate: new Date(),
+  triggerUpdate: () => {},
+});
+
+const StatusDashboard = () => {
+  const [projectData, setProjectData] = useState({
+    stats: {
+      totalTasks: 0,
+      totalMembers: 0,
+      activeTasks: 0,
+      freshTasks: 0,
+      completedTasks: 0,
+      inactiveTasks: 0,
+      overdueTasks: 0,
+    },
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+
+      const response = await getAllTasks();
+      console.log("📦 Full API response:", response);
+
+      const tasks = response?.data || [];
+
+      const stats = {
+        totalTasks: tasks.length,
+        totalMembers: new Set(tasks.map((task) => task.assignedTo)).size,
+        activeTasks: tasks.filter(
+          (task) => task.status?.toLowerCase().trim() === "active"
+        ).length,
+        freshTasks: tasks.filter(
+          (task) => task.status?.toLowerCase().trim() === "fresh"
+        ).length,
+        completedTasks: tasks.filter(
+          (task) => task.status?.toLowerCase().trim() === "completed"
+        ).length,
+        inactiveTasks: tasks.filter(
+          (task) => task.status?.toLowerCase().trim() === "inactive"
+        ).length,
+        overdueTasks: tasks.filter((task) => {
+          return (
+            task.dueDate &&
+            new Date(task.dueDate) < new Date() &&
+            task.status !== "completed"
+          );
+        }).length,
+      };
+
+      setProjectData({ stats });
+      setLastRefresh(new Date());
+    } catch (error) {
+      console.error("❌ Error fetching tasks:", error);
+      toast.error("Error fetching tasks. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch
+    fetchTasks();
+
+    // Set up a polling interval (every 30 seconds)
+    const intervalId = setInterval(() => {
+      fetchTasks();
+    }, 30000);
+
+    // Clean up the interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Manual refresh handler
+  const handleRefresh = () => {
+    fetchTasks();
+    toast.success("Dashboard refreshed!");
+  };
+
+  // New status card component for smaller counters
+  const StatusCard = ({
+    icon,
+    count,
+    label,
+    color,
+    to = "/taskmangementpage",
+  }) => {
+    const IconComponent = icon;
+    return (
+      <NavLink
+        to={to}
+        className={`bg-white rounded-md shadow-sm p-3 hover:shadow transition-all duration-200 border-l-4 border-${color}-500 flex items-center justify-between group`}
+      >
+        <div className="flex items-center">
+          <div
+            className={`bg-${color}-50 w-8 h-8 rounded-full flex items-center justify-center mr-3 group-hover:bg-${color}-100`}
+          >
+            <IconComponent className={`w-4 h-4 text-${color}-600`} />
+          </div>
+          <div>
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {label}
+            </div>
+            <div className="text-lg font-bold text-gray-800">
+              {loading ? "..." : count}
+            </div>
+          </div>
+        </div>
+      </NavLink>
+    );
+  };
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-blue-500 group"
-      >
-        <div className="bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 transition-colors duration-300">
-          <FileText className="w-6 h-6 text-blue-600" />
+    <div className="relative p-4">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold text-blue-700">Project Status</h2>
+        <div className="flex items-center">
+          <span className="text-xs text-gray-500 mr-2">
+            Last updated: {lastRefresh.toLocaleTimeString()}
+          </span>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="p-1.5 bg-white rounded-lg shadow-sm hover:shadow-md transition-all"
+            title="Refresh dashboard"
+          >
+            <RefreshCw
+              className={`w-4 h-4 text-gray-600 ${
+                loading ? "animate-spin" : ""
+              }`}
+            />
+          </button>
         </div>
-        <div className="text-2xl font-bold text-gray-800 mb-1">
-          {projectData?.stats?.totalTasks}
-        </div>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Total Tasks
-        </div>
-      </NavLink>
+      </div>
 
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-indigo-500 group"
-      >
-        <div className="bg-indigo-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-100 transition-colors duration-300">
-          <Users className="w-6 h-6 text-indigo-600" />
-        </div>
-        <div className="text-2xl font-bold text-gray-800 mb-1">
-          {projectData?.stats?.totalMembers}
-        </div>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Team Members
-        </div>
-      </NavLink>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <StatusCard
+          icon={FileText}
+          count={projectData.stats.totalTasks}
+          label="Total Tasks"
+          color="blue"
+        />
+        <StatusCard
+          icon={Users}
+          count={projectData.stats.totalMembers}
+          label="Team Members"
+          color="indigo"
+        />
+        <StatusCard
+          icon={PlayCircle}
+          count={projectData.stats.activeTasks}
+          label="Active Tasks"
+          color="green"
+        />
+        <StatusCard
+          icon={Zap}
+          count={projectData.stats.freshTasks}
+          label="Fresh Tasks"
+          color="cyan"
+        />
+        <StatusCard
+          icon={CheckCircle}
+          count={projectData.stats.completedTasks}
+          label="Completed"
+          color="emerald"
+        />
+        <StatusCard
+          icon={AlertTriangle}
+          count={projectData.stats.inactiveTasks}
+          label="Inactive"
+          color="gray"
+        />
+      </div>
 
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-green-500 group"
-      >
-        <div className="bg-green-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-100 transition-colors duration-300">
-          <PlayCircle className="w-6 h-6 text-green-600" />
-        </div>
-        <div className="text-2xl font-bold text-gray-800 mb-1">
-          {projectData?.stats?.activeTasks}
-        </div>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Active Tasks
-        </div>
-      </NavLink>
-
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-cyan-500 group"
-      >
-        <div className="bg-cyan-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-cyan-100 transition-colors duration-300">
-          <Zap className="w-6 h-6 text-cyan-600" />
-        </div>
-        <div className="text-2xl font-bold text-gray-800 mb-1">
-          {projectData?.stats?.freshTasks}
-        </div>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Fresh Tasks
-        </div>
-      </NavLink>
-
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-emerald-500 group"
-      >
-        <div className="bg-emerald-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-100 transition-colors duration-300">
-          <CheckCircle className="w-6 h-6 text-emerald-600" />
-        </div>
-        <div className="text-2xl font-bold text-gray-800 mb-1">
-          {projectData?.stats?.completedTasks}
-        </div>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Completed
-        </div>
-      </NavLink>
-
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-gray-400 group"
-      >
-        <div className="bg-gray-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-gray-100 transition-colors duration-300">
-          <AlertTriangle className="w-6 h-6 text-gray-500" />
-        </div>
-        <div className="text-2xl font-bold text-gray-800 mb-1">
-          {projectData?.stats?.inactiveTasks}
-        </div>
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          Inactive
-        </div>
-      </NavLink>
-
-      <NavLink
-        to="/taskmangementpage"
-        className="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition duration-300 transform hover:-translate-y-1 border-b-4 border-red-500 group col-span-2"
-      >
-        <div className="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-red-100 transition-colors duration-300">
-          <AlertTriangle className="w-6 h-6 text-red-600" />
-        </div>
-        <div className="text-2xl font-bold text-red-600 mb-1">
-          {projectData?.stats?.overdueTasks}
-        </div>
-        <div className="text-xs font-medium text-red-500 uppercase tracking-wider">
-          Overdue Tasks
-        </div>
-      </NavLink>
+      {/* Overdue Tasks - Slightly different styling to highlight it */}
+      <div className="mt-3 max-w-sm">
+        <NavLink
+          to="/projectdetail"
+          className="bg-white rounded-md shadow-sm p-3 hover:shadow transition-all duration-200 border-l-4 border-red-500 flex items-center justify-between group"
+        >
+          <div className="flex items-center">
+            <div className="bg-red-50 w-8 h-8 rounded-full flex items-center justify-center mr-3 group-hover:bg-red-100">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+            </div>
+            <div>
+              <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Overdue Tasks
+              </div>
+              <div className="text-lg font-bold text-red-600">
+                {loading ? "..." : projectData.stats.overdueTasks}
+              </div>
+            </div>
+          </div>
+          <span className="text-xs text-red-500 font-medium">
+            Requires attention
+          </span>
+        </NavLink>
+      </div>
     </div>
   );
 };
 
-export default statusDashboard;
+export default StatusDashboard;

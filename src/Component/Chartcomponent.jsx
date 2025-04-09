@@ -1,38 +1,51 @@
-import React from 'react';
-import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { getProjectStatusSummary } from "../api/service"; // your API file path
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ChartComponent = () => {
-  const data = {
-    labels: ['Completed', 'Pending', 'In Progress'],
-    datasets: [
-      {
-        label: 'Tasks Status',
-        data: [12, 8, 5,9 ,4], // Example data
-        backgroundColor: [
-          '#4CAF50', // Green for Completed
-          '#FF9800', // Orange for Pending
-          '#2196F3', // Blue for In Progress
-          '#fe777b', // Blue for In Progress
-          '#556CD6', // Blue for In Progress
-        ],
-        hoverOffset: 6,
-      },
-    ],
-  };
+  const [chartData, setChartData] = useState(null);
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await getProjectStatusSummary();
+
+        const labels = data.map((item) => item._id);
+        const values = data.map((item) => item.count);
+
+        setChartData({
+          labels,
+          datasets: [
+            {
+              label: "Project Status",
+              data: values,
+              backgroundColor: [
+                "#4CAF50",
+                "#FF9800",
+                "#2196F3",
+                "#fe777b",
+                "#556CD6",
+              ],
+              hoverOffset: 6,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Failed to fetch project summary", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="text-center">
       <h2 className="text-lg font-bold mb-4">Project Status</h2>
       <div className="h-[220px]">
-        <Doughnut data={data} options={options} />
+        {chartData ? <Doughnut data={chartData} /> : <p>Loading chart...</p>}
       </div>
     </div>
   );

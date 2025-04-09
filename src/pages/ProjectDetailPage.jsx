@@ -16,9 +16,8 @@ import {
 import { NavLink } from "react-router-dom";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
-import { getTaskById, deleteTaskById } from "../api/service";
 import { useState } from "react";
-import ProjectCard from "../Component/projectCard";
+import ProjectCard from "../Component/projectDetailCard";
 import StatusDashboard from "../Component/statusDashboard";
 import TaskManagement from "./TaskManagement";
 
@@ -56,15 +55,15 @@ const ProjectDetailPage = () => {
   };
 
   // Function to handle task deletion
-  const handleDelete = async (taskId) => {
-    try {
-      await deleteTaskById(taskId);
-      // Remove task from state after successful deletion
-      setTasks(tasks.filter((task) => task.id !== taskId));
-    } catch (error) {
-      console.error("Failed to delete task:", error);
-    }
-  };
+  // const handleDelete = async (taskId) => {
+  //   try {
+  //     await deleteTaskById(taskId);
+  //     // Remove task from state after successful deletion
+  //     setTasks(tasks.filter((task) => task.id !== taskId));
+  //   } catch (error) {
+  //     console.error("Failed to delete task:", error);
+  //   }
+  // };
 
   // if (loading) {
   //   return (
@@ -141,31 +140,9 @@ const ProjectDetailPage = () => {
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="">
               {/* Project Card */}
               <ProjectCard />
-              <div className="lg:w-2/3">
-                {/* Task Statistics */}
-                <StatusDashboard />
-                {/* Task Actions */}
-                <div className="flex flex-col md:flex-row gap-4">
-                  <button className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-gray-800 font-medium p-2 rounded-xl flex-grow text-center transition duration-300 flex items-center justify-center shadow-sm border border-blue-100 hover:shadow-md">
-                    <FileText className="w-5 h-5 mr-3 text-blue-700" /> VIEW ALL
-                    TASKS
-                  </button>
-                  <button
-                    onClick={handleAdd}
-                    className="bg-gradient-to-r  from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-medium p-2 rounded-xl transition duration-300  flex items-center justify-center shadow-md hover:shadow-lg"
-                  >
-                    <PlusCircle className="w-5 h-5 mr-3" /> ADD NEW TASK
-                  </button>
-                  <button className="bg-gradient-to-r  from-blue-600 to-blue-400 hover:from-gray-700 hover:to-indigo-700 text-white text-xs font-medium p-2 rounded-xl transition duration-300 flex items-center justify-center shadow-md hover:shadow-lg">
-                    <Filter className="w-5 h-5 mr-3" /> Filter
-                  </button>
-                </div>
-                {/* taskDetail-Section  */}
-                <TaskManagement />
-              </div>
             </div>
           </div>
         </div>

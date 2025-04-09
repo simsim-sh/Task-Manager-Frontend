@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import logo from "../assets/logo.svg";
 import { useNavigate } from "react-router-dom";
+import { FaTasks } from "react-icons/fa";
 import {
   Home,
   Users,
@@ -129,12 +130,12 @@ const Sidebar = () => {
                 >
                   <span className="ml-2">Project Details</span>
                 </NavLink>
-                <NavLink
+                {/* <NavLink
                   to="/projectform"
                   className="flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
                 >
                   <span className="ml-2">Project Form</span>
-                </NavLink>
+                </NavLink> */}
               </div>
             )}
           </div>
@@ -150,21 +151,13 @@ const Sidebar = () => {
 
           {/* Task Module */}
           <div>
-            <button
-              onClick={() => toggleSubMenu("sales")}
-              className="w-full flex items-center justify-between px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
+            <NavLink
+              to="/taskmanagement"
+              className="w-full flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
             >
-              <div className="flex items-center">
-                <BarChart2 className="h-5 w-5" />
-                {isExpanded && <span className="ml-3">Task Module</span>}
-              </div>
-              {isExpanded &&
-                (openSubMenus.sales ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                ))}
-            </button>
+              <FaTasks />
+              {isExpanded && <span className="ml-3">Tasks</span>}
+            </NavLink>
           </div>
 
           {/* user-start */}

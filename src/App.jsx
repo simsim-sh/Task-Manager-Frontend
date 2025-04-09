@@ -4,11 +4,12 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import ProjectDetails from "./pages/ProjectDashboard";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
-// import TaskManagement from "./pages/TaskManagement";
+import TaskManagement from "./pages/TaskManagement";
 import TaskDetailsPage from "./pages/TaskDetailsPage";
 import AddTask from "./pages/AddTask";
 import AddProjectForm from "./pages/AddProjectForm";
 import AddUserPage from "./pages/adduser";
+import TaskForm from "./pages/taskfrom";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignIn /> },
@@ -16,7 +17,8 @@ const router = createBrowserRouter([
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/project", element: <ProjectDetails /> },
   { path: "/projectdetail", element: <ProjectDetailPage /> },
-  // { path: "/taskmanagement", element: <TaskManagement /> },
+  { path: "/taskform", element: <TaskForm /> },
+  { path: "/taskmanagement", element: <TaskManagement /> },
   { path: "/taskdetail", element: <TaskDetailsPage /> },
   { path: "/addtask", element: <AddTask /> },
   { path: "/addprojectform", element: <AddProjectForm /> },

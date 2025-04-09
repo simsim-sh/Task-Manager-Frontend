@@ -8,6 +8,9 @@ import girlpicture from "../assets/images/girlpicture.png";
 import toast from "react-hot-toast";
 import { getAllUsers } from "../api/service";
 import Profile from "../assets/images/girlpicture.png";
+import { NavLink } from "react-router-dom";
+import { TbHomeHeart } from "react-icons/tb";
+import { TiChevronRight } from "react-icons/ti";
 import {
   Table,
   TableBody,
@@ -59,15 +62,48 @@ const UserManagementPage = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         <div className="p-6 w-full mb-4 bg-gray-100 min-h-screen">
-          <button
-            className="bg-blue-600  rounded shadow p-4 hover:bg-blue-800 text-white font-bold py-2 px-4 "
-            onClick={openPopup}
-          >
-            <MdPersonAdd className="inline-block mr-2" /> Add Team Member
-          </button>
+          {/* breadcrum */}
+          <nav className="flex mb-6" aria-label="Breadcrumb">
+            <ol className="inline-flex items-center space-x-1 md:space-x-3">
+              <li className="inline-flex items-center">
+                <NavLink
+                  to="/dashboard"
+                  className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                >
+                  <TbHomeHeart className="w-4 h-4 mr-2" />
+                  Dashboard
+                </NavLink>
+              </li>
+              <li>
+                <div className="flex items-center">
+                  <TiChevronRight className="w-4 h-4 text-gray-400" />
+                  <NavLink
+                    to="/project"
+                    className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200 md:ml-2"
+                  >
+                    Projects
+                  </NavLink>
+                </div>
+              </li>
+              <li aria-current="page">
+                <div className="flex items-center">
+                  <TiChevronRight className="w-4 h-4 text-gray-400" />
+                  <span className="ml-1 text-sm font-medium text-blue-600 md:ml-2">
+                    Task Detail
+                  </span>
+                </div>
+              </li>
+            </ol>
+          </nav>
+          {/* <button
+              className="bg-blue-600  rounded shadow p-4 hover:bg-blue-800 text-white font-bold py-2 mb-4 px-4 "
+              onClick={openPopup}
+            >
+              <MdPersonAdd className="inline-block mr-2" /> Add Users
+            </button> */}
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-orange-600 text-white">
                 <TableHead className="text-center">Profile</TableHead>
                 <TableHead className="text-center">Name</TableHead>
                 <TableHead className="text-center">Email</TableHead>

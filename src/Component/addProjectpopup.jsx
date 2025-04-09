@@ -1,9 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { createProject, updateProjectById } from "../api/service";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+// Import icons from React Icons
+import {
+  FaTimes,
+  FaBuilding,
+  FaUser,
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaSave,
+} from "react-icons/fa";
+import { BiTask, BiCategory, BiNote } from "react-icons/bi";
+import { MdDescription, MdAssignmentInd } from "react-icons/md";
+import { AiOutlineTeam } from "react-icons/ai";
+import { RiCheckboxCircleLine } from "react-icons/ri";
 
-const addProject = ({ closePopup, selectedProject }) => {
+// Add custom scrollbar styles
+const scrollbarStyles = `
+  /* Custom Scrollbar Styles */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #3b82f6, #6366f1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #2563eb, #4f46e5);
+  }
+`;
+
+const AddProject = ({ closePopup, selectedProject }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: selectedProject?.title || "",
@@ -19,235 +57,402 @@ const addProject = ({ closePopup, selectedProject }) => {
     status: selectedProject?.status || "Pending",
   });
 
-  const isReadOnly = selectedProject?._id ? true : false;
+  // Show/hide client details section
+  const [clientSectionOpen, setClientSectionOpen] = useState(true);
 
-  // Handle Input Change for text fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (selectedProject?._id) {
-        // If project exists, update it
-        const updateProjectResponse = await updateProjectById(
-          selectedProject._id,
-          formData
-        );
-        if (!updateProjectResponse?.success) {
-          return toast.error(updateProjectResponse?.message);
-        }
-        toast.success(
-          updateProjectResponse?.message || "Project Updated Successfully"
-        );
-      } else {
-        // Create new project
-        const createProjectResponse = await createProject(formData);
-        if (!createProjectResponse?.success) {
-          return toast.error(createProjectResponse?.message);
-        }
-        toast.success(
-          createProjectResponse?.message || "Project Created Successfully"
-        );
-      }
+      const res = selectedProject?._id
+        ? await updateProjectById(selectedProject._id, formData)
+        : await createProject(formData);
+
+      if (!res?.success) return toast.error(res?.message);
+      toast.success(
+        res?.message ||
+          (selectedProject?._id ? "Project Updated" : "Project Created")
+      );
 
       closePopup();
       navigate("/project");
     } catch (error) {
-      toast.error(error.message || "Failed to Submit the Data");
+      toast.error(error.message || "Submission Failed");
     }
   };
 
-  // Handle Checkbox Change for assigned team members
-  //   const handleCheckboxChange = (field, person) => {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [field]: {
-  //         ...prev[field],
-  //         [person]: !prev[field][person],
-  //       },
-  //     }));
-  //   };
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "In Progress":
+        return "bg-blue-100 text-blue-800";
+      case "Completed":
+        return "bg-green-100 text-green-800";
+      case "On Hold":
+        return "bg-gray-100 text-gray-800";
+      case "Cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-100 rounded-lg shadow-xl  p-6">
-        <div className="border-b px-6  flex justify-end items-center">
-          <button
-            onClick={closePopup}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        </div>
-        {/* FORM FIELDS */}
-        <form onSubmit={handleSubmit} className="overflow-auto  space-y-4">
-          <div className="p-2 rounded-lg mb-1">
-            <h2 className="text-blue-600 text-2xl font-bold text-center">
-              {selectedProject?._id ? "VIEW PROJECT" : "ADD NEW PROJECT"}
+    <>
+      {/* Include the custom scrollbar styles */}
+      <style>{scrollbarStyles}</style>
+
+      <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl overflow-hidden border border-gray-200 animate-fadeIn">
+          {/* Header with modern gradient */}
+          <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 p-4 flex justify-between items-center">
+            <h2 className="text-lg font-bold text-white flex items-center">
+              <BiTask size={20} className="mr-2" />
+              {selectedProject?._id
+                ? "Update Project Details"
+                : "Create New Project"}
             </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-medium text-gray-800">
-                PROJECT TITLE
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md"
-                // readOnly={isReadOnly}
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-800">
-                PROJECT CATEGORY
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md"
-                // disabled={isReadOnly}
-              >
-                <option value="development">Development</option>
-                <option value="design">Design</option>
-                <option value="marketing">Marketing</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-800">
-              PROJECT DESCRIPTION
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              rows="3"
-              className="w-full px-3 py-2 border rounded-md"
-              // readOnly={isReadOnly}
-            ></textarea>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg border">
-            <label className="text-xs font-bold text-gray-800">
-              CLIENT DETAILS
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                name="companyName"
-                placeholder="COMPANY NAME"
-                value={formData.companyName}
-                onChange={handleInputChange}
-                className="px-3 py-2 border rounded-md"
-                // readOnly={isReadOnly}
-              />
-              <input
-                type="text"
-                name="contactPerson"
-                placeholder="CONTACT PERSON"
-                value={formData.contactPerson}
-                onChange={handleInputChange}
-                className="px-3 py-2 border rounded-md"
-                // readOnly={isReadOnly}
-              />
-              <input
-                type="text"
-                name="contactPhone"
-                placeholder="CONTACT PHONE"
-                value={formData.contactPhone}
-                onChange={handleInputChange}
-                className="px-3 py-2 border rounded-md"
-                // readOnly={isReadOnly}
-              />
-              <input
-                type="email"
-                name="contactEmail"
-                placeholder="CONTACT EMAIL"
-                value={formData.contactEmail}
-                onChange={handleInputChange}
-                className="px-3 py-2 border rounded-md"
-                // readOnly={isReadOnly}
-              />
-              <input
-                type="text"
-                name="address"
-                placeholder="ADDRESS"
-                value={formData.address}
-                onChange={handleInputChange}
-                className="col-span-2 px-3 py-2 border rounded-md"
-                // readOnly={isReadOnly}
-              />
-            </div>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg border">
-            <label className="text-xs font-bold text-gray-800">
-              ASSIGNED GROUP
-            </label>
-            <select
-              name="assignedTo"
-              value={formData.assignedTo}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border rounded-md"
-              // disabled={isReadOnly}
-            >
-              <option value="Dev Team">Dev Team</option>
-              <option value="Design Team">Design Team</option>
-              <option value="Marketing Team">Marketing Team</option>
-            </select>
-          </div>
-          {/* <div>
-            <label className="text-xs font-medium text-gray-800">Notes</label>
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              rows="3"
-              className="w-full px-3 py-2 border rounded-md"
-              // readOnly={isReadOnly}
-            ></textarea>
-          </div> */}
-          <div className="flex justify-end pt-2 gap-2">
             <button
-              type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded-md"
+              onClick={closePopup}
+              className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-1 transition-all duration-200"
             >
-              {selectedProject?._id ? "UPDATE PROJECT" : "SAVE PROJECT"}
+              <FaTimes size={16} />
             </button>
+          </div>
+
+          <div className="p-5 overflow-y-auto max-h-[75vh] custom-scrollbar">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Project Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                    <BiTask className="text-orange-500 mr-1" size={16} />
+                    Project Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    placeholder="Enter project title"
+                  />
+                </div>
+
+                <div className="relative">
+                  <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                    <BiCategory className="text-orange-500 mr-1" size={16} />
+                    Category
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="w-full appearance-none px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    >
+                      <option value="">Select Category</option>
+                      <option value="development">Development</option>
+                      <option value="design">Design</option>
+                      <option value="marketing">Marketing</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg
+                        className="h-4 w-4 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                  <MdDescription className="text-orange-500 mr-1" size={16} />
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows="2"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white custom-scrollbar"
+                  placeholder="Brief description of the project"
+                />
+              </div>
+
+              {/* Client Info - Collapsible section */}
+              <div className="border border-gray-200 rounded-md overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div
+                  className="px-4 py-2.5 cursor-pointer flex justify-between items-center"
+                  onClick={() => setClientSectionOpen(!clientSectionOpen)}
+                >
+                  <h3 className="text-sm font-semibold text-orange-800 flex items-center">
+                    <FaBuilding className="mr-2 text-orange-500" />
+                    Client Details
+                  </h3>
+                  <span
+                    className={`text-orange-500 transform transition-transform duration-300 ${
+                      clientSectionOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </span>
+                </div>
+
+                {clientSectionOpen && (
+                  <div className="p-4 space-y-3  bg-opacity-30 animate-slideDown">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <FaBuilding className="text-gray-400" size={14} />
+                          </div>
+                          <input
+                            name="companyName"
+                            placeholder="Company Name"
+                            value={formData.companyName}
+                            onChange={handleInputChange}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <FaUser className="text-gray-400" size={14} />
+                          </div>
+                          <input
+                            name="contactPerson"
+                            placeholder="Contact Person"
+                            value={formData.contactPerson}
+                            onChange={handleInputChange}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <FaPhone className="text-gray-400" size={14} />
+                          </div>
+                          <input
+                            name="contactPhone"
+                            placeholder="Contact Phone"
+                            value={formData.contactPhone}
+                            onChange={handleInputChange}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="relative">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <FaEnvelope className="text-gray-400" size={14} />
+                          </div>
+                          <input
+                            type="email"
+                            name="contactEmail"
+                            placeholder="Contact Email"
+                            value={formData.contactEmail}
+                            onChange={handleInputChange}
+                            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaMapMarkerAlt className="text-gray-400" size={14} />
+                        </div>
+                        <input
+                          name="address"
+                          placeholder="Address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Assignment and Status */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                    <AiOutlineTeam className="text-orange-500 mr-1" size={16} />
+                    Assigned To
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="assignedTo"
+                      value={formData.assignedTo}
+                      onChange={handleInputChange}
+                      className="w-full appearance-none px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    >
+                      <option value="">Select Team</option>
+                      <option value="Dev Team">Dev Team</option>
+                      <option value="Design Team">Design Team</option>
+                      <option value="Marketing Team">Marketing Team</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg
+                        className="h-4 w-4 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                    <RiCheckboxCircleLine
+                      className="text-orange-500 mr-1"
+                      size={16}
+                    />
+                    Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      className={`w-full appearance-none px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all duration-200 ${getStatusColor(
+                        formData.status
+                      )}`}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                      <option value="On Hold">On Hold</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg
+                        className="h-4 w-4 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes (Optional) */}
+              <div className="relative">
+                <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                  <BiNote className="text-orange-500 mr-1" size={16} />
+                  Notes (Optional)
+                </label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  rows="2"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white custom-scrollbar"
+                  placeholder="Additional notes or comments"
+                />
+              </div>
+            </form>
+          </div>
+
+          {/* Footer with action buttons */}
+          <div className="bg-gray-50 px-5 py-4 flex justify-end space-x-3 border-t border-gray-200">
             <button
               type="button"
               onClick={closePopup}
-              className="px-6 py-2 bg-gray-500 text-white rounded-md"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-100 transition-colors flex items-center"
             >
-              CANCEL
+              <FaTimes className="mr-1" size={12} />
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md text-sm hover:from-blue-600 hover:to-indigo-700 transition-colors shadow-sm flex items-center"
+            >
+              <FaSave className="mr-2" size={14} />
+              {selectedProject?._id ? "Update Project" : "Save Project"}
             </button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default addProject;
+// Add these animations to your global CSS or component
+const globalStyles = `
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
+`;
+
+// You would need to add the globalStyles to your application
+// Either in your global CSS file or using a CSS-in-JS solution
+
+export default AddProject;

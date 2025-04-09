@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
+import { NavLink } from "react-router-dom";
+import { TbHomeHeart } from "react-icons/tb";
+import { TiChevronRight } from "react-icons/ti";
 
 const TaskDetailsPage = () => {
   // Sample task data
@@ -42,6 +45,20 @@ const TaskDetailsPage = () => {
     ],
   };
 
+  // onhold function to handle task status change
+  {
+    task.status === "Onhold" && (
+      <div className="mt-4">
+        <p>
+          <strong>Onhold Reason:</strong> {task.onHoldReason}
+        </p>
+        <p>
+          <strong>Description:</strong> {task.onHoldDescription}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-100">
       <div className="fixed h-full">
@@ -55,6 +72,41 @@ const TaskDetailsPage = () => {
         {/* Main content */}
         <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto p-6">
+            <nav className="flex mb-6" aria-label="Breadcrumb">
+              <ol className="inline-flex items-center space-x-1 md:space-x-3">
+                <li className="inline-flex items-center">
+                  <NavLink
+                    to="/dashboard"
+                    className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    <TbHomeHeart className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </NavLink>
+                </li>
+                <li>
+                  <div className="flex items-center">
+                    <TiChevronRight className="w-4 h-4 text-gray-400" />
+                    <NavLink
+                      to="/project"
+                      className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200 md:ml-2"
+                    >
+                      Projects
+                    </NavLink>
+                  </div>
+                </li>
+                <li aria-current="page">
+                  <div className="flex items-center">
+                    <TiChevronRight className="w-4 h-4 text-gray-400" />
+                    <NavLink
+                      to="/taskdetail"
+                      className="ml-1 text-sm font-medium text-blue-600 md:ml-2"
+                    >
+                      Task Detail
+                    </NavLink>
+                  </div>
+                </li>
+              </ol>
+            </nav>
             {/* Main content with improved layout */}
             <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-indigo-500">
               {/* Task Details Header */}

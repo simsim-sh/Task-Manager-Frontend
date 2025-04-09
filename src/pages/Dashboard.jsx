@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getAllProject } from "../api/service";
 import {
   FileText,
   PlayCircle,
@@ -7,14 +8,7 @@ import {
   Calendar,
   Users,
 } from "lucide-react";
-import {
-  Package,
-  ShoppingCart,
-  CreditCard,
-  Box,
-  Truck,
-  RefreshCw,
-} from "lucide-react";
+
 import ChartComponent from "../Component/ChartComponent";
 import BarChartComponent from "../Component/BarChartComponent";
 import backgroundImg from "../assets/images/background.jpg";
@@ -23,6 +17,78 @@ import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
 
 const Dashboard = () => {
+  // Create separate state variables for different metrics
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [runningProjects, setRunningProjects] = useState(0);
+  const [completedProjects, setCompletedProjects] = useState(0);
+  const [pendingProjects, setPendingProjects] = useState(0);
+  const [newProjects, setNewProjects] = useState(0);
+  const [upcomingDeadlines, setUpcomingDeadlines] = useState(0);
+  const [teamPerformance, setTeamPerformance] = useState(0);
+
+  const fetchProjects = async () => {
+    try {
+      console.log("📡 Fetching projects...");
+      const data = await getAllProject();
+
+      console.log("✅ Full API response:", data);
+
+      const projects = data?.data;
+      console.log("📦 Extracted projects array:", projects);
+
+      if (!Array.isArray(projects)) {
+        console.error("❌ 'data.data' is not an array", projects);
+        return;
+      }
+
+      setTotalProjects(projects.length);
+
+      const running = projects.filter(
+        (project) => project.status === "running"
+      ).length;
+
+      const completed = projects.filter(
+        (project) => project.status === "completed"
+      ).length;
+
+      const pending = projects.filter(
+        (project) => project.status === "pending"
+      ).length;
+
+      const newProj = projects.filter((project) => {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return new Date(project.createdAt) >= thirtyDaysAgo;
+      }).length;
+
+      const upcoming = projects.filter((project) => {
+        if (!project.deadline) return false;
+        const deadline = new Date(project.deadline);
+        const today = new Date();
+        const daysDiff = Math.floor((deadline - today) / (1000 * 60 * 60 * 24));
+        return daysDiff >= 0 && daysDiff <= 14;
+      }).length;
+
+      const performance = Math.round(
+        (completed / (completed + running + pending)) * 100
+      );
+
+      // Set all updated values
+      setRunningProjects(running);
+      setCompletedProjects(completed);
+      setPendingProjects(pending);
+      setNewProjects(newProj);
+      setUpcomingDeadlines(upcoming);
+      setTeamPerformance(performance || 0);
+    } catch (error) {
+      console.error("❌ Error fetching projects:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -92,7 +158,7 @@ const Dashboard = () => {
                       <p className="text-base sm:text-lg font-bold">
                         Total Projects
                       </p>
-                      <p className="text-xl sm:text-2xl">32</p>
+                      <p className="text-xl sm:text-2xl">{totalProjects}</p>
                     </div>
 
                     {/* Completed Projects  div*/}
@@ -100,7 +166,7 @@ const Dashboard = () => {
                       <p className="text-base sm:text-lg font-bold">
                         Completed Projects
                       </p>
-                      <p className="text-xl sm:text-2xl">23</p>
+                      <p className="text-xl sm:text-2xl">{completedProjects}</p>
                     </div>
 
                     {/* Pending Projects  div*/}
@@ -109,7 +175,7 @@ const Dashboard = () => {
                         Pending Projects
                       </p>
                       <p className="text-xl sm:text-2xl text-red-600 blink">
-                        13
+                        {pendingProjects}
                       </p>
                     </div>
                   </div>
@@ -154,12 +220,12 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       All Project
                     </h3>
-                    <h2 className="text-2xl font-bold">500</h2>
+                    <h2 className="text-2xl font-bold">{totalProjects}</h2>
                     <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span></span>
-                      <span className="font-semibold text-green-500">
+                      {/* <span className="font-semibold text-green-500">
                         5.5% ↑
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                 </NavLink>
@@ -172,7 +238,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       Running Project
                     </h3>
-                    <h2 className="text-2xl font-bold">204</h2>
+                    <h2 className="text-2xl font-bold">{runningProjects}</h2>
                     <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span></span>
                       <span className="font-semibold text-green-500">
@@ -190,7 +256,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       Completed
                     </h3>
-                    <h2 className="text-2xl font-bold">105</h2>
+                    <h2 className="text-2xl font-bold">{completedProjects}</h2>
                     <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>560</span>
                       <span className="font-semibold text-red-500">1.5% ↓</span>
@@ -206,7 +272,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       New Poject
                     </h3>
-                    <h2 className="text-2xl font-bold">12,345</h2>
+                    <h2 className="text-2xl font-bold">{newProjects}</h2>
                     <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>10,320</span>
                       <span className="font-semibold text-green-500">
@@ -224,7 +290,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       Upcoming Deadlines
                     </h3>
-                    <h2 className="text-2xl font-bold">360</h2>
+                    <h2 className="text-2xl font-bold">{upcomingDeadlines}</h2>
                     <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>450</span>
                       <span className="font-semibold text-red-500">1.5% ↓</span>
@@ -240,7 +306,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       Team Performance
                     </h3>
-                    <h2 className="text-2xl font-bold">84</h2>
+                    <h2 className="text-2xl font-bold">{teamPerformance}</h2>
                     <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>64</span>
                       <span className="font-semibold text-green-500">

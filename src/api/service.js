@@ -80,6 +80,16 @@ export const deleteProjectById = async (projectId) => {
 };
 
 // Create task
+// export const createTask = async (formData) => {
+//   try {
+//     const response = await axios.post(`${TASKURL}/createTask`, formData);
+//     return response.data;
+//   } catch (error) {
+//     return catchError(error);
+//   }
+// };
+
+// Create new task
 export const createTask = async (formData) => {
   try {
     const response = await axios.post(`${TASKURL}/createTask`, formData);
@@ -113,7 +123,7 @@ export const getTaskById = async (taskId) => {
 export const updateTaskById = async (taskId, formData) => {
   try {
     const response = await axios.put(
-      `${TASKURL}/updateTask/${taskId}`,
+      `${TASKURL}/updateTaskById/${taskId}`,
       formData
     );
     return response.data;
@@ -122,20 +132,34 @@ export const updateTaskById = async (taskId, formData) => {
   }
 };
 
-// Delete task by ID
-export const deleteTaskById = async (taskId) => {
+// Delete task by title
+export const deleteTaskByTitle = async (title) => {
   try {
-    const response = await axios.delete(`${TASKURL}/deleteTask/${taskId}`);
+    const response = await axios.delete(`${TASKURL}/deleteTask`, {
+      params: { title },
+    });
     return response.data;
   } catch (error) {
     return catchError(error);
   }
 };
 
-// Get all tasks
+
+
+// Get all user
 export const getAllUsers = async () => {
   try {
     const response = await axios.get(`${AUTHURL}/getAllUsers`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// donut chart api 
+export const getProjectStatusSummary = async () => {
+  try {
+    const response = await axios.get(`${PROJECTURL}/status-summary`);
     return response.data;
   } catch (error) {
     return catchError(error);

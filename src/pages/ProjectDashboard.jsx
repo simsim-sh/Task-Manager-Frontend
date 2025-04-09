@@ -33,8 +33,10 @@ function ProjectDashboardFile() {
     try {
       const getAllProjectResponse = await getAllProject();
       if (getAllProjectResponse?.success) {
-        setAllProjects(getAllProjectResponse?.data);
-        // console.log("allProjects", getAllProjectResponse?.data);
+        const sortedProjects = getAllProjectResponse.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setAllProjects(sortedProjects);
       } else {
         toast.error(getAllProjectResponse?.message);
       }
@@ -101,6 +103,9 @@ function ProjectDashboardFile() {
   const closePopup = () => {
     setShowPopup(false);
     setSelectedProject(null);
+    if (shouldRefresh) {
+      fetchData(); // refresh list if needed
+    }
   };
 
   return (
