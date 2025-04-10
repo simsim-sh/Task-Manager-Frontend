@@ -39,7 +39,7 @@ const StatusDashboard = () => {
       setLoading(true);
 
       const response = await getAllTasks();
-      console.log("📦 Full API response:", response);
+      // console.log("📦 Full API response:", response);
 
       const tasks = response?.data || [];
 

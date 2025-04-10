@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { Trash2, Edit, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { getAllTasks, deleteTaskByTitle } from "../api/service";
+import { getAllTasks, deleteTaskByTitle, getTaskById } from "../api/service";
 import Sidebar from "../Component/Sidebar";
 import Header from "../Component/Header";
 import StatusDashboard from "../Component/statusDashboard";
@@ -13,27 +13,28 @@ import { IoMdAdd } from "react-icons/io";
 import Swal from "sweetalert2";
 
 const TaskManagement = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
+  const [taskById, setTaskById] = useState({});
+  const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
 
   const fetchTasks = async () => {
     try {
       setLoading(true);
       const response = await getAllTasks();
-
       if (!response?.success) {
         toast.error(response?.message || "Failed to fetch tasks");
         return;
       }
-
       const sortedTasks = response.data.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
-
       setAllTasks(sortedTasks);
-      console.log("Tasks fetched successfully:", sortedTasks._id);
+      // console.log("Tasks fetched successfully:", sortedTasks._id);
     } catch (error) {
       console.error("Error fetching tasks:", error);
       toast.error("Error fetching tasks. Please try again.");
@@ -46,7 +47,6 @@ const TaskManagement = () => {
     try {
       setLoading(true);
       const response = await deleteTaskByTitle(title);
-
       if (response?.success) {
         toast.success("Task deleted successfully");
         setAllTasks(allTasks.filter((task) => task.title !== title));
@@ -89,13 +89,67 @@ const TaskManagement = () => {
 
   const openForm = () => {
     setShowForm(true);
-    setTimeout(() => setFormVisible(true), 10); // trigger slide-in
+    setTimeout(() => setFormVisible(true), 10);
   };
 
   const closeForm = () => {
     setFormVisible(false);
-    setTimeout(() => setShowForm(false), 300); // match transition
+    setTimeout(() => setShowForm(false), 300);
   };
+
+  //get task by id
+  const fetchTaskByID = async (taskId) => {
+    try {
+      setLoading(true);
+      const response = await getTaskById(taskId);
+      console.log("Task response:", response);
+      const taskData = response?.data;
+      if (!taskData) {
+        toast.error("No task data returned.");
+        return;
+      }
+      setTaskById(taskData);
+      navigate("/taskdetail", { state: { task: taskData } });
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      toast.error("Error fetching task. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchTaskByID(id);
+    }
+  }, [id]);
+
+  // for update api
+  const fetchTaskByIDUpdate = async (taskId) => {
+    try {
+      setLoading(true);
+      const response = await getTaskById(taskId);
+      console.log("Task response:", response);
+      const taskData = response?.data;
+      if (!taskData) {
+        toast.error("No task data returned.");
+        return;
+      }
+      setTaskById(taskData);
+      navigate("/taskform", { state: { task: taskData } });
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      toast.error("Error fetching task. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchTaskByIDUpdate(id);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetchTasks();
@@ -122,10 +176,8 @@ const TaskManagement = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
-
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-
         <main className="flex-1 overflow-auto p-6">
           {/* Breadcrumb */}
           <nav className="flex mb-2" aria-label="Breadcrumb">
@@ -160,9 +212,7 @@ const TaskManagement = () => {
               </li>
             </ol>
           </nav>
-
           <StatusDashboard />
-
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-800">
@@ -195,7 +245,6 @@ const TaskManagement = () => {
                 </div>
               </div>
             )}
-
             {/* Task Table */}
             {loading ? (
               <div className="flex justify-center items-center py-10">
@@ -243,10 +292,10 @@ const TaskManagement = () => {
                             </div>
                             <div>
                               <NavLink
-                                to="/taskdetail"
+                                to="#"
+                                onClick={() => fetchTaskByID(task._id)}
                                 className="font-medium text-gray-800 hover:text-blue-600"
                               >
-                                {/* {task.title} */}
                                 <div className="min-w-0">
                                   <h2 className="text-sm font-bold text-gray-800 truncate">
                                     {task.taskName}
@@ -263,13 +312,9 @@ const TaskManagement = () => {
                             </div>
                           </div>
                         </td>
-
-                        {/* Hours */}
                         <td className="py-4 px-4 text-gray-700">
                           {task.hours || 24}
                         </td>
-
-                        {/* Priority */}
                         <td className="py-4 px-4">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -283,13 +328,9 @@ const TaskManagement = () => {
                             {task.priority || "Medium"}
                           </span>
                         </td>
-
-                        {/* Assigned To */}
                         <td className="py-4 px-4 text-gray-800 font-medium">
                           {task.assignedToWork || "Unassigned"}
                         </td>
-
-                        {/* Status */}
                         <td className="py-4 px-4">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -299,21 +340,20 @@ const TaskManagement = () => {
                             {task.status}
                           </span>
                         </td>
-
-                        {/* Activity */}
                         <td className="py-4 px-4 text-sm text-gray-600">
                           Created:{" "}
                           {new Date(task.createdAt).toLocaleDateString()}
                         </td>
-
-                        {/* Action */}
                         <td className="py-4 px-4">
                           <div className="flex space-x-3">
                             <NavLink
-                              to={`/taskform/${task._id}`}
+                              to="#"
                               className="p-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
                             >
-                              <Edit className="w-4 h-4 text-blue-600" />
+                              <Edit
+                                onClick={() => fetchTaskByIDUpdate(task._id)}
+                                className="w-4 h-4 text-blue-600"
+                              />
                             </NavLink>
                             <button
                               className="p-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"

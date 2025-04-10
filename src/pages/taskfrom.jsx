@@ -37,7 +37,6 @@ const TaskForm = () => {
   });
 
   const [projects, setProjects] = useState([]);
-  const [taskById, setTaskById] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,7 +50,6 @@ const TaskForm = () => {
     e.preventDefault();
     const { taskName, title, hours, priority, assignedToWork, status } =
       formData;
-
     if (
       !taskName ||
       !title ||
@@ -63,20 +61,17 @@ const TaskForm = () => {
       toast.error("All fields are required!");
       return;
     }
-
     if (formData.status === "hold") {
       if (!formData.onHoldReason || !formData.onHoldDescription) {
         toast.error("Please provide reason and description for Hold status.");
         return;
       }
     }
-
     try {
       setLoading(true);
       const response = await createTask(formData);
-
       if (response?.success) {
-        toast.success("Task created successfully!");
+        toast.success(response.message || "Task created successfully!");
         navigate("/taskmanagement");
       } else {
         toast.error(response?.message || "Failed to create task");
@@ -84,29 +79,6 @@ const TaskForm = () => {
     } catch (error) {
       console.error("Error creating task:", error);
       toast.error("Server error! Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchTasks = async () => {
-    try {
-      setLoading(true);
-      const response = await getTaskById();
-
-      if (!response?.success) {
-        toast.error(response?.message || "Failed to fetch tasks");
-        return;
-      }
-
-      const sortedTasks = response.data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-
-      setTaskById(sortedTasks);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      toast.error("Error fetching tasks. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -154,7 +126,6 @@ const TaskForm = () => {
           Create New Task
         </h2>
       </div>
-
       <div className="p-6 bg-white">
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Task Name Field */}

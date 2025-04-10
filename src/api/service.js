@@ -79,16 +79,6 @@ export const deleteProjectById = async (projectId) => {
   }
 };
 
-// Create task
-// export const createTask = async (formData) => {
-//   try {
-//     const response = await axios.post(`${TASKURL}/createTask`, formData);
-//     return response.data;
-//   } catch (error) {
-//     return catchError(error);
-//   }
-// };
-
 // Create new task
 export const createTask = async (formData) => {
   try {
@@ -144,8 +134,6 @@ export const deleteTaskByTitle = async (title) => {
   }
 };
 
-
-
 // Get all user
 export const getAllUsers = async () => {
   try {
@@ -156,7 +144,7 @@ export const getAllUsers = async () => {
   }
 };
 
-// donut chart api 
+// donut chart api
 export const getProjectStatusSummary = async () => {
   try {
     const response = await axios.get(`${PROJECTURL}/status-summary`);
