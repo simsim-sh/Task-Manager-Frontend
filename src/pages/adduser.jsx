@@ -103,7 +103,7 @@ const UserManagementPage = () => {
             </button> */}
           <Table>
             <TableHeader>
-              <TableRow className="bg-orange-600 text-white">
+              <TableRow className="bg-blue-900 text-white">
                 <TableHead className="text-center">Profile</TableHead>
                 <TableHead className="text-center">Name</TableHead>
                 <TableHead className="text-center">Email</TableHead>

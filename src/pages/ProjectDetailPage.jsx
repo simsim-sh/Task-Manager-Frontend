@@ -1,25 +1,13 @@
 import React from "react";
-import {
-  ChevronRight,
-  Home,
-  Clock,
-  FileText,
-  CheckCircle,
-  AlertTriangle,
-  PlusCircle,
-  Filter,
-  Award,
-  Edit,
-  Archive,
-  Share2,
-} from "lucide-react";
+import { ChevronRight, Home, Award, Edit, Archive, Share2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
 import { useState } from "react";
 import ProjectCard from "../Component/projectDetailCard";
-import StatusDashboard from "../Component/statusDashboard";
+import ProjectCounter from "../pages/ProjectCounters";
 import TaskManagement from "./TaskManagement";
+import StatusDashboard from "../Component/statusDashboard";
 
 const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
@@ -53,25 +41,6 @@ const ProjectDetailPage = () => {
   const handleAdd = () => {
     window.location.href = "/addtask";
   };
-
-  // Function to handle task deletion
-  // const handleDelete = async (taskId) => {
-  //   try {
-  //     await deleteTaskById(taskId);
-  //     // Remove task from state after successful deletion
-  //     setTasks(tasks.filter((task) => task.id !== taskId));
-  //   } catch (error) {
-  //     console.error("Failed to delete task:", error);
-  //   }
-  // };
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-64">
-  //       Loading project data...
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -116,6 +85,7 @@ const ProjectDetailPage = () => {
                 </li>
               </ol>
             </nav>
+
             {/* Header with Action Buttons */}
             <div className="bg-gradient-to-r from-blue-800 to-purple-600 text-white rounded-xl shadow-xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center mb-4 md:mb-0">
@@ -140,9 +110,17 @@ const ProjectDetailPage = () => {
               </div>
             </div>
 
-            <div className="">
-              {/* Project Card */}
-              <ProjectCard />
+            {/* Content Area - Left & Right Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left side: ProjectCard */}
+              <div className="lg:col-span-1">
+                <ProjectCard />
+              </div>
+
+              {/* Right side: ProjectCounter and Table */}
+              <div className="space-y-6">
+                <StatusDashboard />
+              </div>
             </div>
           </div>
         </div>

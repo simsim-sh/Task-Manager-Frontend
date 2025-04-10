@@ -11,6 +11,7 @@ import {
 } from "../api/service";
 import AddProjects from "../Component/addProjectpopup";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
+import ProjectCounters from "../pages/ProjectCounters";
 
 function ProjectDashboardFile() {
   const { projectId } = useParams();
@@ -187,6 +188,9 @@ function ProjectDashboardFile() {
               </li>
             </ol>
           </nav>
+
+          {/* Project Counters Section */}
+          <ProjectCounters />
           {/* Main card container */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Header and actions */}
@@ -247,86 +251,102 @@ function ProjectDashboardFile() {
             {/* Projects List */}
             <div className="p-6">
               <div className="space-y-5">
-                {currentProjects.map((project) => (
-                  <div
-                    key={project._id}
-                    onClick={() => openPopup(project)}
-                    className="p-3 cursor-pointer border-b"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-6 items-center gap-4">
-                      {/* Image + Project Title */}
-                      <div className="flex items-start space-x-4 col-span-2">
-                        <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-white shadow-md">
-                          <img
-                            src={smart}
-                            alt={project.title}
-                            className="w-full h-full object-cover rounded-full"
+                <div className="overflow-x-auto">
+                  <div className="min-w-[1000px]">
+                    {/* Column Headings */}
+                    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 border-b p-4 text-sm font-semibold bg-blue-800 text-white">
+                      <div className="col-span-1">Project Name</div>
+                      <div className="text-center">Status</div>
+                      <div className="text-center">Progress</div>
+                      <div className="text-center">Created Info</div>
+                      <div className="text-center">Total Task Member</div>
+                      <div className="text-right pr-4">Action</div>
+                    </div>
+
+                    {/* Rows */}
+                    {currentProjects.map((project) => (
+                      <div
+                        key={project._id}
+                        onClick={() => openPopup(project)}
+                        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 border-b p-4 cursor-pointer"
+                      >
+                        {/* Project Name, Image */}
+                        <div className="flex items-start space-x-4">
+                          <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-md">
+                            <img
+                              src={smart}
+                              alt={project.title}
+                              className="w-full h-full object-cover rounded-full"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <h2 className="text-sm font-bold text-gray-800 truncate">
+                              {project.title}
+                            </h2>
+                            <p className="text-gray-600 text-xs">
+                              {project.category}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {project.assignedTo}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Status */}
+                        <div className="text-center">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                            <span className="w-2 h-2 mr-1 bg-indigo-500 rounded-full"></span>
+                            {project.status}
+                          </span>
+                        </div>
+
+                        {/* Progress */}
+                        <div className="text-center">
+                          <div className="relative w-full h-3 bg-gray-200 rounded-full">
+                            <div
+                              className="absolute top-0 left-0 h-3 bg-green-500 rounded-full"
+                              style={{ width: `${project.progress || 0}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {project.progress || 0}%
+                          </p>
+                        </div>
+
+                        {/* Created Info */}
+                        <div className="text-center text-xs text-gray-600">
+                          <p>{project.createdBy || "N/A"}</p>
+                          <p>
+                            {new Date(project.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+
+                        {/* Total Task Members */}
+                        <div className="text-center text-sm text-gray-800">
+                          {project.totalTaskMembers || 0}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 justify-end pr-4">
+                          <MdEdit
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openPopup(project);
+                            }}
+                            className="size-6 cursor-pointer text-blue-600"
+                          />
+                          <MdDeleteForever
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(project._id);
+                            }}
+                            className="size-6 cursor-pointer text-red-600"
                           />
                         </div>
-                        <div className="min-w-0">
-                          <h2 className="text-sm md:text-base font-bold text-gray-800 truncate">
-                            {project.title}
-                          </h2>
-                          <p className="text-gray-600 text-xs">
-                            {project.category}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {project.assignedTo}
-                          </p>
-                        </div>
                       </div>
-
-                      {/* Status */}
-                      <div className="text-center">
-                        <p className="text-gray-900 text-sm mb-1 font-semibold">
-                          STATUS
-                        </p>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                          <span className="w-2 h-2 mr-1 bg-indigo-500 rounded-full"></span>
-                          {project.status}
-                        </span>
-                      </div>
-
-                      {/* Contact */}
-                      <div className="text-center">
-                        <p className="text-gray-900 text-sm mb-1 font-semibold">
-                          CONTACT
-                        </p>
-                        <p className="text-xs text-gray-600 truncate">
-                          {project.contactPerson} ({project.contactEmail})
-                        </p>
-                      </div>
-
-                      {/* Company Name (Fixed Alignment) */}
-                      <div className="text-center">
-                        <p className="text-gray-900 text-sm mb-1 font-semibold">
-                          COMPANY
-                        </p>
-                        <p className="text-xs text-gray-600 truncate">
-                          {project.companyName}
-                        </p>
-                      </div>
-
-                      {/* Edit & Delete Buttons (At the End) */}
-                      <div className="flex gap-2 justify-end">
-                        <MdEdit
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openPopup(project);
-                          }}
-                          className="size-6 cursor-pointer text-blue-600"
-                        />
-                        <MdDeleteForever
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project._id);
-                          }}
-                          className="size-6 cursor-pointer text-red-600"
-                        />
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
 
               {/* Pagination Section */}
@@ -345,7 +365,6 @@ function ProjectDashboardFile() {
                   Previous
                 </button>
 
-                {/* Page Numbers */}
                 {Array.from(
                   { length: totalPages },
                   (_, index) => index + 1
@@ -363,7 +382,6 @@ function ProjectDashboardFile() {
                   </button>
                 ))}
 
-                {/* Next Button */}
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.min(prev + 1, totalPages))

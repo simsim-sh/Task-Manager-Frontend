@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createProject, updateProjectById } from "../api/service";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +39,35 @@ const scrollbarStyles = `
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to bottom, #2563eb, #4f46e5);
   }
+
+  /* Slide-in animation for the form */
+  @keyframes slideInFromRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeInBackdrop {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .slide-in-from-right {
+    animation: slideInFromRight 0.4s ease-out forwards;
+  }
+
+  .fade-in-backdrop {
+    animation: fadeInBackdrop 0.3s ease-out forwards;
+  }
 `;
 
 const AddProject = ({ closePopup, selectedProject }) => {
@@ -59,6 +88,8 @@ const AddProject = ({ closePopup, selectedProject }) => {
 
   // Show/hide client details section
   const [clientSectionOpen, setClientSectionOpen] = useState(true);
+  // State for animation
+  const [isClosing, setIsClosing] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -78,11 +109,19 @@ const AddProject = ({ closePopup, selectedProject }) => {
           (selectedProject?._id ? "Project Updated" : "Project Created")
       );
 
-      closePopup();
-      navigate("/project");
+      handleClose();
     } catch (error) {
       toast.error(error.message || "Submission Failed");
     }
+  };
+
+  // Handle smooth closing of the form
+  const handleClose = () => {
+    setIsClosing(true);
+    // Allow animation to complete before actually closing
+    setTimeout(() => {
+      closePopup();
+    }, 300);
   };
 
   // Get status color
@@ -103,13 +142,41 @@ const AddProject = ({ closePopup, selectedProject }) => {
     }
   };
 
+  // Add ESC key listener to close the form
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
   return (
     <>
-      {/* Include the custom scrollbar styles */}
+      {/* Include the custom scrollbar and animation styles */}
       <style>{scrollbarStyles}</style>
 
-      <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl overflow-hidden border border-gray-200 animate-fadeIn">
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex z-50 ${
+          isClosing ? "opacity-0" : "fade-in-backdrop"
+        }`}
+        style={{ transition: "opacity 0.3s ease-out" }}
+      >
+        {/* Click outside to close */}
+        <div className="absolute inset-0" onClick={handleClose}></div>
+
+        {/* Form container that slides in from right */}
+        <div
+          className={`ml-auto bg-white h-full w-full md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-2xl flex flex-col ${
+            isClosing ? "transform translate-x-full" : "slide-in-from-right"
+          }`}
+          style={{ transition: "transform 0.3s ease-out" }}
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header with modern gradient */}
           <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 p-4 flex justify-between items-center">
             <h2 className="text-lg font-bold text-white flex items-center">
@@ -119,17 +186,17 @@ const AddProject = ({ closePopup, selectedProject }) => {
                 : "Create New Project"}
             </h2>
             <button
-              onClick={closePopup}
+              onClick={handleClose}
               className="text-white bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-1 transition-all duration-200"
             >
               <FaTimes size={16} />
             </button>
           </div>
 
-          <div className="p-5 overflow-y-auto max-h-[75vh] custom-scrollbar">
+          <div className="p-5 overflow-y-auto flex-1 custom-scrollbar">
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Project Info */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
                   <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
                     <BiTask className="text-orange-500 mr-1" size={16} />
@@ -228,8 +295,8 @@ const AddProject = ({ closePopup, selectedProject }) => {
                 </div>
 
                 {clientSectionOpen && (
-                  <div className="p-4 space-y-3  bg-opacity-30 animate-slideDown">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 space-y-3 bg-opacity-30 animate-slideDown">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="relative">
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -260,7 +327,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="relative">
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -311,7 +378,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
               </div>
 
               {/* Assignment and Status */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative">
                   <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
                     <AiOutlineTeam className="text-orange-500 mr-1" size={16} />
@@ -411,7 +478,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
           <div className="bg-gray-50 px-5 py-4 flex justify-end space-x-3 border-t border-gray-200">
             <button
               type="button"
-              onClick={closePopup}
+              onClick={handleClose}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-100 transition-colors flex items-center"
             >
               <FaTimes className="mr-1" size={12} />
@@ -431,28 +498,6 @@ const AddProject = ({ closePopup, selectedProject }) => {
   );
 };
 
-// Add these animations to your global CSS or component
-const globalStyles = `
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.animate-slideDown {
-  animation: slideDown 0.3s ease-out forwards;
-}
-`;
-
-// You would need to add the globalStyles to your application
-// Either in your global CSS file or using a CSS-in-JS solution
+// Animation keyframes are now included in the scrollbarStyles
 
 export default AddProject;

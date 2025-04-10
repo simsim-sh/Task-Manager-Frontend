@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { createTask, getAllProject } from "../api/service";
+import { createTask, getAllProject, getAllUsers } from "../api/service";
 import {
   TbLayoutGridAdd,
   TbClockHour4,
@@ -17,6 +17,7 @@ import { FaPlus } from "react-icons/fa";
 const TaskForm = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
 
   const [formData, setFormData] = useState({
     taskName: "",
@@ -31,17 +32,6 @@ const TaskForm = () => {
   });
 
   const [projects, setProjects] = useState([]);
-
-  const predefinedUsers = [
-    "Simran",
-    "Sunny",
-    "Kashish",
-    "Ankit",
-    "Chotu",
-    "Anshu",
-    "Kajju",
-    "Adarsh Singh",
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -94,16 +84,22 @@ const TaskForm = () => {
   };
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await getAllProject();
-        setProjects(response.data);
+        const [projectRes, userRes] = await Promise.all([
+          getAllProject(),
+          getAllUsers(),
+        ]);
+
+        if (projectRes?.data) setProjects(projectRes.data);
+        if (userRes?.data) setUsers(userRes.data);
       } catch (err) {
-        console.error("Failed to load projects:", err);
+        console.error("Error loading data:", err);
+        toast.error("Failed to fetch users or projects.");
       }
     };
 
-    fetchProjects();
+    fetchInitialData();
   }, []);
 
   const getPriorityColor = (priority) => {
@@ -293,9 +289,9 @@ const TaskForm = () => {
                 className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
               >
                 <option value="">Select User</option>
-                {predefinedUsers.map((user, index) => (
-                  <option key={index} value={user}>
-                    {user}
+                {users.map((user) => (
+                  <option key={user._id} value={user.name}>
+                    {user.name}
                   </option>
                 ))}
               </select>

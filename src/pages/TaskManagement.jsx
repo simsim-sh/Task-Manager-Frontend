@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Trash2, Edit, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import {
+  Trash2,
+  Edit,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getAllTasks, deleteTaskByTitle } from "../api/service";
 import Sidebar from "../Component/Sidebar";
@@ -18,6 +26,11 @@ const TaskManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [tasksPerPage, setTasksPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+
   const fetchTasks = async () => {
     try {
       setLoading(true);
@@ -33,6 +46,7 @@ const TaskManagement = () => {
       );
 
       setAllTasks(sortedTasks);
+      setTotalPages(Math.ceil(sortedTasks.length / tasksPerPage));
     } catch (error) {
       console.error("Error fetching tasks:", error);
       toast.error("Error fetching tasks. Please try again.");
@@ -49,6 +63,13 @@ const TaskManagement = () => {
       if (response?.success) {
         toast.success("Task deleted successfully");
         setAllTasks(allTasks.filter((task) => task.title !== title));
+        // Update total pages after deletion
+        const updatedTasks = allTasks.filter((task) => task.title !== title);
+        setTotalPages(Math.ceil(updatedTasks.length / tasksPerPage));
+        // If current page is now empty and not the first page, go to previous page
+        if (currentPage > 1 && indexOfFirstTask >= updatedTasks.length) {
+          setCurrentPage(currentPage - 1);
+        }
       } else {
         toast.error(response?.message || "Failed to delete task");
       }
@@ -100,6 +121,11 @@ const TaskManagement = () => {
     fetchTasks();
   }, []);
 
+  // Update pagination when tasksPerPage changes
+  useEffect(() => {
+    setTotalPages(Math.ceil(allTasks.length / tasksPerPage));
+  }, [allTasks, tasksPerPage]);
+
   const handleDeleteWithConfirmation = (title) => {
     Swal.fire({
       title: "Are you sure?",
@@ -116,6 +142,101 @@ const TaskManagement = () => {
         Swal.fire("Deleted!", "The task has been deleted.", "success");
       }
     });
+  };
+
+  // Pagination Logic
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = allTasks.slice(indexOfFirstTask, indexOfLastTask);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const renderPaginationButtons = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5; // Show max 5 page numbers at once
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="flex items-center space-x-1">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === 1
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {startPage > 1 && (
+          <>
+            <button
+              onClick={() => paginate(1)}
+              className={`px-3 py-1 rounded-md text-gray-700 hover:bg-gray-200`}
+            >
+              1
+            </button>
+            {startPage > 2 && <span className="px-2 text-gray-500">...</span>}
+          </>
+        )}
+
+        {pageNumbers.map((number) => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === number
+                ? "bg-blue-500 text-white"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {number}
+          </button>
+        ))}
+
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && (
+              <span className="px-2 text-gray-500">...</span>
+            )}
+            <button
+              onClick={() => paginate(totalPages)}
+              className={`px-3 py-1 rounded-md text-gray-700 hover:bg-gray-200`}
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-3 py-1 rounded-md ${
+            currentPage === totalPages
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -167,13 +288,37 @@ const TaskManagement = () => {
               <h2 className="text-xl font-bold text-gray-800">
                 Task Management
               </h2>
-              <button
-                onClick={openForm}
-                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
-              >
-                <IoMdAdd className="w-5 h-5" />
-                Create New Task
-              </button>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center">
+                  <label
+                    htmlFor="tasksPerPage"
+                    className="text-sm text-gray-600 mr-2"
+                  >
+                    Show:
+                  </label>
+                  <select
+                    id="tasksPerPage"
+                    className="px-2 py-1 border rounded text-sm"
+                    value={tasksPerPage}
+                    onChange={(e) => {
+                      setTasksPerPage(Number(e.target.value));
+                      setCurrentPage(1); // Reset to first page when changing items per page
+                    }}
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                    <option value={20}>20</option>
+                  </select>
+                </div>
+                <button
+                  onClick={openForm}
+                  className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
+                >
+                  <IoMdAdd className="w-5 h-5" />
+                  Create New Task
+                </button>
+              </div>
             </div>
 
             {/* Slide-in Form Modal */}
@@ -201,106 +346,140 @@ const TaskManagement = () => {
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
               </div>
             ) : allTasks.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-left bg-blue-900 border-b border-gray-100">
-                      <th className="py-3 px-4 font-medium text-white text-sm">
-                        Task Name
-                      </th>
-                      <th className="py-3 px-4 font-medium text-white text-sm">
-                        Hours
-                      </th>
-                      <th className="py-3 px-4 font-medium text-white text-sm">
-                        Priority
-                      </th>
-                      <th className="py-3 px-4 font-medium text-white text-sm">
-                        Assigned To
-                      </th>
-                      <th className="py-3 px-4 font-medium text-white text-sm">
-                        Status
-                      </th>
-                      <th className="py-3 px-4 font-medium text-white text-sm">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allTasks.map((task) => (
-                      <tr
-                        key={task._id}
-                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
-                      >
-                        <td className="py-4 px-4">
-                          <div className="flex items-center">
-                            <div className="bg-indigo-200 p-2 rounded-lg mr-3">
-                              {getStatusIcon(task.status)}
-                            </div>
-                            <div>
-                              <NavLink
-                                to="/taskdetail"
-                                className="font-medium text-gray-800 hover:text-blue-600"
-                              >
-                                {task.title}
-                              </NavLink>
-                              <div className="text-xs text-gray-500">
-                                {task.category1}
-                                {task.category2 && `, ${task.category2}`}
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left bg-blue-900 border-b border-gray-100">
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Task Name
+                        </th>
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Hours
+                        </th>
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Priority
+                        </th>
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Assigned To
+                        </th>
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Status
+                        </th>
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Activity
+                        </th>
+                        <th className="py-3 px-4 font-medium text-white text-sm">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentTasks.map((task) => (
+                        <tr
+                          key={task._id}
+                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
+                        >
+                          {/* Task Name */}
+                          <td className="py-4 px-4">
+                            <div className="flex items-center">
+                              <div className="bg-indigo-200 p-2 rounded-lg mr-3">
+                                {getStatusIcon(task.status)}
+                              </div>
+                              <div>
+                                <NavLink
+                                  to="/taskdetail"
+                                  className="font-medium text-gray-800 hover:text-blue-600"
+                                >
+                                  {task.title}
+                                </NavLink>
+                                <div className="text-xs text-gray-500">
+                                  {task.category1}
+                                  {task.category2 && `, ${task.category2}`}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 text-gray-700">
-                          {task.hours || 24}
-                        </td>
-                        <td className="py-4 px-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              task.priority === "High"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : task.priority === "Medium"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
-                            }`}
-                          >
-                            {task.priority || "Medium"}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 text-gray-800 font-medium">
-                          {task.assignedTo || "Unassigned"}
-                        </td>
-                        <td className="py-4 px-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                              task.status
-                            )}`}
-                          >
-                            {task.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex space-x-3">
-                            <NavLink
-                              to={`/taskform/${task._id}`}
-                              className="p-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                          </td>
+
+                          {/* Hours */}
+                          <td className="py-4 px-4 text-gray-700">
+                            {task.hours || 24}
+                          </td>
+
+                          {/* Priority */}
+                          <td className="py-4 px-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                task.priority === "High"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : task.priority === "Medium"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
                             >
-                              <Edit className="w-4 h-4 text-blue-600" />
-                            </NavLink>
-                            <button
-                              className="p-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
-                              onClick={() =>
-                                handleDeleteWithConfirmation(task.title)
-                              }
+                              {task.priority || "Medium"}
+                            </span>
+                          </td>
+
+                          {/* Assigned To */}
+                          <td className="py-4 px-4 text-gray-800 font-medium">
+                            {task.assignedTo || "Unassigned"}
+                          </td>
+
+                          {/* Status */}
+                          <td className="py-4 px-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                task.status
+                              )}`}
                             >
-                              <Trash2 className="w-4 h-4 text-red-600" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                              {task.status}
+                            </span>
+                          </td>
+
+                          {/* Activity */}
+                          <td className="py-4 px-4 text-sm text-gray-600">
+                            Created:{" "}
+                            {new Date(task.createdAt).toLocaleDateString()}
+                          </td>
+
+                          {/* Action */}
+                          <td className="py-4 px-4">
+                            <div className="flex space-x-3">
+                              <NavLink
+                                to={`/taskform/${task._id}`}
+                                className="p-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                              >
+                                <Edit className="w-4 h-4 text-blue-600" />
+                              </NavLink>
+                              <button
+                                className="p-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                                onClick={() =>
+                                  handleDeleteWithConfirmation(task.title)
+                                }
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-6 flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    Showing {indexOfFirstTask + 1} to{" "}
+                    {Math.min(indexOfLastTask, allTasks.length)} of{" "}
+                    {allTasks.length} entries
+                  </div>
+                  <div className="flex justify-center">
+                    {renderPaginationButtons()}
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="text-center py-8 text-gray-500">
                 No tasks found. Create a new task to get started.

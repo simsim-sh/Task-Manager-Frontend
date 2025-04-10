@@ -59,7 +59,7 @@ const Sidebar = () => {
     <div
       className={`bg-gradient-to-r from-blue-900 to-blue-700 text-white h-screen sticky top-0 transition-all duration-300 ${
         isExpanded ? "w-64" : "w-16"
-      }`}
+      } flex flex-col items-center`}
     >
       <div className="p-4">
         {/* Header with Logo and Hamburger */}
@@ -141,13 +141,13 @@ const Sidebar = () => {
           </div>
 
           {/* Calendar */}
-          <a
-            href="#"
+          <NavLink
+            to={"/layout"}
             className="flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
           >
             <Calendar className="h-5 w-5" />
             {isExpanded && <span className="ml-3">Calendar</span>}
-          </a>
+          </NavLink>
 
           {/* Task Module */}
           <div>

@@ -10,6 +10,7 @@ import AddTask from "./pages/AddTask";
 import AddProjectForm from "./pages/AddProjectForm";
 import AddUserPage from "./pages/adduser";
 import TaskForm from "./pages/taskfrom";
+import Layout from "./Calender/Layout";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignIn /> },
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
   { path: "/addtask", element: <AddTask /> },
   { path: "/addprojectform", element: <AddProjectForm /> },
   { path: "/adduser", element: <AddUserPage /> },
+  { path: "/layout", element: <Layout /> },
 ]);
 
 function App() {

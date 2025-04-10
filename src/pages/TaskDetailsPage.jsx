@@ -19,8 +19,28 @@ import Sidebar from "../Component/Sidebar";
 import { NavLink } from "react-router-dom";
 import { TbHomeHeart } from "react-icons/tb";
 import { TiChevronRight } from "react-icons/ti";
+import { toast } from "react-hot-toast";
+import { getTaskById } from "../api/service";
 
 const TaskDetailsPage = () => {
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [taskId, setTaskId] = useState(null); // Assuming you have a way to set the task ID
+
+  const fetchTask = async (id) => {
+    if (!id) return;
+    try {
+      const TaskByIDResponse = await getTaskById(id);
+      if (TaskByIDResponse?.success) {
+        setSelectedTask(TaskByIDResponse?.data);
+        // console.log("Fetched Project:", projectByIDResponse?.data);
+      } else {
+        toast.error(TaskByIDResponse?.message);
+      }
+    } catch (error) {
+      toast.error("Error fetching Task.");
+    }
+  };
+
   // Sample task data
   const task = {
     name: "CREATE WEBSITE",
@@ -269,10 +289,6 @@ const TaskDetailsPage = () => {
                       <MessageSquare size={18} className="text-indigo-500" />
                       ACTIVITY LOG
                     </h3>
-                    <button className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md hover:bg-indigo-100 transition-colors flex items-center gap-1">
-                      <Download size={12} />
-                      EXPORT
-                    </button>
                   </div>
 
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border-l-4 border-green-400 shadow-sm">
