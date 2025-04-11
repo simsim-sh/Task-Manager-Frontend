@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { createTask, getAllProject, getAllUsers } from "../api/service";
+import {
+  createTask,
+  getAllProject,
+  getAllUsers,
+  getTaskById,
+} from "../api/service";
 import {
   TbLayoutGridAdd,
   TbClockHour4,
@@ -32,6 +37,7 @@ const TaskForm = () => {
   });
 
   const [projects, setProjects] = useState([]);
+  const [taskById, setTaskById] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,6 +89,29 @@ const TaskForm = () => {
     }
   };
 
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await getTaskById();
+
+      if (!response?.success) {
+        toast.error(response?.message || "Failed to fetch tasks");
+        return;
+      }
+
+      const sortedTasks = response.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setTaskById(sortedTasks);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      toast.error("Error fetching tasks. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -107,7 +136,7 @@ const TaskForm = () => {
       case "High":
         return "text-red-600";
       case "Medium":
-        return "text-orange-500";
+        return "text-blue-500";
       case "Low":
         return "text-green-600";
       default:
@@ -119,7 +148,7 @@ const TaskForm = () => {
     <div className="rounded-xl overflow-hidden">
       <div className="relative py-5 px-6">
         <h2 className="text-xl font-bold text-black relative z-10 flex items-center">
-          <span className="mr-3 bg-orange-500 text-white p-2 rounded-full">
+          <span className="mr-3 bg-blue-500 text-white p-2 rounded-full">
             <TbLayoutGridAdd size={20} />
           </span>
           Create New Task
@@ -131,7 +160,7 @@ const TaskForm = () => {
           {/* Task Name Field */}
           <div className="relative">
             <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-              <TbInfoCircle className="mr-1 text-orange-500" />
+              <TbInfoCircle className="mr-1 text-blue-500" />
               Task Name*
             </label>
             <input
@@ -140,7 +169,7 @@ const TaskForm = () => {
               value={formData.taskName}
               onChange={handleChange}
               required
-              className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+              className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               placeholder="Enter task name..."
             />
           </div>
@@ -148,7 +177,7 @@ const TaskForm = () => {
           {/* Project Dropdown */}
           <div className="relative">
             <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-              <TbInfoCircle className="mr-1 text-orange-500" />
+              <TbInfoCircle className="mr-1 text-blue-500" />
               Project*
             </label>
             <select
@@ -156,7 +185,7 @@ const TaskForm = () => {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+              className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
             >
               <option value="">-- Select Project --</option>
               {projects.map((project) => (
@@ -171,7 +200,7 @@ const TaskForm = () => {
             {/* Hours */}
             <div className="relative">
               <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-                <TbClockHour4 className="mr-1 text-orange-500" />
+                <TbClockHour4 className="mr-1 text-blue-500" />
                 Hours*
               </label>
               <input
@@ -180,14 +209,14 @@ const TaskForm = () => {
                 value={formData.hours}
                 onChange={handleChange}
                 required
-                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               />
             </div>
 
             {/* Priority */}
             <div className="relative">
               <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-                <TbFlag className="mr-1 text-orange-500" />
+                <TbFlag className="mr-1 text-blue-500" />
                 Priority*
               </label>
               <select
@@ -195,7 +224,7 @@ const TaskForm = () => {
                 value={formData.priority}
                 onChange={handleChange}
                 required
-                className={`w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors ${
+                className={`w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors ${
                   formData.priority ? getPriorityColor(formData.priority) : ""
                 }`}
               >
@@ -211,7 +240,7 @@ const TaskForm = () => {
             {/* Status */}
             <div className="relative">
               <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-                <TbStatusChange className="mr-1 text-orange-500" />
+                <TbStatusChange className="mr-1 text-blue-500" />
                 Status*
               </label>
               <select
@@ -219,7 +248,7 @@ const TaskForm = () => {
                 value={formData.status}
                 onChange={handleChange}
                 required
-                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               >
                 <option value="">Select</option>
                 <option value="Fresh">Fresh</option>
@@ -231,10 +260,10 @@ const TaskForm = () => {
               </select>
 
               {formData.status === "hold" && (
-                <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="relative mb-3">
-                    <label className="absolute -top-3 left-4 bg-orange-50 px-2 text-sm font-medium text-blue-700 flex items-center">
-                      <TbAlertCircle className="mr-1 text-orange-500" />
+                    <label className="absolute -top-3 left-4 bg-blue-50 px-2 text-sm font-medium text-blue-700 flex items-center">
+                      <TbAlertCircle className="mr-1 text-blue-500" />
                       Hold Reason
                     </label>
                     <select
@@ -242,7 +271,7 @@ const TaskForm = () => {
                       value={formData.onHoldReason}
                       onChange={handleChange}
                       required
-                      className="w-full border-2 border-orange-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+                      className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
                     >
                       <option value="">Select reason</option>
                       <option value="Dependency on other task">
@@ -257,8 +286,8 @@ const TaskForm = () => {
                   </div>
 
                   <div className="relative">
-                    <label className="absolute -top-3 left-4 bg-orange-50 px-2 text-sm font-medium text-blue-700 flex items-center">
-                      <TbNotes className="mr-1 text-orange-500" />
+                    <label className="absolute -top-3 left-4 bg-blue-50 px-2 text-sm font-medium text-blue-700 flex items-center">
+                      <TbNotes className="mr-1 text-blue-500" />
                       Hold Description
                     </label>
                     <textarea
@@ -267,7 +296,7 @@ const TaskForm = () => {
                       onChange={handleChange}
                       rows="2"
                       required
-                      className="w-full border-2 border-orange-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+                      className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
                       placeholder="Explain the reason for holding this task..."
                     ></textarea>
                   </div>
@@ -278,7 +307,7 @@ const TaskForm = () => {
             {/* Assigned To */}
             <div className="relative">
               <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-                <TbUserCircle className="mr-1 text-orange-500" />
+                <TbUserCircle className="mr-1 text-blue-500" />
                 Assigned To*
               </label>
               <select
@@ -286,7 +315,7 @@ const TaskForm = () => {
                 value={formData.assignedToWork}
                 onChange={handleChange}
                 required
-                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               >
                 <option value="">Select User</option>
                 {users.map((user) => (
@@ -301,7 +330,7 @@ const TaskForm = () => {
           {/* Description */}
           <div className="relative">
             <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
-              <TbNotes className="mr-1 text-orange-500" />
+              <TbNotes className="mr-1 text-blue-500" />
               Description
             </label>
             <textarea
@@ -309,7 +338,7 @@ const TaskForm = () => {
               value={formData.description}
               onChange={handleChange}
               rows="3"
-              className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white transition-colors"
+              className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               placeholder="Enter task description here..."
             ></textarea>
           </div>
@@ -319,11 +348,7 @@ const TaskForm = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-6 text-white font-bold text-lg rounded-lg relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
-              style={{
-                background: "linear-gradient(90deg, #f97316 0%, #fb923c 100%)",
-                boxShadow: "0 10px 15px -3px rgba(249, 115, 22, 0.4)",
-              }}
+              className="w-full py-3 px-6 bg-blue-600 text-white font-bold text-lg rounded-lg relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -360,7 +385,7 @@ const TaskForm = () => {
         </form>
       </div>
 
-      <div className="h-2 bg-gradient-to-r from-orange-500 via-orange-400 to-blue-500"></div>
+      <div className="h-2 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500"></div>
     </div>
   );
 };

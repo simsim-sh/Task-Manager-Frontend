@@ -36,13 +36,13 @@ const ProjectDashboard = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <ProjectCounter
           icon={<MdAssignment className="text-lg" />}
-          label="Deliverables"
+          label="Fresh"
           count={9}
         />
 
         <ProjectCounter
           icon={<MdPeople className="text-lg" />}
-          label="Team Size"
+          label="Inactive"
           count={3}
         />
 
@@ -54,19 +54,13 @@ const ProjectDashboard = () => {
 
         <ProjectCounter
           icon={<MdBolt className="text-lg" />}
-          label="Urgent"
+          label="Active"
           count={1}
         />
 
         <ProjectCounter
           icon={<MdCheckCircle className="text-lg" />}
           label="Completed"
-          count={2}
-        />
-
-        <ProjectCounter
-          icon={<MdWarning className="text-lg" />}
-          label="Issues"
           count={2}
         />
       </div>

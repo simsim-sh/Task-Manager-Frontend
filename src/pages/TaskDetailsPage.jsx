@@ -268,18 +268,6 @@ const TaskDetailsPage = () => {
                       </tbody>
                     </table>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-center gap-4 mt-5">
-                    <button className="bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium py-2 px-6 rounded-md shadow-sm hover:shadow-md flex items-center gap-2 transition-all">
-                      <AlertCircle size={16} />
-                      DELETE
-                    </button>
-                    <button className="bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-medium py-2 px-6 rounded-md shadow-sm hover:shadow-md flex items-center gap-2 transition-all">
-                      <PlusCircle size={16} />
-                      EDIT
-                    </button>
-                  </div>
                 </div>
 
                 {/* Middle panel - Activity Status */}
