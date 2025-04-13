@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { getProjectStatusSummary } from "../api/service"; // your API file path
+import { getProjectStatusSummary } from "../api/service";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ChartComponent = () => {
   const [chartData, setChartData] = useState(null);
 
+  // console.log("chartData", chartData);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const { data } = await getProjectStatusSummary();
-
         const labels = data.map((item) => item._id);
         const values = data.map((item) => item.count);
-
         setChartData({
           labels,
           datasets: [
@@ -37,7 +37,6 @@ const ChartComponent = () => {
         console.error("Failed to fetch project summary", error);
       }
     };
-
     fetchData();
   }, []);
 

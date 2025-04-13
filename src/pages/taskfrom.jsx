@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { createTask, getAllProject, getAllUsers } from "../api/service";
+import {
+  createTask,
+  getAllProject,
+  getAllUsers,
+  updateTaskById,
+} from "../api/service";
 import {
   TbLayoutGridAdd,
   TbClockHour4,
@@ -14,11 +19,15 @@ import {
 } from "react-icons/tb";
 import { FaPlus } from "react-icons/fa";
 
-const TaskForm = () => {
+const TaskForm = ({
+  onClose,
+  fetchTasks,
+  editMode = false,
+  initialData = {},
+}) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
-
   const [formData, setFormData] = useState({
     taskName: "",
     title: "",
@@ -30,7 +39,6 @@ const TaskForm = () => {
     onHoldReason: "",
     onHoldDescription: "",
   });
-
   const [projects, setProjects] = useState([]);
 
   const handleChange = (e) => {
@@ -43,8 +51,18 @@ const TaskForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { taskName, title, hours, priority, assignedToWork, status } =
-      formData;
+
+    const {
+      taskName,
+      title,
+      hours,
+      priority,
+      assignedToWork,
+      status,
+      onHoldReason,
+      onHoldDescription,
+    } = formData;
+    // Basic validation
     if (
       !taskName ||
       !title ||
@@ -56,23 +74,38 @@ const TaskForm = () => {
       toast.error("All fields are required!");
       return;
     }
-    if (formData.status === "hold") {
-      if (!formData.onHoldReason || !formData.onHoldDescription) {
+    // Conditional validation for "hold" status
+    if (status === "hold") {
+      if (!onHoldReason || !onHoldDescription) {
         toast.error("Please provide reason and description for Hold status.");
         return;
       }
     }
     try {
       setLoading(true);
-      const response = await createTask(formData);
+      let response;
+
+      // Call the appropriate API depending on the mode
+      if (editMode) {
+        // 👇 If you have a separate update API:
+        response = await updateTaskById(initialData._id, formData);
+        // 👇 Or if createTask handles both create and update:
+        // response = await createTask(formData);
+      } else {
+        response = await createTask(formData);
+      }
+      // Handle response
       if (response?.success) {
-        toast.success(response.message || "Task created successfully!");
+        toast.success(
+          response.message || (editMode ? "Task updated!" : "Task created!")
+        );
+        fetchTasks?.(); // Refresh task list if function is passed
         navigate("/taskmanagement");
       } else {
-        toast.error(response?.message || "Failed to create task");
+        toast.error(response?.message || "Something went wrong");
       }
-    } catch (error) {
-      console.error("Error creating task:", error);
+    } catch (err) {
+      console.error("Task error:", err);
       toast.error("Server error! Try again.");
     } finally {
       setLoading(false);
@@ -106,6 +139,24 @@ const TaskForm = () => {
       }
     }
   }, [formData.status]);
+
+  useEffect(() => {
+    if (editMode && initialData) {
+      setFormData(initialData);
+    } else {
+      setFormData({
+        taskName: "",
+        title: "",
+        hours: "",
+        priority: "",
+        assignedToWork: "",
+        status: "",
+        description: "",
+        onHoldReason: "",
+        onHoldDescription: "",
+      });
+    }
+  }, [editMode, initialData]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -359,7 +410,6 @@ const TaskForm = () => {
           </div>
         </form>
       </div>
-
       <div className="h-2 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500"></div>
     </div>
   );

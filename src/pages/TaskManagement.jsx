@@ -19,6 +19,7 @@ import { TbHomeHeart } from "react-icons/tb";
 import { TiChevronRight } from "react-icons/ti";
 import { IoMdAdd } from "react-icons/io";
 import Swal from "sweetalert2";
+import { formatDate } from "../utlis/helper";
 
 const TaskManagement = () => {
   const { id } = useParams();
@@ -30,11 +31,17 @@ const TaskManagement = () => {
   const [formVisible, setFormVisible] = useState(false);
   const [taskById, setTaskById] = useState({});
   const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
+  const [totalTasks, setTotalTasks] = useState(0);
+  const [freshTasks, setFreshTasks] = useState(0);
+  const [holdTasks, setHoldTasks] = useState(0);
+  const [inProgressTasks, setInProgressTasks] = useState(0);
+  const [activeTasks, setActiveTasks] = useState(0);
+  const [completedTasks, setCompletedTasks] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false); // toggle create/update mode
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [tasksPerPage, setTasksPerPage] = useState(5);
-
   // Filter states
   const [filters, setFilters] = useState({
     status: "",
@@ -57,6 +64,29 @@ const TaskManagement = () => {
       );
       setAllTasks(sortedTasks);
       setFilteredTasks(sortedTasks);
+      // 📊 Status counts
+      const now = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      setTotalTasks(
+        sortedTasks.filter((task) => new Date(task.createdAt) >= thirtyDaysAgo)
+          .length
+      );
+      setFreshTasks(
+        sortedTasks.filter((task) => task.status === "fresh").length
+      );
+      setHoldTasks(sortedTasks.filter((task) => task.status === "Hold").length);
+      setInProgressTasks(
+        sortedTasks.filter(
+          (task) => task.status === "In Progress" || task.status === "running"
+        ).length
+      );
+      setActiveTasks(
+        sortedTasks.filter((task) => task.status === "Active").length
+      );
+      setCompletedTasks(
+        sortedTasks.filter((task) => task.status === "Completed").length
+      );
     } catch (error) {
       console.error("Error fetching tasks:", error);
       toast.error("Error fetching tasks. Please try again.");
@@ -115,9 +145,18 @@ const TaskManagement = () => {
     setTimeout(() => setFormVisible(true), 10);
   };
 
+  // const closeForm = () => {
+  //   setFormVisible(false);
+  //   setTimeout(() => setShowForm(false), 300);
+  // };
+
   const closeForm = () => {
     setFormVisible(false);
-    setTimeout(() => setShowForm(false), 300);
+    setTimeout(() => {
+      setShowForm(false);
+      setTaskById(null); // clear task state
+      setIsEditMode(false);
+    }, 300); // matches transition
   };
 
   // Fetch task by ID
@@ -141,9 +180,8 @@ const TaskManagement = () => {
   };
 
   // For update API
-  const fetchTaskByIDUpdate = async (taskId) => {
+  const handleEditClick = async (taskId) => {
     try {
-      setLoading(true);
       const response = await getTaskById(taskId);
       const taskData = response?.data;
       if (!taskData) {
@@ -151,12 +189,12 @@ const TaskManagement = () => {
         return;
       }
       setTaskById(taskData);
-      navigate("/taskform", { state: { task: taskData } });
+      setIsEditMode(true); // switch to update mode
+      setShowForm(true);
+      setTimeout(() => setFormVisible(true), 100); // trigger slide-in
     } catch (error) {
       console.error("Error fetching task:", error);
       toast.error("Error fetching task. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -181,15 +219,12 @@ const TaskManagement = () => {
   // Filter tasks based on filters state
   useEffect(() => {
     let result = [...allTasks];
-
     if (filters.status) {
       result = result.filter((task) => task.status === filters.status);
     }
-
     if (filters.priority) {
       result = result.filter((task) => task.priority === filters.priority);
     }
-
     if (filters.assignedTo) {
       result = result.filter(
         (task) =>
@@ -199,7 +234,6 @@ const TaskManagement = () => {
             .includes(filters.assignedTo.toLowerCase())
       );
     }
-
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       result = result.filter(
@@ -328,6 +362,35 @@ const TaskManagement = () => {
 
             {/* Search and Filters */}
             <div className={`mb-6 ${showFilters ? "block" : "hidden"}`}>
+              {/* Status Summary */}
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-4 text-sm">
+                <div className="bg-blue-100 text-blue-800 p-3 rounded-lg text-center">
+                  <p className="font-semibold">Total</p>
+                  <p>{totalTasks}</p>
+                </div>
+                <div className="bg-yellow-100 text-yellow-800 p-3 rounded-lg text-center">
+                  <p className="font-semibold">Fresh</p>
+                  <p>{freshTasks}</p>
+                </div>
+                <div className="bg-purple-100 text-purple-800 p-3 rounded-lg text-center">
+                  <p className="font-semibold">In Progress</p>
+                  <p>{inProgressTasks}</p>
+                </div>
+                <div className="bg-green-100 text-green-800 p-3 rounded-lg text-center">
+                  <p className="font-semibold">Active</p>
+                  <p>{activeTasks}</p>
+                </div>
+                <div className="bg-red-100 text-red-800 p-3 rounded-lg text-center">
+                  <p className="font-semibold">Hold</p>
+                  <p>{holdTasks}</p>
+                </div>
+                <div className="bg-gray-200 text-gray-800 p-3 rounded-lg text-center">
+                  <p className="font-semibold">Completed</p>
+                  <p>{completedTasks}</p>
+                </div>
+              </div>
+
+              {/* Filters */}
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -342,6 +405,7 @@ const TaskManagement = () => {
                     onChange={handleFilterChange}
                   />
                 </div>
+
                 <select
                   name="status"
                   value={filters.status}
@@ -350,9 +414,13 @@ const TaskManagement = () => {
                 >
                   <option value="">All Statuses</option>
                   <option value="FRESH">Fresh</option>
-                  <option value="IN PROGRESS">In Progress</option>
-                  <option value="COMPLETED">Completed</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="hold">Hold</option>
                 </select>
+
                 <select
                   name="priority"
                   value={filters.priority}
@@ -364,6 +432,7 @@ const TaskManagement = () => {
                   <option value="Medium">Medium</option>
                   <option value="Low">Low</option>
                 </select>
+
                 <input
                   type="text"
                   className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
@@ -372,6 +441,7 @@ const TaskManagement = () => {
                   value={filters.assignedTo}
                   onChange={handleFilterChange}
                 />
+
                 <div className="flex space-x-2">
                   <button
                     onClick={clearFilters}
@@ -407,7 +477,12 @@ const TaskManagement = () => {
                   >
                     &#x2715;
                   </button>
-                  <TaskForm onClose={closeForm} fetchTasks={fetchTasks} />
+                  <TaskForm
+                    onClose={closeForm}
+                    fetchTasks={fetchTasks}
+                    taskData={taskById}
+                    isEditMode={isEditMode}
+                  />
                 </div>
               </div>
             )}
@@ -515,8 +590,8 @@ const TaskManagement = () => {
                           </span>
                         </td>
                         <td className="py-4 px-4 text-sm text-gray-600">
-                          Created:{" "}
-                          {new Date(task.createdAt).toLocaleDateString()}
+                          Created: {formatDate(task.createdAt)} <br />
+                          Updated: {formatDate(task.updatedAt)}
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex space-x-3">
@@ -525,8 +600,8 @@ const TaskManagement = () => {
                               className="p-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
                             >
                               <Edit
-                                onClick={() => fetchTaskByIDUpdate(task._id)}
-                                className="w-4 h-4 text-blue-600"
+                                onClick={() => handleEditClick(task._id)}
+                                className="w-4 h-4 text-blue-600 cursor-pointer"
                               />
                             </NavLink>
                             <button

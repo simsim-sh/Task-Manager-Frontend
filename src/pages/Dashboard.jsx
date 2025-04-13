@@ -8,7 +8,6 @@ import {
   Calendar,
   Users,
 } from "lucide-react";
-
 import ChartComponent from "../Component/ChartComponent";
 import BarChartComponent from "../Component/BarChartComponent";
 import backgroundImg from "../assets/images/background.jpg";
@@ -17,69 +16,51 @@ import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
 
 const Dashboard = () => {
-  // Create separate state variables for different metrics
-  const [totalProjects, setTotalProjects] = useState(0);
-  const [runningProjects, setRunningProjects] = useState(0);
-  const [completedProjects, setCompletedProjects] = useState(0);
-  const [pendingProjects, setPendingProjects] = useState(0);
-  const [newProjects, setNewProjects] = useState(0);
   const [upcomingDeadlines, setUpcomingDeadlines] = useState(0);
   const [teamPerformance, setTeamPerformance] = useState(0);
+  // Create separate state variables for different metrics
+  const [completedProjects, setCompletedProjects] = useState(0);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [holdProjects, setholdProjects] = useState(0);
+  const [inProgressProjects, setInProgressProjects] = useState(0);
+  const [activeProjects, setActiveProjects] = useState(0);
+  const [freshProjects, setFreshProjects] = useState(0);
 
+  // Fetch project data from the API
   const fetchProjects = async () => {
     try {
-      console.log("Fetching projects...");
       const data = await getAllProject();
-
-      console.log("Full API response:", data);
-
       const projects = data?.data;
-      console.log("Extracted projects array:", projects);
-
       if (!Array.isArray(projects)) {
         console.error("❌ 'data.data' is not an array", projects);
         return;
       }
-
-      setTotalProjects(projects.length);
-
-      const running = projects.filter(
-        (project) => project.status === "running"
-      ).length;
-
-      const completed = projects.filter(
-        (project) => project.status === "completed"
-      ).length;
-
-      const pending = projects.filter(
-        (project) => project.status === "pending"
-      ).length;
-
-      const newProj = projects.filter((project) => {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return new Date(project.createdAt) >= thirtyDaysAgo;
-      }).length;
-
-      const upcoming = projects.filter((project) => {
-        if (!project.deadline) return false;
-        const deadline = new Date(project.deadline);
-        const today = new Date();
-        const daysDiff = Math.floor((deadline - today) / (1000 * 60 * 60 * 24));
-        return daysDiff >= 0 && daysDiff <= 14;
-      }).length;
-
-      const performance = Math.round(
-        (completed / (completed + running + pending)) * 100
+      const now = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      setTotalProjects(
+        projects.filter(
+          (project) => new Date(project.createdAt) >= thirtyDaysAgo
+        ).length
       );
-
-      // Set all updated values
-      setRunningProjects(running);
-      setCompletedProjects(completed);
-      setPendingProjects(pending);
-      setNewProjects(newProj);
-      setUpcomingDeadlines(upcoming);
-      setTeamPerformance(performance || 0);
+      setFreshProjects(
+        projects.filter((project) => project.status === "fresh").length
+      );
+      setholdProjects(
+        projects.filter((project) => project.status === "Hold").length
+      );
+      setInProgressProjects(
+        projects.filter(
+          (project) =>
+            project.status === "In Progress" || project.status === "running"
+        ).length
+      );
+      setActiveProjects(
+        projects.filter((project) => project.status === "Active").length
+      );
+      setCompletedProjects(
+        projects.filter((project) => project.status === "Completed").length
+      );
     } catch (error) {
       console.error("❌ Error fetching projects:", error);
     }
@@ -89,6 +70,7 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
+  // console.log("allProjects", totalProjects);
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Main Content */}
@@ -135,7 +117,7 @@ const Dashboard = () => {
                         Pending Projects
                       </p>
                       <p className="text-xl sm:text-2xl text-red-600 blink">
-                        {pendingProjects}
+                        {holdProjects}
                       </p>
                     </div>
                   </div>
@@ -189,7 +171,6 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </NavLink>
-
                 <div className="bg-white shadow-xl rounded-lg p-8 flex items-center space-x-4">
                   <div className="icon bg-red-500 rounded-full p-3 w-12 h-12 flex items-center justify-center">
                     <PlayCircle className="mx-auto text-white" />
@@ -198,13 +179,13 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       Running Project
                     </h3>
-                    <h2 className="text-2xl font-bold">{runningProjects}</h2>
-                    <div className="text-xs text-gray-500 flex items-center space-x-2">
+                    <h2 className="text-2xl font-bold">{inProgressProjects}</h2>
+                    {/* <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span></span>
                       <span className="font-semibold text-green-500">
                         2.5% ↑
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -217,10 +198,10 @@ const Dashboard = () => {
                       Completed
                     </h3>
                     <h2 className="text-2xl font-bold">{completedProjects}</h2>
-                    <div className="text-xs text-gray-500 flex items-center space-x-2">
+                    {/* <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>560</span>
                       <span className="font-semibold text-red-500">1.5% ↓</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -232,13 +213,13 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       New Poject
                     </h3>
-                    <h2 className="text-2xl font-bold">{newProjects}</h2>
-                    <div className="text-xs text-gray-500 flex items-center space-x-2">
+                    <h2 className="text-2xl font-bold">{freshProjects}</h2>
+                    {/* <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>10,320</span>
                       <span className="font-semibold text-green-500">
                         11.5% ↑
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -251,10 +232,10 @@ const Dashboard = () => {
                       Upcoming Deadlines
                     </h3>
                     <h2 className="text-2xl font-bold">{upcomingDeadlines}</h2>
-                    <div className="text-xs text-gray-500 flex items-center space-x-2">
+                    {/* <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>450</span>
                       <span className="font-semibold text-red-500">1.5% ↓</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -267,12 +248,12 @@ const Dashboard = () => {
                       Team Performance
                     </h3>
                     <h2 className="text-2xl font-bold">{teamPerformance}</h2>
-                    <div className="text-xs text-gray-500 flex items-center space-x-2">
+                    {/* <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>64</span>
                       <span className="font-semibold text-green-500">
                         2.5% ↑
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

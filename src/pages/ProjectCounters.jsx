@@ -54,26 +54,21 @@ const ProjectDashboard = () => {
           (project) => new Date(project.createdAt) >= thirtyDaysAgo
         ).length
       );
-
       setFreshProjects(
         projects.filter((project) => project.status === "fresh").length
       );
-
       setholdProjects(
         projects.filter((project) => project.status === "Hold").length
       );
-
       setInProgressProjects(
         projects.filter(
           (project) =>
             project.status === "In Progress" || project.status === "running"
         ).length
       );
-
       setActiveProjects(
         projects.filter((project) => project.status === "Active").length
       );
-
       setCompletedProjects(
         projects.filter((project) => project.status === "Completed").length
       );
