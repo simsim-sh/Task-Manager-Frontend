@@ -11,6 +11,7 @@ import AddProjectForm from "./pages/AddProjectForm";
 import AddUserPage from "./pages/adduser";
 import TaskForm from "./pages/taskfrom";
 import Layout from "./Calender/Layout";
+import ConfirmationPopup from "./popup/confirmationpopup";
 
 const router = createBrowserRouter([
   { path: "/", element: <SignIn /> },
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
   { path: "/addprojectform", element: <AddProjectForm /> },
   { path: "/adduser", element: <AddUserPage /> },
   { path: "/layout", element: <Layout /> },
+  { path: "/popup", element: < ConfirmationPopup /> },
 ]);
 
 function App() {

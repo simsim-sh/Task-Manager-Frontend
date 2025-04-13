@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import {
-  createTask,
-  getAllProject,
-  getAllUsers,
-  getTaskById,
-} from "../api/service";
+import { createTask, getAllProject, getAllUsers } from "../api/service";
 import {
   TbLayoutGridAdd,
   TbClockHour4,
@@ -103,6 +98,15 @@ const TaskForm = () => {
     fetchInitialData();
   }, []);
 
+  useEffect(() => {
+    if (formData.status === "hold") {
+      const formElement = document.getElementById("task-form");
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [formData.status]);
+
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "High":
@@ -117,7 +121,7 @@ const TaskForm = () => {
   };
 
   return (
-    <div className="rounded-xl overflow-hidden">
+    <div id="task-form" className="rounded-xl overflow-hidden">
       <div className="relative py-5 px-6">
         <h2 className="text-xl font-bold text-black relative z-10 flex items-center">
           <span className="mr-3 bg-blue-500 text-white p-2 rounded-full">
@@ -126,8 +130,8 @@ const TaskForm = () => {
           Create New Task
         </h2>
       </div>
-      <div className="p-6 bg-white">
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="p-6 bg-white max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="space-y-5 pb-10">
           {/* Task Name Field */}
           <div className="relative">
             <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">

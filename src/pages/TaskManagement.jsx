@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { Trash2, Edit, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import {
+  Trash2,
+  Edit,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Search,
+  Filter,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getAllTasks, deleteTaskByTitle, getTaskById } from "../api/service";
 import Sidebar from "../Component/Sidebar";
@@ -16,11 +24,25 @@ const TaskManagement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [allTasks, setAllTasks] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
   const [taskById, setTaskById] = useState({});
   const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [tasksPerPage, setTasksPerPage] = useState(5);
+
+  // Filter states
+  const [filters, setFilters] = useState({
+    status: "",
+    priority: "",
+    search: "",
+    assignedTo: "",
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchTasks = async () => {
     try {
@@ -34,7 +56,7 @@ const TaskManagement = () => {
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setAllTasks(sortedTasks);
-      // console.log("Tasks fetched successfully:", sortedTasks._id);
+      setFilteredTasks(sortedTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
       toast.error("Error fetching tasks. Please try again.");
@@ -50,6 +72,7 @@ const TaskManagement = () => {
       if (response?.success) {
         toast.success("Task deleted successfully");
         setAllTasks(allTasks.filter((task) => task.title !== title));
+        setFilteredTasks(filteredTasks.filter((task) => task.title !== title));
       } else {
         toast.error(response?.message || "Failed to delete task");
       }
@@ -97,12 +120,11 @@ const TaskManagement = () => {
     setTimeout(() => setShowForm(false), 300);
   };
 
-  //get task by id
+  // Fetch task by ID
   const fetchTaskByID = async (taskId) => {
     try {
       setLoading(true);
       const response = await getTaskById(taskId);
-      console.log("Task response:", response);
       const taskData = response?.data;
       if (!taskData) {
         toast.error("No task data returned.");
@@ -118,18 +140,11 @@ const TaskManagement = () => {
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      fetchTaskByID(id);
-    }
-  }, [id]);
-
-  // for update api
+  // For update API
   const fetchTaskByIDUpdate = async (taskId) => {
     try {
       setLoading(true);
       const response = await getTaskById(taskId);
-      console.log("Task response:", response);
       const taskData = response?.data;
       if (!taskData) {
         toast.error("No task data returned.");
@@ -145,16 +160,6 @@ const TaskManagement = () => {
     }
   };
 
-  useEffect(() => {
-    if (id) {
-      fetchTaskByIDUpdate(id);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
   const handleDeleteWithConfirmation = (title) => {
     Swal.fire({
       title: "Are you sure?",
@@ -167,11 +172,95 @@ const TaskManagement = () => {
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        handleDeleteTask(title); // your actual delete function
+        handleDeleteTask(title);
         Swal.fire("Deleted!", "The task has been deleted.", "success");
       }
     });
   };
+
+  // Filter tasks based on filters state
+  useEffect(() => {
+    let result = [...allTasks];
+
+    if (filters.status) {
+      result = result.filter((task) => task.status === filters.status);
+    }
+
+    if (filters.priority) {
+      result = result.filter((task) => task.priority === filters.priority);
+    }
+
+    if (filters.assignedTo) {
+      result = result.filter(
+        (task) =>
+          task.assignedToWork &&
+          task.assignedToWork
+            .toLowerCase()
+            .includes(filters.assignedTo.toLowerCase())
+      );
+    }
+
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      result = result.filter(
+        (task) =>
+          (task.taskName && task.taskName.toLowerCase().includes(searchTerm)) ||
+          (task.title && task.title.toLowerCase().includes(searchTerm)) ||
+          (task.category1 &&
+            task.category1.toLowerCase().includes(searchTerm)) ||
+          (task.category2 && task.category2.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    setFilteredTasks(result);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [filters, allTasks]);
+
+  // Pagination logic
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = filteredTasks.slice(indexOfFirstTask, indexOfLastTask);
+  const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      status: "",
+      priority: "",
+      search: "",
+      assignedTo: "",
+    });
+  };
+
+  // Load tasks on component mount
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // Fetch task by ID if ID is provided in URL
+  useEffect(() => {
+    if (id) {
+      fetchTaskByID(id);
+    }
+  }, [id]);
+
+  // Fetch task for update if ID is provided in URL
+  useEffect(() => {
+    if (id) {
+      fetchTaskByIDUpdate(id);
+    }
+  }, [id]);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -214,17 +303,94 @@ const TaskManagement = () => {
           </nav>
           <StatusDashboard />
           <div className="bg-white rounded-lg shadow-md p-6">
+            {/* Header and Buttons */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-800">
                 Task Management
               </h2>
-              <button
-                onClick={openForm}
-                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
-              >
-                <IoMdAdd className="w-5 h-5" />
-                Create New Task
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                >
+                  <Filter className="w-5 h-5" />
+                  {showFilters ? "Hide Filters" : "Show Filters"}
+                </button>
+                <button
+                  onClick={openForm}
+                  className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
+                >
+                  <IoMdAdd className="w-5 h-5" />
+                  Create New Task
+                </button>
+              </div>
+            </div>
+
+            {/* Search and Filters */}
+            <div className={`mb-6 ${showFilters ? "block" : "hidden"}`}>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <Search className="w-4 h-4 text-gray-500" />
+                  </div>
+                  <input
+                    type="text"
+                    className="pl-10 p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Search tasks..."
+                    name="search"
+                    value={filters.search}
+                    onChange={handleFilterChange}
+                  />
+                </div>
+                <select
+                  name="status"
+                  value={filters.status}
+                  onChange={handleFilterChange}
+                  className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="FRESH">Fresh</option>
+                  <option value="IN PROGRESS">In Progress</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+                <select
+                  name="priority"
+                  value={filters.priority}
+                  onChange={handleFilterChange}
+                  className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Priorities</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+                <input
+                  type="text"
+                  className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Assigned to..."
+                  name="assignedTo"
+                  value={filters.assignedTo}
+                  onChange={handleFilterChange}
+                />
+                <div className="flex space-x-2">
+                  <button
+                    onClick={clearFilters}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                  >
+                    Clear Filters
+                  </button>
+                  <select
+                    value={tasksPerPage}
+                    onChange={(e) => setTasksPerPage(Number(e.target.value))}
+                    className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="5">5 per page</option>
+                    <option value="10">10 per page</option>
+                    <option value="15">15 per page</option>
+                    <option value="20">20 per page</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             {/* Slide-in Form Modal */}
@@ -245,12 +411,20 @@ const TaskManagement = () => {
                 </div>
               </div>
             )}
+
+            {/* Results count */}
+            <div className="text-sm text-gray-600 mb-4">
+              Showing {filteredTasks.length > 0 ? indexOfFirstTask + 1 : 0} to{" "}
+              {Math.min(indexOfLastTask, filteredTasks.length)} of{" "}
+              {filteredTasks.length} tasks
+            </div>
+
             {/* Task Table */}
             {loading ? (
               <div className="flex justify-center items-center py-10">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
               </div>
-            ) : allTasks.length > 0 ? (
+            ) : currentTasks.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -279,7 +453,7 @@ const TaskManagement = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {allTasks.map((task) => (
+                    {currentTasks.map((task) => (
                       <tr
                         key={task._id}
                         className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150"
@@ -373,6 +547,68 @@ const TaskManagement = () => {
             ) : (
               <div className="text-center py-8 text-gray-500">
                 No tasks found. Create a new task to get started.
+              </div>
+            )}
+
+            {/* Pagination */}
+            {filteredTasks.length > 0 && (
+              <div className="flex justify-center mt-6">
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === 1
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    &lt;
+                  </button>
+
+                  {/* Page Numbers */}
+                  {[...Array(totalPages)].map((_, i) => {
+                    // Only show 5 page numbers at most
+                    if (
+                      i === 0 || // Always show first page
+                      i === totalPages - 1 || // Always show last page
+                      (i >= currentPage - 2 && i <= currentPage + 2) // Show 2 pages before and after current
+                    ) {
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => paginate(i + 1)}
+                          className={`px-3 py-1 rounded-md ${
+                            currentPage === i + 1
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      );
+                    } else if (
+                      (i === 1 && currentPage > 4) ||
+                      (i === totalPages - 2 && currentPage < totalPages - 3)
+                    ) {
+                      // Show ellipsis
+                      return <span key={i}>...</span>;
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === totalPages
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    &gt;
+                  </button>
+                </div>
               </div>
             )}
           </div>

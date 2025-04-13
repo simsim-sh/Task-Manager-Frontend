@@ -4,6 +4,8 @@ import Sidebar from "../Component/Sidebar";
 import smart from "../assets/images/smart.jpeg";
 import { NavLink, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { HiHome, HiChevronRight } from "react-icons/hi";
+import { FiSearch } from "react-icons/fi";
 import {
   getProjectById,
   deleteProjectById,
@@ -12,6 +14,8 @@ import {
 import AddProjects from "../Component/addProjectpopup";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
 import ProjectCounters from "../pages/ProjectCounters";
+import Swal from "sweetalert2";
+import { formatDate } from "../utlis/helper";
 
 function ProjectDashboardFile() {
   const { projectId } = useParams();
@@ -124,35 +128,13 @@ function ProjectDashboardFile() {
                   to="/dashboard"
                   className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
                 >
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                  </svg>
+                  <HiHome className="w-4 h-4 mr-2 text-gray-700" />
                   Dashboard
                 </NavLink>
               </li>
               <li>
                 <div className="flex items-center">
-                  <svg
-                    className="w-3 h-3 text-gray-400 mx-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 6 10"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 9 4-4-4-4"
-                    />
-                  </svg>
+                  <HiChevronRight className="w-3 h-3 text-gray-400 mx-1" />
                   <NavLink
                     to="/project"
                     className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors md:ml-2"
@@ -163,21 +145,7 @@ function ProjectDashboardFile() {
               </li>
               <li aria-current="page">
                 <div className="flex items-center">
-                  <svg
-                    className="w-3 h-3 text-gray-400 mx-1"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 6 10"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 9 4-4-4-4"
-                    />
-                  </svg>
+                  <HiChevronRight className="w-3 h-3 text-gray-400 mx-1" />
                   <NavLink
                     to="/projectdetail"
                     className="ml-1 text-sm font-medium text-blue-600 md:ml-2"
@@ -192,7 +160,7 @@ function ProjectDashboardFile() {
           {/* Project Counters Section */}
           <ProjectCounters />
           {/* Main card container */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden ">
             {/* Header and actions */}
             <div className="bg-gray-50 border-b px-6 py-4">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -202,21 +170,7 @@ function ProjectDashboardFile() {
                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                   <div className="relative w-full md:w-64">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-gray-500"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                        />
-                      </svg>
+                      <FiSearch className="w-4 h-4 text-gray-500" />
                     </div>
                     <input
                       type="text"
@@ -299,7 +253,6 @@ function ProjectDashboardFile() {
                             {project.status}
                           </span>
                         </div>
-
                         {/* Progress */}
                         <div className="text-center">
                           <div className="relative w-full h-3 bg-gray-200 rounded-full">
@@ -315,10 +268,10 @@ function ProjectDashboardFile() {
 
                         {/* Created Info */}
                         <div className="text-center text-xs text-gray-600">
-                          <p>{project.createdBy || "N/A"}</p>
                           <p>
-                            {new Date(project.createdAt).toLocaleDateString()}
+                            Created At: {formatDate(project.createdAt) || "N/A"}
                           </p>
+                          <p>Created By: {project.created || "N/A"}</p>
                         </div>
 
                         {/* Total Task Members */}
@@ -338,10 +291,29 @@ function ProjectDashboardFile() {
                           <MdDeleteForever
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteProject(project._id);
+                              Swal.fire({
+                                title: "Are you sure?",
+                                text: "You won’t be able to revert this!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#d33",
+                                cancelButtonColor: "#3085d6",
+                                confirmButtonText: "Yes, delete it!",
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  handleDeleteProject(project._id);
+                                }
+                              });
                             }}
                             className="size-6 cursor-pointer text-red-600"
                           />
+                          {/* <MdDeleteForever
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteProject(project._id);
+                            }}
+                            className="size-6 cursor-pointer text-red-600"
+                          /> */}
                         </div>
                       </div>
                     ))}

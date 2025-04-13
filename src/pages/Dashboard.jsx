@@ -28,13 +28,13 @@ const Dashboard = () => {
 
   const fetchProjects = async () => {
     try {
-      console.log("📡 Fetching projects...");
+      console.log("Fetching projects...");
       const data = await getAllProject();
 
-      console.log("✅ Full API response:", data);
+      console.log("Full API response:", data);
 
       const projects = data?.data;
-      console.log("📦 Extracted projects array:", projects);
+      console.log("Extracted projects array:", projects);
 
       if (!Array.isArray(projects)) {
         console.error("❌ 'data.data' is not an array", projects);
@@ -89,55 +89,15 @@ const Dashboard = () => {
     fetchProjects();
   }, []);
 
-  const [isMobile, setIsMobile] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  // Detect screen size changes
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-
-      // Only auto-close sidebar on mobile screens
-      if (mobile) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () => {
-      window.removeEventListener("resize", checkMobile);
-    };
-  }, []);
-
-  // Toggle sidebar
-  const toggleSidebar = () => {
-    setSidebarOpen((prev) => !prev);
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Mobile menu button - only visible on small screens */}
-      <div className="fixed top-4 left-4 z-50 block md:hidden">
-        <button
-          onClick={toggleSidebar}
-          className="p-2 bg-blue-500 text-white rounded-md shadow-md"
-        >
-          {sidebarOpen ? "×" : "☰"}
-        </button>
-      </div>
-
       {/* Main Content */}
       <div className="flex flex-1 bg-gradient-to-r from-blue-50 to-purple-50">
         <Sidebar />
         {/* Dashboard Content */}
         <main className="flex-1 p-3 pt-1 sm:pt-1  md:pt-1 sm:p-4 md:p-6">
           {/* Header */}
-          <Header toggleSidebar={toggleSidebar} />
+          <Header />
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* 7 columns*/}
             <div className="col-span-1 md:col-span-7 space-y-6">

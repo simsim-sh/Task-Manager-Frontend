@@ -6,8 +6,9 @@ import Sidebar from "../Component/Sidebar";
 import { useState } from "react";
 import ProjectCard from "../Component/projectDetailCard";
 import ProjectCounter from "../pages/ProjectCounters";
-import TaskManagement from "./TaskManagement";
+import UserActivityTimeline from "./ProjectActivity";
 import StatusDashboard from "../Component/statusDashboard";
+import TaskManagement from "./TaskManagement";
 
 const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
@@ -43,14 +44,19 @@ const ProjectDetailPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <span className="h-screen top-0 flex-shrink-0 z-50 ">
+    <div className="flex h-screen bg-gray-100 overflow-auto">
+      {/* Sidebar */}
+      <div className="fixed inset-y-0 left-0 w-64 z-50">
         <Sidebar />
-      </span>
-      <div className=" flex flex-col flex-1">
-        <Header />
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col pl-64">
+        <div className="sticky top-0 z-40">
+          <Header />
+        </div>
         {/* Main content area */}
-        <div className="flex-1  bg-gray-200">
+        <div className="flex-1  bg-gray-100">
           <div className="container mx-auto px-4 py-6">
             {/* Breadcrumbs */}
             <nav className="flex mb-6" aria-label="Breadcrumb">
@@ -87,7 +93,7 @@ const ProjectDetailPage = () => {
             </nav>
 
             {/* Header with Action Buttons */}
-            <div className="bg-gradient-to-r from-blue-800 to-purple-600 text-white rounded-xl shadow-xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center">
+            {/* <div className="bg-gradient-to-r from-blue-800 to-purple-600 text-white rounded-xl shadow-xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center mb-4 md:mb-0">
                 <Award className="w-8 h-8 mr-3 text-yellow-300" />
                 <div>
@@ -108,18 +114,33 @@ const ProjectDetailPage = () => {
                   <Archive className="w-4 h-4 mr-2" /> Archive
                 </button>
               </div>
-            </div>
+            </div> */}
+
+            <StatusDashboard />
 
             {/* Content Area - Left & Right Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left side: ProjectCard */}
-              <div className="lg:col-span-1">
-                <ProjectCard />
+            <div className="flex flex-col space-y-6">
+              {/* Header Section with Title and possible action buttons */}
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Project Overview
+                </h2>
+                <div className="flex space-x-3">
+                  {/* Optional action buttons could go here */}
+                </div>
               </div>
 
-              {/* Right side: ProjectCounter and Table */}
-              <div className="space-y-6">
-                <StatusDashboard />
+              {/* Main Content Area */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                {/* Project Card - takes 1/3 space on extra large screens */}
+                <div className="xl:col-span-1 bg-white rounded-lg shadow-md">
+                  <ProjectCard />
+                </div>
+
+                {/* User Activity Timeline - takes 2/3 space on extra large screens */}
+                <div className="xl:col-span-2 rounded-lg">
+                  <UserActivityTimeline />
+                </div>
               </div>
             </div>
           </div>

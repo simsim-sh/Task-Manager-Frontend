@@ -12,6 +12,7 @@ import {
   FaMapMarkerAlt,
   FaSave,
 } from "react-icons/fa";
+import { HiChevronDown } from "react-icons/hi"; // Heroicons outline
 import { BiTask, BiCategory, BiNote } from "react-icons/bi";
 import { MdDescription, MdAssignmentInd } from "react-icons/md";
 import { AiOutlineTeam } from "react-icons/ai";
@@ -127,15 +128,15 @@ const AddProject = ({ closePopup, selectedProject }) => {
   // Get status color
   const getStatusColor = (status) => {
     switch (status) {
-      case "Pending":
+      case "Fresh":
         return "bg-yellow-100 text-yellow-800";
       case "In Progress":
         return "bg-blue-100 text-blue-800";
       case "Completed":
         return "bg-green-100 text-green-800";
-      case "On Hold":
+      case "Hold":
         return "bg-gray-100 text-gray-800";
-      case "Cancelled":
+      case "Active":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -230,19 +231,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
                       <option value="marketing">Marketing</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <svg
-                        className="h-4 w-4 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <HiChevronDown className="h-4 w-4 text-gray-400" />
                     </div>
                   </div>
                 </div>
@@ -278,19 +267,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
                       clientSectionOpen ? "rotate-180" : ""
                     }`}
                   >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                    <HiChevronDown className="h-4 w-4 text-gray-400" />
                   </span>
                 </div>
 
@@ -397,19 +374,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
                       <option value="Marketing Team">Marketing Team</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <svg
-                        className="h-4 w-4 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <HiChevronDown className="h-4 w-4 text-gray-400" />
                     </div>
                   </div>
                 </div>
@@ -431,26 +396,14 @@ const AddProject = ({ closePopup, selectedProject }) => {
                         formData.status
                       )}`}
                     >
-                      <option value="Pending">Pending</option>
+                      <option value="fresh">fresh</option>
                       <option value="In Progress">In Progress</option>
                       <option value="Completed">Completed</option>
-                      <option value="On Hold">On Hold</option>
-                      <option value="Cancelled">Cancelled</option>
+                      <option value="On Hold">Hold</option>
+                      <option value="Cancelled">Active</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                      <svg
-                        className="h-4 w-4 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <HiChevronDown className="h-4 w-4 text-gray-400" />
                     </div>
                   </div>
                 </div>

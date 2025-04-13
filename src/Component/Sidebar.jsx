@@ -190,13 +190,13 @@ const Sidebar = () => {
           </a>
 
           {/* Documents */}
-          <a
-            href="#"
+          <NavLink
+            to="/popup"
             className="flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
           >
             <FileText className="h-5 w-5" />
             {isExpanded && <span className="ml-3">Documents</span>}
-          </a>
+          </NavLink>
 
           {/* Settings */}
           <a

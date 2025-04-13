@@ -62,18 +62,6 @@ const Header = () => {
           <>
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
               <div className="relative flex h-16 items-center justify-between">
-                {/* Mobile menu button */}
-                <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                  <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <span className="sr-only">Open main menu</span>
-                    {open ? (
-                      <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                    ) : (
-                      <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                    )}
-                  </Disclosure.Button>
-                </div>
-
                 {/* Desktop Search Bar */}
                 <div className="hidden sm:flex items-center flex-1 justify-center sm:justify-start">
                   <div className="relative w-full max-w-xs">

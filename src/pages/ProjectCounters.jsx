@@ -1,4 +1,6 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import { getAllProject } from "../api/service";
 import {
   MdAssignment,
   MdPeople,
@@ -27,6 +29,63 @@ const ProjectCounter = ({ icon, label, count }) => {
 };
 
 const ProjectDashboard = () => {
+  // Create separate state variables for different metrics
+  const [completedProjects, setCompletedProjects] = useState(0);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [holdProjects, setholdProjects] = useState(0);
+  const [inProgressProjects, setInProgressProjects] = useState(0);
+  const [activeProjects, setActiveProjects] = useState(0);
+  const [freshProjects, setFreshProjects] = useState(0);
+
+  // Fetch project data from the API
+  const fetchProjects = async () => {
+    try {
+      const data = await getAllProject();
+      const projects = data?.data;
+      if (!Array.isArray(projects)) {
+        console.error("❌ 'data.data' is not an array", projects);
+        return;
+      }
+      const now = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      setTotalProjects(
+        projects.filter(
+          (project) => new Date(project.createdAt) >= thirtyDaysAgo
+        ).length
+      );
+
+      setFreshProjects(
+        projects.filter((project) => project.status === "fresh").length
+      );
+
+      setholdProjects(
+        projects.filter((project) => project.status === "Hold").length
+      );
+
+      setInProgressProjects(
+        projects.filter(
+          (project) =>
+            project.status === "In Progress" || project.status === "running"
+        ).length
+      );
+
+      setActiveProjects(
+        projects.filter((project) => project.status === "Active").length
+      );
+
+      setCompletedProjects(
+        projects.filter((project) => project.status === "Completed").length
+      );
+    } catch (error) {
+      console.error("❌ Error fetching projects:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   return (
     <div className="p-4 bg-gray-50">
       <div className="flex items-center justify-between mb-3">
@@ -36,32 +95,38 @@ const ProjectDashboard = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <ProjectCounter
           icon={<MdAssignment className="text-lg" />}
-          label="Fresh"
-          count={9}
+          label="Total Projects"
+          count={totalProjects}
         />
 
         <ProjectCounter
           icon={<MdPeople className="text-lg" />}
-          label="Inactive"
-          count={3}
+          label="Fresh"
+          count={freshProjects}
+        />
+
+        <ProjectCounter
+          icon={<MdPeople className="text-lg" />}
+          label="Hold"
+          count={holdProjects}
         />
 
         <ProjectCounter
           icon={<MdPlayCircleFilled className="text-lg" />}
           label="In Progress"
-          count={1}
+          count={inProgressProjects}
         />
 
         <ProjectCounter
           icon={<MdBolt className="text-lg" />}
           label="Active"
-          count={1}
+          count={activeProjects}
         />
 
         <ProjectCounter
           icon={<MdCheckCircle className="text-lg" />}
           label="Completed"
-          count={2}
+          count={completedProjects}
         />
       </div>
     </div>

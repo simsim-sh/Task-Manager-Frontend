@@ -69,6 +69,14 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		}
   	}
-  },
-  plugins: [require("tailwindcss-animate")],
+	},
+  variants: {
+  scrollbar: ['rounded'], // Optional: adds `scrollbar-rounded` class
+},
+plugins: [
+  require("tailwindcss-animate"),
+  require("tailwind-scrollbar"),
+  require("tailwind-scrollbar-hide"),
+],
+
 }
