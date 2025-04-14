@@ -1,59 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { register } from "../api/service";
 import toast from "react-hot-toast";
-
-const UserIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-    />
-  </svg>
-);
-
-const EmailIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-    />
-  </svg>
-);
-
-const LockIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-5 w-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-    />
-  </svg>
-);
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaBriefcase,
+  FaCheck,
+  FaShieldAlt,
+  FaNewspaper,
+  FaToggleOn,
+} from "react-icons/fa";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -109,186 +67,267 @@ const SignUp = () => {
       try {
         const response = await register(formData);
         if (response.success) {
-          toast.success(`User Register in: ${response.data}`);
+          toast.success(`User Registered: ${response.data}`);
           navigate("/");
         } else {
           toast.error(
-            `Register Failed: ${response.message || "Unknown error"}`
+            `Registration Failed: ${response.message || "Unknown error"}`
           );
         }
       } catch (error) {
-        toast.error(`Sign In Error: ${error.message || error}`);
+        toast.error(`Sign Up Error: ${error.message || error}`);
       }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-800 flex items-center justify-center p-4">
-      <div className="bg-white shadow-md rounded-lg p-8 max-w-2xl w-full">
-        <h2 className="text-2xl font-bold text-center mb-6">
-          Create an Account
-        </h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-indigo-900 flex items-center justify-center p-4">
+      <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-2xl w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-800">
+            Create an Account
+          </h2>
+          <p className="text-gray-500 mt-2">
+            Join our community and get started today
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <UserIcon />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Personal Information Section */}
+          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+              <FaUser className="mr-2 text-blue-500" /> Personal Information
+            </h3>
+            <div className="space-y-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaUser className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaEnvelope className="text-gray-400" />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
+              </div>
             </div>
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-            )}
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <EmailIcon />
+          {/* Security Section */}
+          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+              <FaLock className="mr-2 text-blue-500" /> Security
+            </h3>
+            <div className="space-y-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock className="text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                )}
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock className="text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
             </div>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <LockIcon />
+          {/* Role & Permissions Section */}
+          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+              <FaShieldAlt className="mr-2 text-blue-500" /> Role & Permissions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  User Type
+                </label>
+                <div className="relative">
+                  <select
+                    name="userType"
+                    value={formData.userType}
+                    onChange={handleChange}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  >
+                    <option value="">Select User Type</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                    <option value="manager">Manager</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <FaUser className="text-gray-400" />
+                  </div>
+                </div>
+                {errors.userType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.userType}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Designation
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaBriefcase className="text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    name="designation"
+                    placeholder="Designation"
+                    value={formData.designation}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                {errors.designation && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.designation}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Permission Level
+                </label>
+                <div className="relative">
+                  <select
+                    name="permission"
+                    value={formData.permission}
+                    onChange={handleChange}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  >
+                    <option value="">Select Permission</option>
+                    <option value="read">Read</option>
+                    <option value="write">Write</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <FaShieldAlt className="text-gray-400" />
+                  </div>
+                </div>
+                {errors.permission && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.permission}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Post Module
+                </label>
+                <div className="relative">
+                  <select
+                    name="postModule"
+                    value={formData.postModule}
+                    onChange={handleChange}
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  >
+                    <option value="">Select Post Module</option>
+                    <option value="blog">Blog</option>
+                    <option value="news">News</option>
+                    <option value="project">Project</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <FaNewspaper className="text-gray-400" />
+                  </div>
+                </div>
+                {errors.postModule && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.postModule}
+                  </p>
+                )}
+              </div>
             </div>
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <LockIcon />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="relative mr-3">
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <FaToggleOn className="text-gray-400" />
+                </div>
+              </div>
+              <label className="text-sm text-gray-600">Status</label>
             </div>
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.confirmPassword}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <select
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select User Type</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-              <option value="manager">Manager</option>
-            </select>
-            {errors.userType && (
-              <p className="text-red-500 text-sm mt-1">{errors.userType}</p>
-            )}
-          </div>
-
-          <div>
-            <input
-              type="text"
-              name="designation"
-              placeholder="Designation"
-              value={formData.designation}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.designation && (
-              <p className="text-red-500 text-sm mt-1">{errors.designation}</p>
-            )}
-          </div>
-
-          <div>
-            <select
-              name="permission"
-              value={formData.permission}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Permission</option>
-              <option value="read">Read</option>
-              <option value="write">Write</option>
-              <option value="admin">Admin</option>
-            </select>
-            {errors.permission && (
-              <p className="text-red-500 text-sm mt-1">{errors.permission}</p>
-            )}
-          </div>
-
-          <div>
-            <select
-              name="postModule"
-              value={formData.postModule}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Post Module</option>
-              <option value="blog">Blog</option>
-              <option value="news">News</option>
-              <option value="project">Project</option>
-            </select>
-            {errors.postModule && (
-              <p className="text-red-500 text-sm mt-1">{errors.postModule}</p>
-            )}
-          </div>
-
-          <div>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="termsAccepted"
-              id="terms"
-              checked={formData.termsAccepted}
-              onChange={handleChange}
-              className="mr-2"
-            />
-            <label htmlFor="terms" className="flex items-center">
-              I accept the Terms and Conditions
-            </label>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="termsAccepted"
+                id="terms"
+                checked={formData.termsAccepted}
+                onChange={handleChange}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="terms"
+                className="ml-2 block text-sm text-gray-700"
+              >
+                I accept the{" "}
+                <span className="text-blue-600 hover:underline cursor-pointer">
+                  Terms and Conditions
+                </span>
+              </label>
+            </div>
           </div>
           {errors.termsAccepted && (
             <p className="text-red-500 text-sm">{errors.termsAccepted}</p>
@@ -296,16 +335,16 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition duration-300 shadow-lg transform hover:-translate-y-0.5"
           >
-            Sign Up
+            Create Account
           </button>
         </form>
 
-        <div className="text-center mt-4">
-          <p className="text-sm">
+        <div className="text-center mt-6">
+          <p className="text-gray-600">
             Already have an account?{" "}
-            <a href="/" className="text-blue-500 hover:underline">
+            <a href="/" className="text-blue-600 font-medium hover:underline">
               Log in
             </a>
           </p>

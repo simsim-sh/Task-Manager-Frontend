@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Favicon from "../assets/images/favicon.ico";
 import { Mail, Lock, Eye, EyeOff, CheckSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/service";
@@ -93,8 +94,12 @@ const SignIn = () => {
         {/* Sidebar */}
         <div className="w-24 bg-white border-r flex flex-col">
           <div className="p-4 flex justify-center">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-              <div className="w-8 h-4 bg-white rounded-full mt-2"></div>
+            <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-blue-600">
+              <img
+                src={Favicon}
+                alt="User Icon"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 

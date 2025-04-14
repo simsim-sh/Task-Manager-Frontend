@@ -144,6 +144,28 @@ export const getAllUsers = async () => {
   }
 };
 
+
+export const updateUser = async (email, formData) => {
+  try {
+    const response = await axios.put(
+      `${AUTHURL}/updateUser/${email}`,
+      formData
+    );
+    return response.data;  // This returns the response from the backend (success message, updated user data)
+  } catch (error) {
+    return catchError(error);  // Handle any errors
+  }
+};
+
+export const deleteUser = async (email) => {
+  try {
+    const response = await axios.delete(`${AUTHURL}/deleteUser/${email}`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
 // donut chart api
 export const getProjectStatusSummary = async () => {
   try {

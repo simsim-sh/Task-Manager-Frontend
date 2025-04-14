@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import Sidebar from "../Component/Sidebar";
 import Header from "../Component/Header";
 import AddUserForm from "../Component/adduserform";
@@ -6,7 +7,7 @@ import { MdPersonAdd, MdDelete } from "react-icons/md";
 import { LiaUserEditSolid } from "react-icons/lia";
 import girlpicture from "../assets/images/girlpicture.png";
 import toast from "react-hot-toast";
-import { getAllUsers } from "../api/service";
+import { getAllUsers, deleteUser } from "../api/service";
 import Profile from "../assets/images/girlpicture.png";
 import { NavLink } from "react-router-dom";
 import { TbHomeHeart } from "react-icons/tb";
@@ -42,10 +43,30 @@ const UserManagementPage = () => {
   const openPopup = () => setShowPopup(true);
   const closePopup = () => setShowPopup(false);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to remove this user?")) {
-      setUsers(users.filter((user) => user.id !== id));
-    }
+  const handleDelete = async (email) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await deleteUser(email);
+          if (response?.success) {
+            toast.success("User deleted successfully");
+            fetchData(); // Refresh data
+          } else {
+            toast.error("Failed to delete user");
+          }
+        } catch (error) {
+          toast.error("Error deleting user");
+        }
+      }
+    });
   };
 
   const addUser = (newUser) => {
@@ -103,7 +124,7 @@ const UserManagementPage = () => {
             </button> */}
           <Table>
             <TableHeader>
-              <TableRow className="bg-blue-900 text-white">
+              <TableRow className="bg-blue-600 text-white">
                 <TableHead className="text-center">Profile</TableHead>
                 <TableHead className="text-center">Name</TableHead>
                 <TableHead className="text-center">Email</TableHead>
@@ -150,8 +171,8 @@ const UserManagementPage = () => {
                       className="hover:text-blue-700  text-blue-500"
                     />
                     <MdDelete
-                      onClick={() => handleDelete(row._id)}
-                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDelete(row.email)}
+                      className="text-red-500 hover:text-red-700 cursor-pointer"
                     />
                   </TableCell>
                 </TableRow>
