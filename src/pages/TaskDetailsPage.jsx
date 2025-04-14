@@ -187,7 +187,7 @@ const TaskDetailsPage = () => {
                             START DATE
                           </td>
                           <td className="text-sm py-3 px-3 text-right text-green-600">
-                            {taskByID?.startDate}
+                            {formatDate(taskByID?.startDate)}
                           </td>
                         </tr>
                         <tr className="border-b border-gray-100">
@@ -196,7 +196,7 @@ const TaskDetailsPage = () => {
                             END DATE
                           </td>
                           <td className="text-sm py-3 px-3 text-right text-red-600">
-                            {taskByID?.endDate}
+                            {formatDate(taskByID?.endDate)}
                           </td>
                         </tr>
                         <tr>
