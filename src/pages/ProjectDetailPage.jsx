@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronRight, Home, Award, Edit, Archive, Share2 } from "lucide-react";
+import { useParams } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
@@ -13,6 +14,7 @@ import TaskManagement from "./TaskManagement";
 const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
+  const { projectId } = useParams();
 
   const [projectData, setProjectData] = useState({
     name: "SMART REALTY CRM SOFTWARE",
@@ -134,7 +136,7 @@ const ProjectDetailPage = () => {
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Project Card - takes 1/3 space on extra large screens */}
                 <div className="xl:col-span-1 bg-white rounded-lg shadow-md">
-                  <ProjectCard />
+                  <ProjectCard projectId={projectId} />
                 </div>
 
                 {/* User Activity Timeline - takes 2/3 space on extra large screens */}

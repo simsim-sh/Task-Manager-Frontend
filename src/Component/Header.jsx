@@ -49,7 +49,7 @@ const Header = () => {
       setDarkMode(false);
       document.documentElement.classList.remove("dark");
     }
-  }, [darkMode]);
+  }, []); // ✅ Only run once on mount
 
   const toggleMobileSearch = () => {
     setMobileSearchOpen(!mobileSearchOpen);

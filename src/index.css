@@ -184,3 +184,12 @@ h6 {
   background-color: #3b82f6;
   border-radius: 6px;
 }
+
+
+html {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+  transition: background-color 0.3s, color 0.3s;
+}

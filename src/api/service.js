@@ -48,7 +48,7 @@ export const getProjectById = async (projectId) => {
     const response = await axios.get(
       `${PROJECTURL}/getProjectById/${projectId}`
     );
-    return response.data;
+    return response;
   } catch (error) {
     return catchError(error);
   }

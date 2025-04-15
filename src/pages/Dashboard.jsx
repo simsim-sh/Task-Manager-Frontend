@@ -136,7 +136,7 @@ const Dashboard = () => {
               {/* Charts */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-col-1 gap-4">
                 {/* Chart 1 */}
-                <div className="bg-white rounded-lg p-4 shadow-md h-60 sm:h-64 md:h-72">
+                <div className="bg-white rounded-lg p-4 shadow-md h-60 sm:h-64 md:h-96">
                   <ChartComponent />
                 </div>
 

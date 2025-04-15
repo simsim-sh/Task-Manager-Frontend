@@ -234,9 +234,12 @@ function ProjectDashboardFile() {
                             />
                           </div>
                           <div className="min-w-0">
-                            <h2 className="text-sm font-bold text-gray-800 truncate">
-                              {project.title}
-                            </h2>
+                            <NavLink to={`/project/${project._id}`}>
+                              <h2 className="text-sm font-bold text-gray-800 truncate">
+                                {project.title}
+                              </h2>
+                            </NavLink>
+
                             <p className="text-gray-600 text-xs">
                               {project.category}
                             </p>

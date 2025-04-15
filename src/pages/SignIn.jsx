@@ -18,24 +18,6 @@ const SignIn = () => {
     setShowPassword((prev) => !prev);
   };
 
-  useEffect(() => {
-    const generateBubbles = () => {
-      const newBubbles = [];
-      for (let i = 0; i < 15; i++) {
-        newBubbles.push({
-          id: i,
-          left: Math.random() * 100,
-          size: Math.random() * 60 + 20,
-          opacity: Math.random() * 0.3 + 0.1,
-          animationDuration: Math.random() * 15 + 10,
-          delay: Math.random() * 5,
-        });
-      }
-      setBubbles(newBubbles);
-    };
-    generateBubbles();
-  }, []);
-
   const handleSignInChange = (e) => {
     const { name, value } = e.target;
     setSignInData((prev) => ({ ...prev, [name]: value }));
@@ -63,33 +45,6 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 relative overflow-hidden">
-      {/* Bubbles Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {bubbles.map((bubble) => (
-          <div
-            key={bubble.id}
-            className="absolute rounded-full bg-blue-500"
-            style={{
-              left: `${bubble.left}%`,
-              width: `${bubble.size}px`,
-              height: `${bubble.size}px`,
-              opacity: bubble.opacity,
-              animation: `float ${bubble.animationDuration}s ease-in-out infinite`,
-              animationDelay: `${bubble.delay}s`,
-              bottom: "-10%",
-            }}
-          />
-        ))}
-      </div>
-
-      <style>{`
-        @keyframes float {
-          0% { transform: translateY(0); }
-          50% { transform: translateY(-100vh); }
-          100% { transform: translateY(-200vh); }
-        }
-      `}</style>
-
       <div className="flex h-[600px] bg-white rounded-lg shadow-2xl overflow-hidden z-10">
         {/* Sidebar */}
         <div className="w-24 bg-white border-r flex flex-col">

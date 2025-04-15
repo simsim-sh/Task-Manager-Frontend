@@ -18,7 +18,7 @@ const router = createBrowserRouter([
   { path: "/register", element: <SignUp /> },
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/project", element: <ProjectDetails /> },
-  { path: "/projectdetail", element: <ProjectDetailPage /> },
+  { path: "/project/:projectId", element: <ProjectDetailPage /> },
   { path: "/taskform", element: <TaskForm /> },
   { path: "/taskmanagement", element: <TaskManagement /> },
   { path: "/taskdetail", element: <TaskDetailsPage /> },
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
   { path: "/addprojectform", element: <AddProjectForm /> },
   { path: "/adduser", element: <AddUserPage /> },
   { path: "/layout", element: <Layout /> },
-  { path: "/popup", element: < ConfirmationPopup /> },
+  { path: "/popup", element: <ConfirmationPopup /> },
 ]);
 
 function App() {
