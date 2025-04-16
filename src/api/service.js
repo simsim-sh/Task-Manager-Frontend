@@ -1,4 +1,4 @@
-import { AUTHURL, PROJECTURL, TASKURL } from "./client";
+import { AUTHURL, PROJECTURL, TASKURL, ACTIVITYURL } from "./client";
 import { catchError } from "../utlis/helper";
 import axios from "axios";
 
@@ -175,3 +175,43 @@ export const getProjectStatusSummary = async () => {
     return catchError(error);
   }
 };
+
+
+
+// Get all activities
+export const getAllActivities = async (projectName, filter) => {
+  try {
+    const response = await axios.get(`${ACTIVITYURL}/getByProject`, {
+      params: { projectName, filter }
+    });
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+
+// Get activities by project name and filter
+export const getActivitiesByProject = async (projectName, filter) => {
+  try {
+    const response = await axios.get(`${ACTIVITYURL}/getByProject`, {
+      params: { projectName, filter },
+    });
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+// Create new activity
+export const createActivity = async (formData) => {
+  try {
+    const response = await axios.post(`${ACTIVITYURL}/createActivity`, formData);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+
+

@@ -15,6 +15,7 @@ import {
   CircleCheck,
   CircleAlert,
 } from "lucide-react";
+import { FaUsers } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { getProjectById } from "../api/service";
 
@@ -28,7 +29,7 @@ export default function ProjectCard() {
     const fetchProject = async () => {
       try {
         const response = await getProjectById(projectId);
-        console.log("first", response); // <--- Important
+        // console.log("first", response);
         setProjectData(response.data.data);
       } catch (err) {
         console.error("Error fetching project:", err); // <--- Important
@@ -44,6 +45,8 @@ export default function ProjectCard() {
   if (loading) {
     return <div className="p-6 text-center">Loading...</div>;
   }
+
+  console.log("first", projectData); // <--- Important
 
   if (error || !projectData) {
     return (
@@ -80,15 +83,16 @@ export default function ProjectCard() {
         </div>
       </div>
 
+      {/* company name */}
       <div className="relative px-6 pb-4" style={{ marginTop: "-2.5rem" }}>
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full border-4 border-white shadow-xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-            {projectData.companyName
-              ? projectData.companyName.slice(0, 2).toUpperCase()
+            {projectData.title
+              ? projectData.title.slice(0, 2).toUpperCase()
               : "PR"}
           </div>
           <h2 className="mt-4 text-xl font-bold text-gray-800 text-center">
-            {projectData.companyName || "Project Name"}
+            {projectData.title || "Project Name"}
           </h2>
 
           <div className="flex mt-3 space-x-2">
@@ -117,6 +121,7 @@ export default function ProjectCard() {
         </div>
       </div>
 
+      {/* project completion  */}
       <div className="px-6 py-4 bg-gray-50">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-700 flex items-center">
@@ -158,14 +163,14 @@ export default function ProjectCard() {
               </div>
               <div className="flex items-center">
                 <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Layers className="w-4 h-4 text-purple-600" />
+                  <FaUsers className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="ml-3">
                   <div className="text-xs text-gray-500 font-medium">
-                    Sub Category
+                    Assigned To
                   </div>
                   <div className="text-sm font-medium">
-                    {projectData.category || "None"}
+                    {projectData.assignedTo || "None"}
                   </div>
                 </div>
               </div>
@@ -187,7 +192,15 @@ export default function ProjectCard() {
             <div className="flex items-center p-2 bg-gray-50 rounded-lg">
               <Calendar className="w-4 h-4 mr-2 text-blue-600" />
               <span className="text-sm font-medium">
-                {projectData.startDate || "Not set"}
+                {new Date(projectData.createdAt).toLocaleString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                }) || "Not set"}
               </span>
             </div>
           </div>
@@ -233,7 +246,7 @@ export default function ProjectCard() {
               </div>
             )}
 
-            {projectData.clientEmail && (
+            {projectData.contactEmail && (
               <div className="flex items-center bg-white rounded-lg p-2 shadow-sm">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                   <Mail className="w-4 h-4 text-blue-600" />
@@ -257,15 +270,18 @@ export default function ProjectCard() {
 
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
         <div className="flex items-center justify-between space-x-3">
-          <a
-            href={`/project/${projectData.id}/download`}
-            className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center"
-          >
-            <Download className="w-4 h-4 mr-1" />
-            Download Report
-          </a>
           <span className="text-xs text-gray-500">
-            {projectData.lastUpdated || "Not updated"}
+            {projectData.updatedAt
+              ? new Date(projectData.updatedAt).toLocaleString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })
+              : "Not updated"}
           </span>
         </div>
       </div>

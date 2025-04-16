@@ -769,7 +769,7 @@ const TaskManagement = () => {
           .length
       );
       setFreshTasks(
-        sortedTasks.filter((task) => task.status === "fresh").length
+        sortedTasks.filter((task) => task.status === "Fresh").length
       );
       setHoldTasks(sortedTasks.filter((task) => task.status === "Hold").length);
       setInProgressTasks(
@@ -812,7 +812,7 @@ const TaskManagement = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "FRESH":
+      case "Fresh":
         return <Clock className="w-4 h-4 text-blue-500" />;
       case "IN PROGRESS":
         return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
@@ -825,7 +825,7 @@ const TaskManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "FRESH":
+      case "Fresh":
         return "bg-blue-100 text-blue-800";
       case "IN PROGRESS":
         return "bg-yellow-100 text-yellow-800";
@@ -1109,7 +1109,7 @@ const TaskManagement = () => {
                   className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">All Statuses</option>
-                  <option value="FRESH">Fresh</option>
+                  <option value="Fresh">Fresh</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Completed">Completed</option>
                   <option value="Active">Active</option>
