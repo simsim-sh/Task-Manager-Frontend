@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom"; // ✅ Import useParams
 import { Clock, AlertCircle } from "lucide-react";
 import { TbEdit } from "react-icons/tb";
 import { MdOutlineDeleteSweep } from "react-icons/md";
-import { getTasksByTitle, getAllTasks } from "../api/service";
+import { getTasksByTitle } from "../api/service"; // ✅ Correct API import
 
-// Function to clean tasks data
 const cleanTasks = (tasks) =>
   tasks.map((task) => ({
     ...task,
@@ -12,65 +12,38 @@ const cleanTasks = (tasks) =>
   }));
 
 const TaskTable = () => {
+  const { title } = useParams();
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchTitle, setSearchTitle] = useState("");
 
-  // Fetch tasks whenever searchTitle changes
+  console.log("simran title from url:", title);
   useEffect(() => {
-    if (searchTitle.trim()) {
-      searchTasks(searchTitle); // Search tasks
-    } else {
-      fetchAllTasks(); // Fetch all tasks if no search term
+    if (title) {
+      fetchTasksByProjectTitle(title); // Trigger fetching tasks
     }
-  }, [searchTitle]);
+  }, [title]);
 
-  const fetchAllTasks = async () => {
-    setLoading(true);
-    try {
-      const result = await getAllTasks();
-      if (result.success !== false) {
-        const cleaned = cleanTasks(result.data || result);
-        setTasks(cleaned);
-        setError(null);
-      } else {
-        setTasks([]); // No tasks found, empty array
-        setError(result.message);
-      }
-    } catch (err) {
-      setTasks([]); // On error, set empty array
-      setError("Failed to fetch tasks");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const searchTasks = async (title) => {
+  const fetchTasksByProjectTitle = async (title) => {
+    console.log("Fetching tasks for project title:", title); // Log the title
     setLoading(true);
     try {
       const result = await getTasksByTitle(title);
-      if (result.success !== false) {
-        const cleaned = cleanTasks(result.data || result);
+      console.log("API Response after await:", result); // Check what is returned from API
+      if (result.success) {
+        const cleaned = cleanTasks(result.data);
         setTasks(cleaned);
         setError(null);
       } else {
-        setTasks([]); // No tasks found for search term
+        setTasks([]);
         setError(result.message);
       }
     } catch (err) {
-      setError("Failed to search tasks");
+      setTasks([]);
+      setError("Failed to fetch tasks");
+      console.error("Error fetching tasks:", err); // Log error details
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTitle.trim()) {
-      searchTasks(searchTitle);
-    } else {
-      fetchAllTasks();
     }
   };
 
@@ -104,52 +77,17 @@ const TaskTable = () => {
 
   return (
     <div className="w-full">
-      {/* Search form */}
-      <div className="mb-4 p-4 bg-white rounded shadow">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            type="text"
-            value={searchTitle}
-            onChange={(e) => setSearchTitle(e.target.value)}
-            placeholder="Search by task title..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Search
-          </button>
-          {searchTitle && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchTitle("");
-                fetchAllTasks();
-              }}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-            >
-              Clear
-            </button>
-          )}
-        </form>
-      </div>
-
-      {/* Error message */}
       {error && (
         <div className="mb-4 p-4 bg-red-100 text-red-800 rounded flex items-center">
           <AlertCircle className="mr-2 h-5 w-5" />
           {error}
         </div>
       )}
-
-      {/* Loading state */}
       {loading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : (
-        // Table with tasks
         <div className="overflow-x-auto w-full">
           <table className="w-full border-collapse">
             <thead>
@@ -168,7 +106,7 @@ const TaskTable = () => {
               {tasks.length > 0 ? (
                 tasks.map((task) => (
                   <tr
-                    key={task.title}
+                    key={task._id || task.title} // Use _id if available
                     className="border-b border-gray-200 hover:bg-gray-50"
                   >
                     <td className="py-3 px-4">
@@ -212,7 +150,6 @@ const TaskTable = () => {
                         )}
                       </div>
                     </td>
-
                     <td className="py-3 px-2">
                       <div className="flex space-x-2">
                         <button className="text-blue-500 hover:text-blue-700">
@@ -228,7 +165,7 @@ const TaskTable = () => {
               ) : (
                 <tr>
                   <td colSpan="8" className="py-6 text-center text-gray-500">
-                    No tasks found. Try a different search term.
+                    No tasks available.
                   </td>
                 </tr>
               )}

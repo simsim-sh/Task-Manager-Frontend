@@ -213,7 +213,6 @@ function ProjectDashboardFile() {
                       <div className="text-center">Status</div>
                       <div className="text-center">Progress</div>
                       <div className="text-center">Created Info</div>
-                      <div className="text-center">Total Task Member</div>
                       <div className="text-right pr-4">Action</div>
                     </div>
 
@@ -275,11 +274,6 @@ function ProjectDashboardFile() {
                             Created At: {formatDate(project.createdAt) || "N/A"}
                           </p>
                           <p>Created By: {project.created || "N/A"}</p>
-                        </div>
-
-                        {/* Total Task Members */}
-                        <div className="text-center text-sm text-gray-800">
-                          {project.totalTaskMembers || 0}
                         </div>
 
                         {/* Actions */}

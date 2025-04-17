@@ -102,15 +102,17 @@ export const getAllTasks = async () => {
 // Get tasks by project title
 export const getTasksByTitle = async (title) => {
   try {
-    const response = await axios.get(`${TASKURL}/getTaskByTitle?title=${title}`);
-    return response.data;
+    const response = await axios.get(`${TASKURL}/getTaskByTitle/${title}`);
+    return response.data;  // Returning the response data
   } catch (error) {
-    return catchError(error);
+    // Handle the error gracefully
+    console.error("Error fetching tasks:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to fetch tasks",
+    };
   }
 };
-
-
-
 
 // Get task by ID
 export const getTaskById = async (taskId) => {

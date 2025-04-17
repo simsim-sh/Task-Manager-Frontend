@@ -17,31 +17,6 @@ const ProjectDetailPage = () => {
   const [tasks, setTasks] = useState([]);
   const { projectId } = useParams();
 
-  const [projectData, setProjectData] = useState({
-    name: "SMART REALTY CRM SOFTWARE",
-    status: "RUNNING",
-    category: "DEVELOPMENT, BILLING",
-    subCategory: "--",
-    startDate: "1 JAN 2025 04:30 PM",
-    deadline: "01 MARCH 2025 12:00 PM",
-    createdBy: "VIKASH ARYA",
-    createdAt: "1 JAN 2025 04:30 PM",
-    clientName: "MEGHRAJ SINGH",
-    clientPhone: "+91 8115006334",
-    clientEmail: "AKASH@EXAMPLE.COM",
-    stats: {
-      totalTasks: 4,
-      totalMembers: 2,
-      activeTasks: 1,
-      freshTasks: 1,
-      completedTasks: 1,
-      inactiveTasks: 2,
-      overdueTasks: 1,
-    },
-    completionPercentage: 25,
-    priority: "High",
-  });
-
   const handleAdd = () => {
     window.location.href = "/addtask";
   };
