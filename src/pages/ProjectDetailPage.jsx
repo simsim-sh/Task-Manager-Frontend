@@ -10,6 +10,7 @@ import ProjectCounter from "../pages/ProjectCounters";
 import UserActivityTimeline from "./ProjectActivity";
 import StatusDashboard from "../Component/statusDashboard";
 import TaskManagement from "./TaskManagement";
+import TaskTable from "./TaskTable";
 
 const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
@@ -140,8 +141,16 @@ const ProjectDetailPage = () => {
                 </div>
 
                 {/* User Activity Timeline - takes 2/3 space on extra large screens */}
-                <div className="xl:col-span-2 rounded-lg">
-                  <UserActivityTimeline />
+                <div className="xl:col-span-2 space-y-6 rounded-lg">
+                  {/* User Activity Timeline Section */}
+                  <div>
+                    <UserActivityTimeline />
+                  </div>
+
+                  {/* Task Table Section */}
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <TaskTable />
+                  </div>
                 </div>
               </div>
             </div>

@@ -99,6 +99,19 @@ export const getAllTasks = async () => {
   }
 };
 
+// Get tasks by project title
+export const getTasksByTitle = async (title) => {
+  try {
+    const response = await axios.get(`${TASKURL}/getTaskByTitle?title=${title}`);
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};
+
+
+
+
 // Get task by ID
 export const getTaskById = async (taskId) => {
   try {
@@ -179,11 +192,9 @@ export const getProjectStatusSummary = async () => {
 
 
 // Get all activities
-export const getAllActivities = async (projectName, filter) => {
+export const getAllActivities = async () => {
   try {
-    const response = await axios.get(`${ACTIVITYURL}/getByProject`, {
-      params: { projectName, filter }
-    });
+    const response = await axios.get(`${ACTIVITYURL}/`);
     return response.data;
   } catch (error) {
     return catchError(error);
@@ -194,16 +205,13 @@ export const getAllActivities = async (projectName, filter) => {
 // Get activities by project name and filter
 export const getActivitiesByProject = async (projectName, filter) => {
   try {
-    const response = await axios.get(`${ACTIVITYURL}/getByProject`, {
-      params: { projectName, filter },
-    });
+    const response = await axios.get(`${ACTIVITYURL}/getByProject`, (projectName, filter));
     return response.data;
   } catch (error) {
     return catchError(error);
   }
 };
 
-// Create new activity
 export const createActivity = async (formData) => {
   try {
     const response = await axios.post(`${ACTIVITYURL}/createActivity`, formData);
@@ -212,6 +220,7 @@ export const createActivity = async (formData) => {
     return catchError(error);
   }
 };
+
 
 
 
