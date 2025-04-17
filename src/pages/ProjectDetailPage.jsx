@@ -21,6 +21,8 @@ const ProjectDetailPage = () => {
     window.location.href = "/addtask";
   };
 
+  // console.log("projectId", projectId);
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-auto">
       {/* Sidebar */}
@@ -116,17 +118,17 @@ const ProjectDetailPage = () => {
                 </div>
 
                 {/* User Activity Timeline - takes 2/3 space on extra large screens */}
-                <div className="xl:col-span-2 space-y-6 rounded-lg">
-                  {/* User Activity Timeline Section */}
-                  <div>
-                    <UserActivityTimeline />
-                  </div>
+                {/* <div className="xl:col-span-2 space-y-6 rounded-lg"> */}
+                {/* User Activity Timeline Section */}
+                {/* <div>
+                    <UserActivityTimeline projectId={projectId} />
+                  </div> */}
 
-                  {/* Task Table Section */}
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <TaskTable />
-                  </div>
-                </div>
+                {/* Task Table Section */}
+                {/* <div className="bg-white p-4 rounded-lg shadow-md">
+                    <TaskTable projectId={projectId} />
+                  </div> */}
+                {/* </div> */}
               </div>
             </div>
           </div>

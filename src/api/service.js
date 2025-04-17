@@ -99,21 +99,6 @@ export const getAllTasks = async () => {
   }
 };
 
-// Get tasks by project title
-export const getTasksByTitle = async (title) => {
-  try {
-    const response = await axios.get(`${TASKURL}/getTaskByTitle/${title}`);
-    return response.data;  // Returning the response data
-  } catch (error) {
-    // Handle the error gracefully
-    console.error("Error fetching tasks:", error);
-    return {
-      success: false,
-      message: error.message || "Failed to fetch tasks",
-    };
-  }
-};
-
 // Get task by ID
 export const getTaskById = async (taskId) => {
   try {
@@ -159,16 +144,15 @@ export const getAllUsers = async () => {
   }
 };
 
-
 export const updateUser = async (email, formData) => {
   try {
     const response = await axios.put(
       `${AUTHURL}/updateUser/${email}`,
       formData
     );
-    return response.data;  // This returns the response from the backend (success message, updated user data)
+    return response.data; // This returns the response from the backend (success message, updated user data)
   } catch (error) {
-    return catchError(error);  // Handle any errors
+    return catchError(error); // Handle any errors
   }
 };
 
@@ -191,8 +175,6 @@ export const getProjectStatusSummary = async () => {
   }
 };
 
-
-
 // Get all activities
 export const getAllActivities = async () => {
   try {
@@ -203,11 +185,13 @@ export const getAllActivities = async () => {
   }
 };
 
-
 // Get activities by project name and filter
 export const getActivitiesByProject = async (projectName, filter) => {
   try {
-    const response = await axios.get(`${ACTIVITYURL}/getByProject`, (projectName, filter));
+    const response = await axios.get(
+      `${ACTIVITYURL}/getByProject`,
+      (projectName, filter)
+    );
     return response.data;
   } catch (error) {
     return catchError(error);
@@ -216,13 +200,24 @@ export const getActivitiesByProject = async (projectName, filter) => {
 
 export const createActivity = async (formData) => {
   try {
-    const response = await axios.post(`${ACTIVITYURL}/createActivity`, formData);
+    const response = await axios.post(
+      `${ACTIVITYURL}/createActivity`,
+      formData
+    );
     return response.data;
   } catch (error) {
     return catchError(error);
   }
 };
 
-
-
-
+//http://localhost:3000/api/task/getTaskByTitle?title=Amazon
+export const getTaskByTitle = async (title) => {
+  try {
+    const response = await axios.get(
+      `${TASKURL}/getTaskByTitle?title=${title}`
+    );
+    return response.data;
+  } catch (error) {
+    return catchError(error);
+  }
+};

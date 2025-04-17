@@ -71,7 +71,7 @@ const scrollbarStyles = `
   }
 `;
 
-const AddProject = ({ closePopup, selectedProject }) => {
+const AddProject = ({ closePopup, fetchData, selectedProject }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: selectedProject?.title || "",
@@ -109,8 +109,8 @@ const AddProject = ({ closePopup, selectedProject }) => {
         res?.message ||
           (selectedProject?._id ? "Project Updated" : "Project Created")
       );
-
-      handleClose();
+      fetchData();
+      closePopup();
     } catch (error) {
       toast.error(error.message || "Submission Failed");
     }
@@ -396,6 +396,7 @@ const AddProject = ({ closePopup, selectedProject }) => {
                         formData.status
                       )}`}
                     >
+                      <option value="">Select an option</option>
                       <option value="fresh">fresh</option>
                       <option value="In Progress">In Progress</option>
                       <option value="Completed">Completed</option>

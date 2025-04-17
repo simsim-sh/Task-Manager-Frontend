@@ -52,7 +52,7 @@ const TaskTable = ({ tasks, handleAdd, getStatusIcon, getStatusColor }) => {
                 </tr>
               </thead>
               <tbody>
-                {tasks.map((task) => (
+                {tasks?.map((task) => (
                   <tr
                     key={task.sr}
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150 shadow-md"

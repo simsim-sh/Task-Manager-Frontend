@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Clock, CheckCircle, AlertCircle, Users, Plus } from "lucide-react";
 import { getActivitiesByProject, createActivity } from "../api/service";
 
-export default function UserActivityTimeline({ projectName }) {
+export default function UserActivityTimeline({ projectName, projectTitle }) {
   const [activities, setActivities] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -14,18 +14,12 @@ export default function UserActivityTimeline({ projectName }) {
     user: "",
   });
 
-  useEffect(() => {
-    fetchActivities();
-  }, [projectName, filter]);
-
   async function fetchActivities() {
     if (!projectName) return;
-
     try {
       setLoading(true);
       const data = await getActivitiesByProject(projectName, filter);
       console.log("Fetched Activities:", data); // Log the data being fetched
-
       // Handle different response formats
       if (Array.isArray(data)) {
         setActivities(data);
@@ -51,12 +45,10 @@ export default function UserActivityTimeline({ projectName }) {
   async function handleCreateActivity(e) {
     e.preventDefault();
     console.log("Creating activity with data:", newActivity);
-
     if (!newActivity.taskName || !newActivity.user) {
       alert("Please fill out all required fields");
       return;
     }
-
     try {
       setLoading(true);
       // Add projectName to the activity data
@@ -65,22 +57,18 @@ export default function UserActivityTimeline({ projectName }) {
         projectName,
         timestamp: new Date().toISOString(),
       };
-
       const response = await createActivity(activityData);
       console.log("Activity created response:", response);
-
       // Add the new activity to the current state immediately for better UX
       const newActivityWithTimestamp = {
         ...activityData,
         // Use the server's timestamp if available, or use the local timestamp
         timestamp: response?.timestamp || activityData.timestamp,
       };
-
       setActivities((prevActivities) => [
         ...prevActivities,
         newActivityWithTimestamp,
       ]);
-
       // Reset form fields
       setNewActivity({
         type: "assigned",
@@ -88,10 +76,8 @@ export default function UserActivityTimeline({ projectName }) {
         assignedTo: [],
         user: "",
       });
-
       // Close the form
       setShowCreateForm(false);
-
       // Refresh activities to ensure server data is synced
       setTimeout(fetchActivities, 500);
     } catch (error) {
@@ -102,8 +88,8 @@ export default function UserActivityTimeline({ projectName }) {
     }
   }
 
+  // Split the comma-separated string into an array
   function handleAssignedToChange(e) {
-    // Split the comma-separated string into an array
     const users = e.target.value
       .split(",")
       .map((user) => user.trim())
@@ -121,7 +107,6 @@ export default function UserActivityTimeline({ projectName }) {
 
   function formatDate(dateString) {
     if (!dateString) return "Just now";
-
     try {
       const date = new Date(dateString);
       return (
@@ -157,7 +142,6 @@ export default function UserActivityTimeline({ projectName }) {
 
   function getActivityText(activity) {
     const { type, taskName, projectName, user, assignedTo } = activity;
-
     switch (type) {
       case "completed":
         return (
@@ -201,6 +185,10 @@ export default function UserActivityTimeline({ projectName }) {
         );
     }
   }
+
+  useEffect(() => {
+    fetchActivities();
+  }, [projectName, filter]);
 
   return (
     <div className="w-full max-w-3xl mx-auto bg-white rounded-lg shadow">
@@ -301,7 +289,6 @@ export default function UserActivityTimeline({ projectName }) {
             </form>
           </div>
         )}
-
         <div className="mt-2 flex space-x-2">
           {["all", "completed", "assigned", "overdue"].map((f) => (
             <button
@@ -324,7 +311,6 @@ export default function UserActivityTimeline({ projectName }) {
           ))}
         </div>
       </div>
-
       <div className="max-h-96 overflow-y-auto p-4">
         {loading && !showCreateForm ? (
           <div className="text-center py-8 text-gray-500">Loading...</div>

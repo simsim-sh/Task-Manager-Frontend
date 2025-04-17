@@ -373,6 +373,7 @@ function ProjectDashboardFile() {
       {showPopup && (
         <AddProjects
           closePopup={closePopup}
+          fetchData={fetchData}
           selectedProject={selectedProject}
         />
       )}
