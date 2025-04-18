@@ -35,7 +35,7 @@ const ProjectDashboard = () => {
   const [holdProjects, setholdProjects] = useState(0);
   const [inProgressProjects, setInProgressProjects] = useState(0);
   const [activeProjects, setActiveProjects] = useState(0);
-  const [freshProjects, setFreshProjects] = useState(0);
+  const [NewProjects, setNewProjects] = useState(0);
 
   // Fetch project data from the API
   const fetchProjects = async () => {
@@ -54,8 +54,8 @@ const ProjectDashboard = () => {
           (project) => new Date(project.createdAt) >= thirtyDaysAgo
         ).length
       );
-      setFreshProjects(
-        projects.filter((project) => project.status === "fresh").length
+      setNewProjects(
+        projects.filter((project) => project.status === "New").length
       );
       setholdProjects(
         projects.filter((project) => project.status === "Hold").length
@@ -96,8 +96,8 @@ const ProjectDashboard = () => {
 
         <ProjectCounter
           icon={<MdPeople className="text-lg" />}
-          label="Fresh"
-          count={freshProjects}
+          label="New"
+          count={NewProjects}
         />
 
         <ProjectCounter

@@ -23,6 +23,7 @@ function ProjectDashboardFile() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 10;
@@ -57,7 +58,6 @@ function ProjectDashboardFile() {
       const projectByIDResponse = await getProjectById(id);
       if (projectByIDResponse?.success) {
         setSelectedProject(projectByIDResponse?.data);
-        // console.log("Fetched Project:", projectByIDResponse?.data);
       } else {
         toast.error(projectByIDResponse?.message);
       }
@@ -110,6 +110,7 @@ function ProjectDashboardFile() {
     setSelectedProject(null);
     if (shouldRefresh) {
       fetchData(); // refresh list if needed
+      setShouldRefresh(false);
     }
   };
 
@@ -160,7 +161,7 @@ function ProjectDashboardFile() {
           {/* Project Counters Section */}
           <ProjectCounters />
           {/* Main card container */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden ">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Header and actions */}
             <div className="bg-gray-50 border-b px-6 py-4">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -181,7 +182,7 @@ function ProjectDashboardFile() {
                   {/* Add New Button to open modal */}
                   <button
                     className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-medium transition-colors flex items-center justify-center"
-                    onClick={openPopup}
+                    onClick={() => openPopup(null)}
                   >
                     <svg
                       className="w-4 h-4 mr-2"
@@ -208,7 +209,8 @@ function ProjectDashboardFile() {
                 <div className="overflow-x-auto">
                   <div className="min-w-[1000px]">
                     {/* Column Headings */}
-                    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] gap-4 border-b p-4 text-sm font-semibold bg-blue-800 text-white">
+                    <div className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr] gap-4 border-b p-4 text-sm font-semibold bg-blue-800 text-white">
+                      <div className="col-span-1 text-center">#</div>
                       <div className="col-span-1">Project Name</div>
                       <div className="text-center">Status</div>
                       <div className="text-center">Progress</div>
@@ -217,154 +219,169 @@ function ProjectDashboardFile() {
                     </div>
 
                     {/* Rows */}
-                    {currentProjects.map((project) => (
-                      <div
-                        key={project._id}
-                        onClick={() => openPopup(project)}
-                        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 border-b p-4 cursor-pointer"
-                      >
-                        {/* Project Name, Image */}
-                        <div className="flex items-start space-x-4">
-                          <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-md">
-                            <img
-                              src={smart}
-                              alt={project.title}
-                              className="w-full h-full object-cover rounded-full"
-                            />
+                    {currentProjects.length > 0 ? (
+                      currentProjects.map((project, index) => (
+                        <div
+                          key={project._id}
+                          className="grid grid-cols-[0.5fr_2fr_1fr_1fr_1fr_1fr] items-center gap-4 border-b p-4 hover:bg-gray-50 transition-colors"
+                        >
+                          {/* Project Number */}
+                          <div className="text-center font-medium">
+                            {startIndex + index + 1}
                           </div>
-                          <div className="min-w-0">
-                            <NavLink to={`/project/${project._id}`}>
-                              <h2 className="text-sm font-bold text-gray-800 truncate">
-                                {project.title}
-                              </h2>
-                            </NavLink>
 
-                            <p className="text-gray-600 text-xs">
-                              {project.category}
+                          {/* Project Name, Image */}
+                          <div
+                            onClick={() => openPopup(project)}
+                            className="flex items-start space-x-4 cursor-pointer"
+                          >
+                            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-md flex-shrink-0">
+                              <img
+                                src={smart}
+                                alt={project.title}
+                                className="w-full h-full object-cover rounded-full"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <NavLink to={`/project/${project._id}`}>
+                                <h2 className="text-sm font-bold text-gray-800 truncate">
+                                  {project.title}
+                                </h2>
+                              </NavLink>
+
+                              <p className="text-gray-600 text-xs">
+                                {project.category}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {project.assignedTo}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Status */}
+                          <div className="text-center">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                              <span className="w-2 h-2 mr-1 bg-indigo-500 rounded-full"></span>
+                              {project.status}
+                            </span>
+                          </div>
+
+                          {/* Progress */}
+                          <div className="text-center">
+                            <div className="relative w-full h-3 bg-gray-200 rounded-full">
+                              <div
+                                className="absolute top-0 left-0 h-3 bg-green-500 rounded-full"
+                                style={{ width: `${project.progress || 0}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {project.progress || 0}%
                             </p>
-                            <p className="text-xs text-gray-600">
-                              {project.assignedTo}
+                          </div>
+
+                          {/* Created Info */}
+                          <div className="text-center text-xs text-gray-600">
+                            <p>
+                              Created: {formatDate(project.createdAt) || "N/A"}
                             </p>
+                            <p>By: {project.created || "N/A"}</p>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex gap-2 justify-end pr-4">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openPopup(project);
+                              }}
+                              className="p-1 hover:bg-blue-100 rounded-full transition-colors"
+                              title="Edit Project"
+                            >
+                              <MdEdit className="size-6 text-blue-600" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                Swal.fire({
+                                  title: "Are you sure?",
+                                  text: "You won't be able to revert this!",
+                                  icon: "warning",
+                                  showCancelButton: true,
+                                  confirmButtonColor: "#d33",
+                                  cancelButtonColor: "#3085d6",
+                                  confirmButtonText: "Yes, delete it!",
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    handleDeleteProject(project._id);
+                                  }
+                                });
+                              }}
+                              className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                              title="Delete Project"
+                            >
+                              <MdDeleteForever className="size-6 text-red-600" />
+                            </button>
                           </div>
                         </div>
-
-                        {/* Status */}
-                        <div className="text-center">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                            <span className="w-2 h-2 mr-1 bg-indigo-500 rounded-full"></span>
-                            {project.status}
-                          </span>
-                        </div>
-                        {/* Progress */}
-                        <div className="text-center">
-                          <div className="relative w-full h-3 bg-gray-200 rounded-full">
-                            <div
-                              className="absolute top-0 left-0 h-3 bg-green-500 rounded-full"
-                              style={{ width: `${project.progress || 0}%` }}
-                            ></div>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {project.progress || 0}%
-                          </p>
-                        </div>
-
-                        {/* Created Info */}
-                        <div className="text-center text-xs text-gray-600">
-                          <p>
-                            Created At: {formatDate(project.createdAt) || "N/A"}
-                          </p>
-                          <p>Created By: {project.created || "N/A"}</p>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-2 justify-end pr-4">
-                          <MdEdit
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openPopup(project);
-                            }}
-                            className="size-6 cursor-pointer text-blue-600"
-                          />
-                          <MdDeleteForever
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              Swal.fire({
-                                title: "Are you sure?",
-                                text: "You won’t be able to revert this!",
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonColor: "#d33",
-                                cancelButtonColor: "#3085d6",
-                                confirmButtonText: "Yes, delete it!",
-                              }).then((result) => {
-                                if (result.isConfirmed) {
-                                  handleDeleteProject(project._id);
-                                }
-                              });
-                            }}
-                            className="size-6 cursor-pointer text-red-600"
-                          />
-                          {/* <MdDeleteForever
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(project._id);
-                            }}
-                            className="size-6 cursor-pointer text-red-600"
-                          /> */}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 text-gray-500">
+                        No projects found. Create a new project to get started.
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Pagination Section */}
-              <div className="flex justify-center items-center mt-6 space-x-2">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className={`px-4 py-1 rounded-md ${
-                    currentPage === 1
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  Previous
-                </button>
-
-                {Array.from(
-                  { length: totalPages },
-                  (_, index) => index + 1
-                ).map((page) => (
+              {allProjects.length > 0 && (
+                <div className="flex justify-center items-center mt-6 space-x-2">
                   <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
                     className={`px-4 py-1 rounded-md ${
-                      currentPage === page
-                        ? "bg-blue-600 text-white"
+                      currentPage === 1
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    {page}
+                    Previous
                   </button>
-                ))}
 
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-1 rounded-md ${
-                    currentPage === totalPages
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
+                  {Array.from(
+                    { length: totalPages },
+                    (_, index) => index + 1
+                  ).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-1 rounded-md ${
+                        currentPage === page
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className={`px-4 py-1 rounded-md ${
+                      currentPage === totalPages || totalPages === 0
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -375,6 +392,7 @@ function ProjectDashboardFile() {
           closePopup={closePopup}
           fetchData={fetchData}
           selectedProject={selectedProject}
+          setShouldRefresh={setShouldRefresh}
         />
       )}
     </div>

@@ -25,6 +25,7 @@ const router = createBrowserRouter([
   { path: "/addprojectform", element: <AddProjectForm /> },
   { path: "/adduser", element: <AddUserPage /> },
   { path: "/layout", element: <Layout /> },
+  // {path:"/tasks/:title" element={<TaskTable />} />,
 ]);
 
 function App() {

@@ -6,11 +6,11 @@ import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
 import { useState } from "react";
 import ProjectCard from "../Component/projectDetailCard";
-import ProjectCounter from "../pages/ProjectCounters";
 import UserActivityTimeline from "./ProjectActivity";
 import StatusDashboard from "../Component/statusDashboard";
 import TaskManagement from "./TaskManagement";
 import TaskTable from "./TaskTable";
+import ProjectTaskCounter from "./ProjecttaskCounter";
 
 const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ const ProjectDetailPage = () => {
                   <div className="flex items-center">
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                     <span className="ml-1 text-sm font-medium text-blue-600 md:ml-2">
-                      Smart Realty CRM
+                      Project Detail
                     </span>
                   </div>
                 </li>
@@ -96,7 +96,7 @@ const ProjectDetailPage = () => {
               </div>
             </div> */}
 
-            <StatusDashboard />
+            <ProjectTaskCounter projectId={projectId} />
 
             {/* Content Area - Left & Right Layout */}
             <div className="flex flex-col space-y-6">
@@ -111,24 +111,11 @@ const ProjectDetailPage = () => {
               </div>
 
               {/* Main Content Area */}
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 xl:grid-cols-1 gap-6">
                 {/* Project Card - takes 1/3 space on extra large screens */}
                 <div className="xl:col-span-1 bg-white rounded-lg shadow-md">
                   <ProjectCard projectId={projectId} />
                 </div>
-
-                {/* User Activity Timeline - takes 2/3 space on extra large screens */}
-                {/* <div className="xl:col-span-2 space-y-6 rounded-lg"> */}
-                {/* User Activity Timeline Section */}
-                {/* <div>
-                    <UserActivityTimeline projectId={projectId} />
-                  </div> */}
-
-                {/* Task Table Section */}
-                {/* <div className="bg-white p-4 rounded-lg shadow-md">
-                    <TaskTable projectId={projectId} />
-                  </div> */}
-                {/* </div> */}
               </div>
             </div>
           </div>

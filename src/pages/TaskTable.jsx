@@ -90,7 +90,6 @@ const TaskTable = ({ projectTitle }) => {
                 <th className="py-3 px-4 text-left">Assigned To</th>
                 <th className="py-3 px-4 text-left">Status</th>
                 <th className="py-3 px-4 text-left">Activity</th>
-                <th className="py-3 px-4 text-left">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -139,16 +138,6 @@ const TaskTable = ({ projectTitle }) => {
                             Updated: {task?.activity?.updated}
                           </div>
                         )}
-                      </div>
-                    </td>
-                    <td className="py-3 px-2">
-                      <div className="flex space-x-2">
-                        <button className="text-blue-500 hover:text-blue-700">
-                          <TbEdit className="h-5 w-5" />
-                        </button>
-                        <button className="text-red-500 hover:text-red-700">
-                          <MdOutlineDeleteSweep className="h-5 w-5" />
-                        </button>
                       </div>
                     </td>
                   </tr>
