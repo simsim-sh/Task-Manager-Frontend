@@ -1,16 +1,11 @@
 import React from "react";
-import { ChevronRight, Home, Award, Edit, Archive, Share2 } from "lucide-react";
+import { ChevronRight, Home } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
 import { useState } from "react";
 import ProjectCard from "../Component/projectDetailCard";
-import UserActivityTimeline from "./ProjectActivity";
-import StatusDashboard from "../Component/statusDashboard";
-import TaskManagement from "./TaskManagement";
-import TaskTable from "./TaskTable";
-import ProjectTaskCounter from "./ProjecttaskCounter";
 
 const ProjectDetailPage = () => {
   const [loading, setLoading] = useState(true);
@@ -96,8 +91,6 @@ const ProjectDetailPage = () => {
               </div>
             </div> */}
 
-            <ProjectTaskCounter projectId={projectId} />
-
             {/* Content Area - Left & Right Layout */}
             <div className="flex flex-col space-y-6">
               {/* Header Section with Title and possible action buttons */}
@@ -113,7 +106,7 @@ const ProjectDetailPage = () => {
               {/* Main Content Area */}
               <div className="grid grid-cols-1 xl:grid-cols-1 gap-6">
                 {/* Project Card - takes 1/3 space on extra large screens */}
-                <div className="xl:col-span-1 bg-white rounded-lg shadow-md">
+                <div className="xl:col-span-1 ">
                   <ProjectCard projectId={projectId} />
                 </div>
               </div>

@@ -9,7 +9,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     {/* <ThemeProvider> */}
     <App />
-    <Toaster position="top-center" reverseOrder={false} />
+    <Toaster position="top-center" reverseOrder={false} closeOnClick={false} />
     {/* </ThemeProvider> */}
   </React.StrictMode>
 );

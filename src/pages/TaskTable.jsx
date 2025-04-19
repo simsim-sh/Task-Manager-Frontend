@@ -1,14 +1,71 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { Clock, AlertCircle } from "lucide-react";
-import { TbEdit } from "react-icons/tb";
-import { MdOutlineDeleteSweep } from "react-icons/md";
-import { getTaskByTitle } from "../api/service";
+import TaskForm from "../pages/taskfrom";
+import { IoMdAdd } from "react-icons/io";
+import { toast } from "react-hot-toast";
+import { getTaskByTitle, getAllTasks } from "../api/service";
 
 const TaskTable = ({ projectTitle }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [allTasks, setAllTasks] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
+  const [taskById, setTaskById] = useState({});
+  const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
+  const [totalTasks, setTotalTasks] = useState(0);
+  const [NewTasks, setNewTasks] = useState(0);
+  const [holdTasks, setHoldTasks] = useState(0);
+  const [inProgressTasks, setInProgressTasks] = useState(0);
+  const [activeTasks, setActiveTasks] = useState(0);
+  const [completedTasks, setCompletedTasks] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false); // toggle create/update mode
   const [projectTitleTask, setProjectTitleTask] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllTasks();
+      if (!response?.success) {
+        toast.error(response?.message || "Failed to fetch tasks");
+        return;
+      }
+      const sortedTasks = response.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setAllTasks(sortedTasks);
+      // setFilteredTasks(sortedTasks);
+      //  Status counts
+      const now = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      setTotalTasks(
+        sortedTasks.filter((task) => new Date(task.createdAt) >= thirtyDaysAgo)
+          .length
+      );
+      setNewTasks(sortedTasks.filter((task) => task.status === "New").length);
+      setHoldTasks(sortedTasks.filter((task) => task.status === "Hold").length);
+      setInProgressTasks(
+        sortedTasks.filter(
+          (task) => task.status === "In Progress" || task.status === "running"
+        ).length
+      );
+      setActiveTasks(
+        sortedTasks.filter((task) => task.status === "Active").length
+      );
+      setCompletedTasks(
+        sortedTasks.filter((task) => task.status === "Completed").length
+      );
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      toast.error("Error fetching tasks. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // console.log(" title from url:", projectTitle);
 
@@ -43,7 +100,7 @@ const TaskTable = ({ projectTitle }) => {
     switch (status) {
       case "In Progress":
         return "bg-purple-100 text-purple-800";
-      case "Fresh":
+      case "New":
         return "bg-blue-100 text-blue-800";
       case "Inactive":
         return "bg-gray-100 text-gray-800";
@@ -66,8 +123,63 @@ const TaskTable = ({ projectTitle }) => {
     }
   }, [projectTitle]);
 
+  const openForm = () => {
+    setShowForm(true);
+    setTimeout(() => setFormVisible(true), 10);
+  };
+
+  const closeForm = () => {
+    setFormVisible(false);
+    setTimeout(() => {
+      setShowForm(false);
+      setTaskById(null); // clear task state
+      setIsEditMode(false);
+    }, 300); // matches transition
+  };
+
+  // Load tasks on component mount
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
   return (
     <div className="w-full">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <button
+            onClick={openForm}
+            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
+          >
+            <IoMdAdd className="w-5 h-5" />
+            Create New Task
+          </button>
+        </div>
+      </div>
+
+      {/* Slide-in Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-end items-center z-50">
+          <div
+            className={`bg-white h-full w-[90%] max-w-xl rounded-l-lg p-6 relative transform transition-transform duration-300 ${
+              formVisible ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+              onClick={closeForm}
+            >
+              &#x2715;
+            </button>
+            <TaskForm
+              onClose={closeForm}
+              fetchTasks={fetchTasks}
+              taskData={taskById}
+              isEditMode={isEditMode}
+              redirectAfterSubmit="/project"
+            />
+          </div>
+        </div>
+      )}
       {error && (
         <div className="mb-4 p-4 bg-red-100 text-red-800 rounded flex items-center">
           <AlertCircle className="mr-2 h-5 w-5" />

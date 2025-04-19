@@ -23,7 +23,7 @@ function ProjectDashboardFile() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [shouldReNew, setShouldReNew] = useState(false);
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 10;
@@ -108,9 +108,9 @@ function ProjectDashboardFile() {
   const closePopup = () => {
     setShowPopup(false);
     setSelectedProject(null);
-    if (shouldRefresh) {
-      fetchData(); // refresh list if needed
-      setShouldRefresh(false);
+    if (shouldReNew) {
+      fetchData(); // reNew list if needed
+      setShouldReNew(false);
     }
   };
 
@@ -392,7 +392,7 @@ function ProjectDashboardFile() {
           closePopup={closePopup}
           fetchData={fetchData}
           selectedProject={selectedProject}
-          setShouldRefresh={setShouldRefresh}
+          setShouldReNew={setShouldReNew}
         />
       )}
     </div>

@@ -24,7 +24,7 @@ const Dashboard = () => {
   const [holdProjects, setholdProjects] = useState(0);
   const [inProgressProjects, setInProgressProjects] = useState(0);
   const [activeProjects, setActiveProjects] = useState(0);
-  const [freshProjects, setFreshProjects] = useState(0);
+  const [NewProjects, setNewProjects] = useState(0);
 
   // Fetch project data from the API
   const fetchProjects = async () => {
@@ -43,8 +43,8 @@ const Dashboard = () => {
           (project) => new Date(project.createdAt) >= thirtyDaysAgo
         ).length
       );
-      setFreshProjects(
-        projects.filter((project) => project.status === "fresh").length
+      setNewProjects(
+        projects.filter((project) => project.status === "New").length
       );
       setholdProjects(
         projects.filter((project) => project.status === "Hold").length
@@ -213,7 +213,7 @@ const Dashboard = () => {
                     <h3 className="text-sm font-semibold text-gray-500">
                       New Poject
                     </h3>
-                    <h2 className="text-2xl font-bold">{freshProjects}</h2>
+                    <h2 className="text-2xl font-bold">{NewProjects}</h2>
                     {/* <div className="text-xs text-gray-500 flex items-center space-x-2">
                       <span>10,320</span>
                       <span className="font-semibold text-green-500">

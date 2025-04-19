@@ -78,7 +78,7 @@ export default function UserActivityTimeline({ projectName, projectTitle }) {
       });
       // Close the form
       setShowCreateForm(false);
-      // Refresh activities to ensure server data is synced
+      // ReNew activities to ensure server data is synced
       setTimeout(fetchActivities, 500);
     } catch (error) {
       console.error("Failed to create activity:", error);

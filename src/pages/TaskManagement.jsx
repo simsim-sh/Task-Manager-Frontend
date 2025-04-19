@@ -32,7 +32,7 @@
 //   const [taskById, setTaskById] = useState({});
 //   const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
 //   const [totalTasks, setTotalTasks] = useState(0);
-//   const [freshTasks, setFreshTasks] = useState(0);
+//   const [NewTasks, setNewTasks] = useState(0);
 //   const [holdTasks, setHoldTasks] = useState(0);
 //   const [inProgressTasks, setInProgressTasks] = useState(0);
 //   const [activeTasks, setActiveTasks] = useState(0);
@@ -72,8 +72,8 @@
 //         sortedTasks.filter((task) => new Date(task.createdAt) >= thirtyDaysAgo)
 //           .length
 //       );
-//       setFreshTasks(
-//         sortedTasks.filter((task) => task.status === "fresh").length
+//       setNewTasks(
+//         sortedTasks.filter((task) => task.status === "New").length
 //       );
 //       setHoldTasks(sortedTasks.filter((task) => task.status === "Hold").length);
 //       setInProgressTasks(
@@ -116,7 +116,7 @@
 
 //   const getStatusIcon = (status) => {
 //     switch (status) {
-//       case "FRESH":
+//       case "New":
 //         return <Clock className="w-4 h-4 text-blue-500" />;
 //       case "IN PROGRESS":
 //         return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
@@ -129,7 +129,7 @@
 
 //   const getStatusColor = (status) => {
 //     switch (status) {
-//       case "FRESH":
+//       case "New":
 //         return "bg-blue-100 text-blue-800";
 //       case "IN PROGRESS":
 //         return "bg-yellow-100 text-yellow-800";
@@ -369,8 +369,8 @@
 //                   <p>{totalTasks}</p>
 //                 </div>
 //                 <div className="bg-yellow-100 text-yellow-800 p-3 rounded-lg text-center">
-//                   <p className="font-semibold">Fresh</p>
-//                   <p>{freshTasks}</p>
+//                   <p className="font-semibold">New</p>
+//                   <p>{NewTasks}</p>
 //                 </div>
 //                 <div className="bg-purple-100 text-purple-800 p-3 rounded-lg text-center">
 //                   <p className="font-semibold">In Progress</p>
@@ -413,7 +413,7 @@
 //                   className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
 //                 >
 //                   <option value="">All Statuses</option>
-//                   <option value="FRESH">Fresh</option>
+//                   <option value="New">New</option>
 //                   <option value="In Progress">In Progress</option>
 //                   <option value="Completed">Completed</option>
 //                   <option value="Active">Active</option>
@@ -728,7 +728,7 @@ const TaskManagement = () => {
   const [taskById, setTaskById] = useState({});
   const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
   const [totalTasks, setTotalTasks] = useState(0);
-  const [freshTasks, setFreshTasks] = useState(0);
+  const [NewTasks, setNewTasks] = useState(0);
   const [holdTasks, setHoldTasks] = useState(0);
   const [inProgressTasks, setInProgressTasks] = useState(0);
   const [activeTasks, setActiveTasks] = useState(0);
@@ -768,9 +768,7 @@ const TaskManagement = () => {
         sortedTasks.filter((task) => new Date(task.createdAt) >= thirtyDaysAgo)
           .length
       );
-      setFreshTasks(
-        sortedTasks.filter((task) => task.status === "Fresh").length
-      );
+      setNewTasks(sortedTasks.filter((task) => task.status === "New").length);
       setHoldTasks(sortedTasks.filter((task) => task.status === "Hold").length);
       setInProgressTasks(
         sortedTasks.filter(
@@ -812,7 +810,7 @@ const TaskManagement = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "Fresh":
+      case "New":
         return <Clock className="w-4 h-4 text-blue-500" />;
       case "IN PROGRESS":
         return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
@@ -825,7 +823,7 @@ const TaskManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Fresh":
+      case "New":
         return "bg-blue-100 text-blue-800";
       case "IN PROGRESS":
         return "bg-yellow-100 text-yellow-800";
@@ -1065,8 +1063,8 @@ const TaskManagement = () => {
                   <p>{totalTasks}</p>
                 </div>
                 <div className="bg-yellow-100 text-yellow-800 p-3 rounded-lg text-center">
-                  <p className="font-semibold">Fresh</p>
-                  <p>{freshTasks}</p>
+                  <p className="font-semibold">New</p>
+                  <p>{NewTasks}</p>
                 </div>
                 <div className="bg-purple-100 text-purple-800 p-3 rounded-lg text-center">
                   <p className="font-semibold">In Progress</p>
@@ -1109,7 +1107,7 @@ const TaskManagement = () => {
                   className="p-2.5 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">All Statuses</option>
-                  <option value="Fresh">Fresh</option>
+                  <option value="New">New</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Completed">Completed</option>
                   <option value="Active">Active</option>

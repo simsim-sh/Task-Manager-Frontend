@@ -77,14 +77,14 @@ const TaskTable = ({ tasks, handleAdd, getStatusIcon, getStatusColor }) => {
                     <td className="py-4 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          task.status === "FRESH"
+                          task.status === "New"
                             ? "bg-blue-900 text-blue-800"
                             : task.status === "IN PROGRESS"
                             ? "bg-yellow-500 text-yellow-800"
                             : "bg-green-500 text-green-800"
                         }`}
                       >
-                        {task.status === "FRESH"
+                        {task.status === "New"
                           ? "Medium"
                           : task.status === "IN PROGRESS"
                           ? "High"

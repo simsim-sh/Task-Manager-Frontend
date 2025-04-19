@@ -58,7 +58,7 @@ const UserManagementPage = () => {
           const response = await deleteUser(email);
           if (response?.success) {
             toast.success("User deleted successfully");
-            fetchData(); // Refresh data
+            fetchData(); // ReNew data
           } else {
             toast.error("Failed to delete user");
           }

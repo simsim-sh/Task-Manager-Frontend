@@ -18,8 +18,9 @@ import {
   TbInfoCircle,
   TbUsers,
   TbCategory,
+  TbUserPlus,
 } from "react-icons/tb";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaTimes } from "react-icons/fa";
 
 const TaskForm = () => {
   const navigate = useNavigate();
@@ -32,10 +33,10 @@ const TaskForm = () => {
     priority: "",
     endDate: "",
     startDate: "",
-    assignedToWork: "",
-    assignedType: "", // New field for assigned type
-    reviewer1: "", // New field for reviewer1
-    reviewer2: "", // New field for reviewer2
+    assignedUsers: [], // Changed to array for multiple users
+    assignedType: "",
+    reviewer1: "",
+    reviewer2: "",
     status: "",
     description: "",
     onHoldReason: "",
@@ -50,8 +51,10 @@ const TaskForm = () => {
   const submitButtonRef = useRef(null);
 
   // Filter users based on search term
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !formData.assignedUsers.includes(user.name)
   );
 
   const handleChange = (e) => {
@@ -74,24 +77,28 @@ const TaskForm = () => {
 
   const handleUserSearch = (e) => {
     setSearchTerm(e.target.value);
-    setFormData((prev) => ({
-      ...prev,
-      assignedToWork: e.target.value,
-    }));
     setShowUserDropdown(true);
   };
 
   const selectUser = (userName) => {
     setFormData((prev) => ({
       ...prev,
-      assignedToWork: userName,
+      assignedUsers: [...prev.assignedUsers, userName],
     }));
-    setSearchTerm(userName);
+    setSearchTerm("");
     setShowUserDropdown(false);
+  };
+
+  const removeUser = (userName) => {
+    setFormData((prev) => ({
+      ...prev,
+      assignedUsers: prev.assignedUsers.filter((user) => user !== userName),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const {
       taskName,
       title,
@@ -99,18 +106,19 @@ const TaskForm = () => {
       endDate,
       hours,
       priority,
-      assignedToWork,
+      assignedUsers,
       assignedType,
       reviewer1,
       reviewer2,
       status,
     } = formData;
+
     if (
       !taskName ||
       !title ||
       !hours ||
       !priority ||
-      !assignedToWork ||
+      assignedUsers.length === 0 ||
       !assignedType ||
       !startDate ||
       !endDate ||
@@ -119,15 +127,30 @@ const TaskForm = () => {
       toast.error("All fields marked with * are required!");
       return;
     }
+
     if (formData.status === "hold") {
       if (!formData.onHoldReason || !formData.onHoldDescription) {
         toast.error("Please provide reason and description for Hold status.");
         return;
       }
     }
+
     try {
       setLoading(true);
-      const response = await createTask(formData);
+
+      // Create a data object where assignedToWork IS an array
+      const submitData = {
+        ...formData,
+        // Use the array directly instead of converting to a string
+        assignedToWork: formData.assignedUsers,
+        // Remove the original array to avoid confusion
+        assignedUsers: undefined,
+      };
+
+      console.log("Submitting data:", submitData);
+
+      const response = await createTask(submitData);
+
       if (response?.success) {
         toast.success(response.message || "Task created successfully!");
         navigate("/taskmanagement");
@@ -354,7 +377,7 @@ const TaskForm = () => {
                 className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               >
                 <option value="">Select</option>
-                <option value="Fresh">Fresh</option>
+                <option value="New">New</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
                 <option value="Active">Active</option>
@@ -363,39 +386,75 @@ const TaskForm = () => {
               </select>
             </div>
 
-            {/* Assigned To - with search functionality */}
+            {/* Assigned Users - Multi-select with search functionality */}
             <div className="relative">
               <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
                 <TbUserCircle className="mr-1 text-blue-500" />
-                Assigned To*
+                Assigned Users*
               </label>
-              <input
-                type="text"
-                name="assignedToWork"
-                value={searchTerm}
-                onChange={handleUserSearch}
-                onFocus={() => setShowUserDropdown(true)}
-                required
-                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
-                placeholder="Search for user..."
-              />
-              {showUserDropdown && (
-                <div className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
-                      <div
-                        key={user._id}
-                        onClick={() => selectUser(user.name)}
-                        className="p-2 hover:bg-blue-100 cursor-pointer"
-                      >
-                        {user.name}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-2 text-gray-500">No users found</div>
-                  )}
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleUserSearch}
+                    onFocus={() => setShowUserDropdown(true)}
+                    className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
+                    placeholder="Search for users..."
+                  />
+                  <button
+                    type="button"
+                    className="ml-2 bg-blue-500 p-3 rounded-lg text-white"
+                    onClick={() => setShowUserDropdown(true)}
+                  >
+                    <TbUserPlus size={20} />
+                  </button>
                 </div>
-              )}
+
+                {/* Selected users display */}
+                {formData.assignedUsers.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.assignedUsers.map((user, index) => (
+                      <div
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center"
+                      >
+                        <span>{user}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeUser(user)}
+                          className="ml-2 text-blue-600 hover:text-blue-800"
+                        >
+                          <FaTimes size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* User search dropdown */}
+                {showUserDropdown && (
+                  <div className="absolute z-20 mt-12 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {filteredUsers.length > 0 ? (
+                      filteredUsers.map((user) => (
+                        <div
+                          key={user._id}
+                          onClick={() => selectUser(user.name)}
+                          className="p-2 hover:bg-blue-100 cursor-pointer"
+                        >
+                          {user.name}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-2 text-gray-500">
+                        {searchTerm
+                          ? "No matching users found"
+                          : "All users already assigned"}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

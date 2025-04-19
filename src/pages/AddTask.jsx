@@ -23,7 +23,7 @@ const AddTask = () => {
     hours: 0, // Required number field
     priority: "",
     assignedToWork: "", // Required field in schema
-    status: "Fresh", // Default value as per schema
+    status: "New", // Default value as per schema
     // Keep fields that might be used in frontend but not in schema
     description: "",
     selectedFile: null,
@@ -376,7 +376,7 @@ const AddTask = () => {
                     value={formData.status}
                     onChange={handleInputChange}
                   >
-                    <option value="Fresh">Fresh</option>
+                    <option value="New">New</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
                   </select>
@@ -484,7 +484,7 @@ const AddTask = () => {
                     <strong>Assigned Work:</strong> Details of the work
                   </li>
                   <li className="list-disc">
-                    <strong>Status:</strong> Fresh, In Progress, or Completed
+                    <strong>Status:</strong> New, In Progress, or Completed
                   </li>
                 </ul>
               </div>

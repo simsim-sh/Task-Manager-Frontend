@@ -24,7 +24,7 @@ const StatusDashboard = () => {
       totalTasks: 0,
       totalMembers: 0,
       activeTasks: 0,
-      freshTasks: 0,
+      NewTasks: 0,
       completedTasks: 0,
       inactiveTasks: 0,
       overdueTasks: 0,
@@ -49,8 +49,8 @@ const StatusDashboard = () => {
         activeTasks: tasks.filter(
           (task) => task.status?.toLowerCase().trim() === "active"
         ).length,
-        freshTasks: tasks.filter(
-          (task) => task.status?.toLowerCase().trim() === "fresh"
+        NewTasks: tasks.filter(
+          (task) => task.status?.toLowerCase().trim() === "New"
         ).length,
         completedTasks: tasks.filter(
           (task) => task.status?.toLowerCase().trim() === "completed"
@@ -173,8 +173,8 @@ const StatusDashboard = () => {
         />
         <StatusCard
           icon={Zap}
-          count={projectData.stats.freshTasks}
-          label="Fresh Tasks"
+          count={projectData.stats.NewTasks}
+          label="New Tasks"
           color="cyan"
         />
         <StatusCard
