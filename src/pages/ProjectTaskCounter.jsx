@@ -2,9 +2,21 @@ import { useState, useEffect } from "react";
 import { AiOutlineBarChart } from "react-icons/ai";
 import { FiSun, FiPlayCircle, FiCheck, FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-hot-toast";
+import { formatDate } from "../utlis/helper";
 
-export default function ProjectTaskCounter() {
-  const [projectTitleTask, setProjectTitleTask] = useState([]);
+export default function ProjectTaskCounter({
+  projectTitleTask,
+  loading,
+  totalTasks,
+  NewTasks,
+  holdTasks,
+  inProgressTasks,
+  activeTasks,
+  setProjectTitleTask,
+  setLoading,
+  completedTasks,
+}) {
+  // const [projectTitleTask, setProjectTitleTask] = useState([]);
   const [projectTitle, setProjectTitle] = useState("");
   const [projectStats, setProjectStats] = useState({
     totalTasks: 0,
@@ -12,7 +24,7 @@ export default function ProjectTaskCounter() {
     hold: 0,
     completed: 0,
   });
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
@@ -67,6 +79,8 @@ export default function ProjectTaskCounter() {
     toast?.success?.("Dashboard refreshed!");
   };
 
+  // console.log("projectTitleTask", projectTitleTask);
+
   // Load initial data on component mount and set up polling
   useEffect(() => {
     // Initial fetch
@@ -93,7 +107,7 @@ export default function ProjectTaskCounter() {
         <h2 className="text-lg font-semibold text-blue-700">Task Status</h2>
         <div className="flex items-center">
           <span className="text-xs text-gray-500 mr-2">
-            Last updated: {lastRefresh.toLocaleTimeString()}
+            Last updated: {formatDate(projectTitleTask[0]?.updatedAt)}
           </span>
           <button
             onClick={handleRefresh}
@@ -120,7 +134,7 @@ export default function ProjectTaskCounter() {
                   TOTAL TASKS
                 </p>
                 <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : projectStats.totalTasks}
+                  {loading ? "..." : totalTasks}
                 </h2>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
@@ -140,7 +154,7 @@ export default function ProjectTaskCounter() {
                   IN PROGRESS
                 </p>
                 <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : projectStats.inProgress}
+                  {loading ? "..." : inProgressTasks}
                 </h2>
               </div>
               <div className="bg-purple-100 p-3 rounded-lg">
@@ -160,7 +174,7 @@ export default function ProjectTaskCounter() {
                   HOLD
                 </p>
                 <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : projectStats.hold}
+                  {loading ? "..." : holdTasks}
                 </h2>
               </div>
               <div className="bg-amber-100 p-3 rounded-lg">
@@ -180,7 +194,7 @@ export default function ProjectTaskCounter() {
                   COMPLETED
                 </p>
                 <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : projectStats.completed}
+                  {loading ? "..." : completedTasks}
                 </h2>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">

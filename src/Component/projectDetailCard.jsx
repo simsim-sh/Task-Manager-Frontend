@@ -518,20 +518,7 @@ export default function ProjectCard() {
       {/* Right column - Other components */}
       <div className="w-2/3 flex flex-col gap-6">
         {/* Task Counter */}
-        <ProjectTaskCounter />
-
-        {/* Activity Timeline */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
-            <h3 className="text-white font-bold flex items-center">
-              <Sparkles className="w-5 h-5 mr-2" />
-              Project Activity Timeline
-            </h3>
-          </div>
-          <div className="p-4">
-            <UserActivityTimeline projectTitle={projectData?.title} />
-          </div>
-        </div>
+        {/* <ProjectTaskCounter /> */}
 
         {/* Task Table */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">

@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { Clock, AlertCircle } from "lucide-react";
+import { Clock, AlertCircle, Sparkles } from "lucide-react";
 import TaskForm from "../pages/taskfrom";
 import { IoMdAdd } from "react-icons/io";
 import { toast } from "react-hot-toast";
-import { getTaskByTitle, getAllTasks } from "../api/service";
+import { getTaskByTitle } from "../api/service";
+import { formatDate } from "../utlis/helper";
+import ProjectTaskCounter from "./ProjectTaskCounter";
+import UserActivityTimeline from "./ProjectActivity";
 
 const TaskTable = ({ projectTitle }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [allTasks, setAllTasks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
   const [taskById, setTaskById] = useState({});
-  const [taskByIdUpdate, setTaskByIdUpdate] = useState({});
   const [totalTasks, setTotalTasks] = useState(0);
   const [NewTasks, setNewTasks] = useState(0);
   const [holdTasks, setHoldTasks] = useState(0);
@@ -25,23 +26,21 @@ const TaskTable = ({ projectTitle }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchTasks = async () => {
+  console.log("projectTitleTask", projectTitleTask);
+
+  const fetchTasksByProjectTitle = async (projectTitle) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await getAllTasks();
-      if (!response?.success) {
-        toast.error(response?.message || "Failed to fetch tasks");
-        return;
-      }
-      const sortedTasks = response.data.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setAllTasks(sortedTasks);
-      // setFilteredTasks(sortedTasks);
-      //  Status counts
+      const response = await getTaskByTitle(projectTitle);
+      const sortedTasks = response.data;
+      console.log("API Response after await:", sortedTasks);
+      setProjectTitleTask(sortedTasks);
+
+      // Task counting logic
       const now = new Date();
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(now.getDate() - 30);
+
       setTotalTasks(
         sortedTasks.filter((task) => new Date(task.createdAt) >= thirtyDaysAgo)
           .length
@@ -59,22 +58,6 @@ const TaskTable = ({ projectTitle }) => {
       setCompletedTasks(
         sortedTasks.filter((task) => task.status === "Completed").length
       );
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      toast.error("Error fetching tasks. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // console.log(" title from url:", projectTitle);
-
-  const fetchTasksByProjectTitle = async (projectTitle) => {
-    setLoading(true);
-    try {
-      const response = await getTaskByTitle(projectTitle);
-      console.log("API Response after await:", response.data);
-      setProjectTitleTask(response.data);
     } catch (err) {
       console.error("Error fetching tasks:", err);
       setError("Error fetching project data");
@@ -132,139 +115,164 @@ const TaskTable = ({ projectTitle }) => {
     setFormVisible(false);
     setTimeout(() => {
       setShowForm(false);
-      setTaskById(null); // clear task state
+      setTaskById(null);
       setIsEditMode(false);
-    }, 300); // matches transition
+    }, 300);
   };
 
-  // Load tasks on component mount
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <button
-            onClick={openForm}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
-          >
-            <IoMdAdd className="w-5 h-5" />
-            Create New Task
-          </button>
+    <div className="flex flex-col gap-8">
+      <ProjectTaskCounter
+        loading={loading}
+        setLoading={setLoading}
+        projectTitleTask={projectTitleTask}
+        totalTasks={totalTasks}
+        setProjectTitleTask={setProjectTitleTask}
+        NewTasks={NewTasks}
+        holdTasks={holdTasks}
+        inProgressTasks={inProgressTasks}
+        activeTasks={activeTasks}
+        completedTasks={completedTasks}
+      />
+
+      {/* Activity Timeline */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+          <h3 className="text-white font-bold flex items-center">
+            <Sparkles className="w-5 h-5 mr-2" />
+            Project Activity Timeline
+          </h3>
+        </div>
+        <div className="p-4">
+          <UserActivityTimeline projectTitle={projectTitle} />
         </div>
       </div>
 
-      {/* Slide-in Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-end items-center z-50">
-          <div
-            className={`bg-white h-full w-[90%] max-w-xl rounded-l-lg p-6 relative transform transition-transform duration-300 ${
-              formVisible ? "translate-x-0" : "translate-x-full"
-            }`}
-          >
+      <div className="w-full">
+        <div className="flex justify-between items-center mb-6">
+          <div>
             <button
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-              onClick={closeForm}
+              onClick={openForm}
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
             >
-              &#x2715;
+              <IoMdAdd className="w-5 h-5" />
+              Create New Task
             </button>
-            <TaskForm
-              onClose={closeForm}
-              fetchTasks={fetchTasks}
-              taskData={taskById}
-              isEditMode={isEditMode}
-              redirectAfterSubmit="/project"
-            />
           </div>
         </div>
-      )}
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 text-red-800 rounded flex items-center">
-          <AlertCircle className="mr-2 h-5 w-5" />
-          {error}
-        </div>
-      )}
-      {loading ? (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
-        <div className="overflow-x-auto w-full">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-blue-900 text-white">
-                <th className="py-3 px-4 text-left w-6"></th>
-                <th className="py-3 px-4 text-left">Task Name</th>
-                <th className="py-3 px-4 text-left">Hours</th>
-                <th className="py-3 px-4 text-left">Priority</th>
-                <th className="py-3 px-4 text-left">Assigned To</th>
-                <th className="py-3 px-4 text-left">Status</th>
-                <th className="py-3 px-4 text-left">Activity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projectTitleTask?.length > 0 ? (
-                projectTitleTask?.map((task) => (
-                  <tr
-                    key={task?._id || task?.title}
-                    className="border-b border-gray-200 hover:bg-gray-50"
-                  >
-                    <td className="py-3 px-4">
-                      <div className="w-4 h-4 rounded-full bg-blue-200"></div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-medium">{task?.name}</div>
-                      <div className="text-gray-500 text-sm">{task?.title}</div>
-                    </td>
-                    <td className="py-3 px-4">{task?.hours}</td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                          task?.priority
-                        )}`}
-                      >
-                        {task?.priority}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">{task?.assignedTo}</td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          task?.status
-                        )}`}
-                      >
-                        {task?.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm">
-                        <div className="flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          Created: {task?.activity?.created || "N/A"}
+
+        {/* Slide-in Form Modal */}
+        {showForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-end items-center z-50">
+            <div
+              className={`bg-white h-full w-[90%] max-w-xl rounded-l-lg p-6 relative transform transition-transform duration-300 ${
+                formVisible ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              <button
+                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+                onClick={closeForm}
+              >
+                &#x2715;
+              </button>
+              <TaskForm
+                onClose={closeForm}
+                // fetchTasks={fetchTasks}
+                taskData={taskById}
+                isEditMode={isEditMode}
+                redirectAfterSubmit="/project"
+              />
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 text-red-800 rounded flex items-center">
+            <AlertCircle className="mr-2 h-5 w-5" />
+            {error}
+          </div>
+        )}
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto w-full">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-blue-900 text-white">
+                  <th className="py-3 px-4 text-left w-6"></th>
+                  <th className="py-3 px-4 text-left">Task Name</th>
+                  <th className="py-3 px-4 text-left">Hours</th>
+                  <th className="py-3 px-4 text-left">Priority</th>
+                  <th className="py-3 px-4 text-left">Assigned To</th>
+                  <th className="py-3 px-4 text-left">Status</th>
+                  <th className="py-3 px-4 text-left">Activity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectTitleTask?.length > 0 ? (
+                  projectTitleTask?.map((task) => (
+                    <tr
+                      key={task?._id || task?.taskName}
+                      className="border-b border-gray-200 hover:bg-gray-50"
+                    >
+                      <td className="py-3 px-4">
+                        <div className="w-4 h-4 rounded-full bg-blue-200"></div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium">{task?.name}</div>
+                        <div className="text-gray-500 text-sm">
+                          {task?.taskName}
                         </div>
-                        {task?.activity?.updated && (
-                          <div className="flex items-center mt-1">
+                      </td>
+                      <td className="py-3 px-4">{task?.hours}</td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                            task?.priority
+                          )}`}
+                        >
+                          {task?.priority}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">{task?.assignedTo}</td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            task?.status
+                          )}`}
+                        >
+                          {task?.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm">
+                          <div className="flex items-center">
                             <Clock className="h-3 w-3 mr-1" />
-                            Updated: {task?.activity?.updated}
+                            Created: {formatDate(task?.createdAt) || "N/A"}
                           </div>
-                        )}
-                      </div>
+                          {task?.activity?.updated && (
+                            <div className="flex items-center mt-1">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Updated: {task?.activity?.updated}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="py-6 text-center text-gray-500">
+                      No tasks available.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="8" className="py-6 text-center text-gray-500">
-                    No tasks available.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
