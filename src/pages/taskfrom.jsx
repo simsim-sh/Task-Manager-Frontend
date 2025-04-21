@@ -250,7 +250,15 @@ const TaskForm = () => {
                 <TbInfoCircle className="mr-1 text-blue-500" />
                 Task Name*
               </label>
-              <select
+              <input
+                type="taskName"
+                name="taskName"
+                value={formData.taskName}
+                onChange={handleChange}
+                required
+                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
+              />
+              {/* <select
                 name="taskName"
                 value={formData.taskName}
                 onChange={handleChange}
@@ -262,7 +270,7 @@ const TaskForm = () => {
                 <option value="UI_Creation">UI Creation</option>
                 <option value="Testing">Testing</option>
                 <option value="Integration">Integration</option>
-              </select>
+              </select> */}
             </div>
 
             {/* Project Dropdown */}
