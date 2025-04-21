@@ -16,25 +16,14 @@ export default function ProjectTaskCounter({
   setLoading,
   completedTasks,
 }) {
-  // const [projectTitleTask, setProjectTitleTask] = useState([]);
   const [projectTitle, setProjectTitle] = useState("");
-  const [projectStats, setProjectStats] = useState({
-    totalTasks: 0,
-    inProgress: 0,
-    hold: 0,
-    completed: 0,
-  });
-  // const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  // Function to fetch tasks by title
   const fetchTasksByProjectTitle = async (projectTitle) => {
     setLoading(true);
     try {
-      // This function reference is missing, you'll need to import or define it
       const response = await getTaskByTitle(projectTitle);
-      console.log("API Response after await:", response.data);
       setProjectTitleTask(response.data);
     } catch (err) {
       console.error("Error fetching tasks:", err);
@@ -44,54 +33,33 @@ export default function ProjectTaskCounter({
     }
   };
 
-  // Load all tasks (with auto-refresh functionality)
   const fetchTasks = async () => {
     setLoading(true);
     try {
       const response = await getTaskBytitle();
-
       if (!response.ok) {
         toast.error(response?.message || "Failed to fetch tasks");
       }
-
       const data = await response.json();
-
-      setProjectStats({
-        totalTasks: data.length,
-        inProgress: data.filter((task) => task.status === "in_progress").length,
-        hold: data.filter((task) => task.status === "on_hold").length,
-        completed: data.filter((task) => task.status === "completed").length,
-      });
-
       setLastRefresh(new Date());
     } catch (err) {
       setError(err.message);
-      // console.error("Failed to load task data:", err);
       toast?.error?.("Error fetching tasks. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Manual refresh handler
   const handleRefresh = () => {
     fetchTasks();
     toast?.success?.("Dashboard refreshed!");
   };
 
-  // console.log("projectTitleTask", projectTitleTask);
-
-  // Load initial data on component mount and set up polling
   useEffect(() => {
-    // Initial fetch
     fetchTasks();
-
-    // Set up a polling interval (every 30 seconds)
     const intervalId = setInterval(() => {
       fetchTasks();
     }, 30000);
-
-    // Clean up the interval when component unmounts
     return () => clearInterval(intervalId);
   }, []);
 
@@ -101,8 +69,15 @@ export default function ProjectTaskCounter({
     }
   }, [projectTitle]);
 
+  // Calculate % for mini progress bars
+  const calculatePercentage = (part) => {
+    if (totalTasks === 0) return 0;
+    return Math.round((part / totalTasks) * 100);
+  };
+
   return (
-    <div className="w-full max-w-5xl mx-auto p-6 rounded-xl">
+    <div className="w-full max-w-5xl mx-auto p-4 rounded-xl">
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-blue-700">Task Status</h2>
         <div className="flex items-center">
@@ -124,93 +99,83 @@ export default function ProjectTaskCounter({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Counters */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Tasks */}
-        <div className="relative overflow-hidden bg-white rounded-xl shadow-md border-l-4 border-blue-500">
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase text-blue-500 tracking-wider">
-                  TOTAL TASKS
-                </p>
-                <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : totalTasks}
-                </h2>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <AiOutlineBarChart className="h-6 w-6 text-blue-500" />
-              </div>
-            </div>
-          </div>
-          <div className="absolute bottom-0 w-full h-1 bg-gradient-to-r from-blue-300 to-blue-500"></div>
-        </div>
+        <CounterCard
+          title="Total Tasks"
+          value={totalTasks}
+          color="blue"
+          Icon={AiOutlineBarChart}
+          percentage={100}
+          loading={loading}
+        />
 
         {/* In Progress Tasks */}
-        <div className="relative overflow-hidden bg-white rounded-xl shadow-md border-l-4 border-purple-500">
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase text-purple-500 tracking-wider">
-                  IN PROGRESS
-                </p>
-                <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : inProgressTasks}
-                </h2>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <FiSun className="h-6 w-6 text-purple-500" />
-              </div>
-            </div>
-          </div>
-          <div className="absolute bottom-0 w-full h-1 bg-gradient-to-r from-purple-300 to-purple-500"></div>
-        </div>
+        <CounterCard
+          title="In Progress"
+          value={inProgressTasks}
+          color="purple"
+          Icon={FiSun}
+          percentage={calculatePercentage(inProgressTasks)}
+          loading={loading}
+        />
 
-        {/* On Hold Tasks */}
-        <div className="relative overflow-hidden bg-white rounded-xl shadow-md border-l-4 border-amber-500">
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase text-amber-500 tracking-wider">
-                  HOLD
-                </p>
-                <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : holdTasks}
-                </h2>
-              </div>
-              <div className="bg-amber-100 p-3 rounded-lg">
-                <FiPlayCircle className="h-6 w-6 text-amber-500" />
-              </div>
-            </div>
-          </div>
-          <div className="absolute bottom-0 w-full h-1 bg-gradient-to-r from-amber-300 to-amber-500"></div>
-        </div>
+        {/* Hold Tasks */}
+        <CounterCard
+          title="Hold"
+          value={holdTasks}
+          color="amber"
+          Icon={FiPlayCircle}
+          percentage={calculatePercentage(holdTasks)}
+          loading={loading}
+        />
 
         {/* Completed Tasks */}
-        <div className="relative overflow-hidden bg-white rounded-xl shadow-md border-l-4 border-green-500">
-          <div className="px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase text-green-500 tracking-wider">
-                  COMPLETED
-                </p>
-                <h2 className="mt-2 text-xl font-extrabold text-gray-800">
-                  {loading ? "..." : completedTasks}
-                </h2>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <FiCheck className="h-6 w-6 text-green-500" />
-              </div>
-            </div>
+        <CounterCard
+          title="Completed"
+          value={completedTasks}
+          color="green"
+          Icon={FiCheck}
+          percentage={calculatePercentage(completedTasks)}
+          loading={loading}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Small component for each counter card
+function CounterCard({ title, value, color, Icon, percentage, loading }) {
+  return (
+    <div
+      className={`relative overflow-hidden bg-white rounded-xl shadow-md border-l-4 border-${color}-500`}
+    >
+      <div className="px-3 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p
+              className={`text-xs font-bold uppercase text-${color}-500 tracking-wider`}
+            >
+              {title}
+            </p>
+            <h2 className="mt-1 text-lg font-bold text-gray-800">
+              {loading ? "..." : value}
+            </h2>
           </div>
-          <div className="absolute bottom-0 w-full h-1 bg-gradient-to-r from-green-300 to-green-500"></div>
+          <div className={`bg-${color}-100 p-2 rounded-lg`}>
+            <Icon className="h-5 w-5 text-current" />
+          </div>
+        </div>
+
+        {/* Mini Progress Bar */}
+        <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
+          <div
+            className={`bg-${color}-400 h-2 rounded-full`}
+            style={{ width: `${percentage}%` }}
+          ></div>
         </div>
       </div>
-
-      {/* {error && (
-          <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-md">
-            {error}
-          </div>
-        )} */}
     </div>
   );
 }

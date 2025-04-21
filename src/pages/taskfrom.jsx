@@ -49,6 +49,7 @@ const TaskForm = () => {
   // Refs for scrolling
   const formRef = useRef(null);
   const submitButtonRef = useRef(null);
+  const dropdownRef = useRef(null); // Add a ref for the dropdown
 
   // Filter users based on search term
   const filteredUsers = users.filter(
@@ -56,6 +57,27 @@ const TaskForm = () => {
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       !formData.assignedUsers.includes(user.name)
   );
+
+  // Handle click outside of dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        showUserDropdown
+      ) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showUserDropdown]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -387,7 +409,7 @@ const TaskForm = () => {
             </div>
 
             {/* Assigned Users - Multi-select with search functionality */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-blue-700 flex items-center">
                 <TbUserCircle className="mr-1 text-blue-500" />
                 Assigned Users*
@@ -402,13 +424,6 @@ const TaskForm = () => {
                     className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
                     placeholder="Search for users..."
                   />
-                  <button
-                    type="button"
-                    className="ml-2 bg-blue-500 p-3 rounded-lg text-white"
-                    onClick={() => setShowUserDropdown(true)}
-                  >
-                    <TbUserPlus size={20} />
-                  </button>
                 </div>
 
                 {/* Selected users display */}
@@ -570,7 +585,7 @@ const TaskForm = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-6 bg-blue-600 text-white font-bold text-lg rounded-lg relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
+              className="w-80 py-3 px-6 bg-blue-600 text-white font-bold text-lg rounded-lg relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
             >
               {loading ? (
                 <span className="flex items-center justify-center">

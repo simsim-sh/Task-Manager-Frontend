@@ -124,12 +124,7 @@ const Sidebar = () => {
                 >
                   <span className="ml-2">Project Dashboard</span>
                 </NavLink>
-                <NavLink
-                  to="/projectdetail"
-                  className="flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  <span className="ml-2">Project Details</span>
-                </NavLink>
+
                 {/* <NavLink
                   to="/projectform"
                   className="flex items-center px-4 py-2 text-white hover:bg-gray-800 rounded-lg transition-colors"

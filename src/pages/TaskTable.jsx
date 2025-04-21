@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { Clock, AlertCircle, Sparkles } from "lucide-react";
 import TaskForm from "../pages/taskfrom";
-import { IoMdAdd } from "react-icons/io";
+import { GoTasklist } from "react-icons/go";
 import { toast } from "react-hot-toast";
+import { BsClipboardPlus } from "react-icons/bs";
 import { getTaskByTitle } from "../api/service";
 import { formatDate } from "../utlis/helper";
 import ProjectTaskCounter from "./ProjectTaskCounter";
@@ -149,16 +150,18 @@ const TaskTable = ({ projectTitle }) => {
       </div>
 
       <div className="w-full">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <button
-              onClick={openForm}
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors duration-200"
-            >
-              <IoMdAdd className="w-5 h-5" />
-              Create New Task
-            </button>
-          </div>
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-3 mb-5 rounded-t-xl flex justify-between items-center">
+          <h3 className="text-white font-bold flex items-center">
+            <GoTasklist className="w-5 h-5 mr-2" />
+            Project Task Table
+          </h3>
+          <button
+            onClick={openForm}
+            className="flex items-center gap-2 bg-white text-indigo-600 font-semibold px-2  rounded-md hover:bg-gray-100 transition-colors duration-200"
+          >
+            <BsClipboardPlus />
+            Add Task
+          </button>
         </div>
 
         {/* Slide-in Form Modal */}
@@ -200,8 +203,8 @@ const TaskTable = ({ projectTitle }) => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-blue-900 text-white">
-                  <th className="py-3 px-4 text-left w-6"></th>
-                  <th className="py-3 px-4 text-left">Task Name</th>
+                  <th className=" px-4 text-left w-6"></th>
+                  <th className="px-4 text-left text-sm">Task Name</th>
                   <th className="py-3 px-4 text-left">Hours</th>
                   <th className="py-3 px-4 text-left">Priority</th>
                   <th className="py-3 px-4 text-left">Assigned To</th>

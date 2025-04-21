@@ -24,6 +24,17 @@ function ProjectDashboardFile() {
   const [projects, setProjects] = useState([]);
   const [allProjects, setAllProjects] = useState([]);
   const [shouldReNew, setShouldReNew] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Function to calculate progress based on completed tasks
+  const calculateProgress = (tasks) => {
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) return 0;
+    const completedTasks = tasks.filter(
+      (task) => task.status?.toLowerCase() === "completed"
+    ).length;
+    return (completedTasks / tasks.length) * 100;
+  };
+
   //pagination
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 10;
@@ -39,9 +50,23 @@ function ProjectDashboardFile() {
     try {
       const getAllProjectResponse = await getAllProject();
       if (getAllProjectResponse?.success) {
-        const sortedProjects = getAllProjectResponse.data.sort(
+        let sortedProjects = getAllProjectResponse.data.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
+
+        // Calculate the progress for each project
+        sortedProjects = sortedProjects.map((project) => {
+          const progress = calculateProgress(project.tasks);
+          return { ...project, progress }; // Add progress field to each project
+        });
+
+        if (searchQuery) {
+          sortedProjects = sortedProjects.filter(
+            (project) =>
+              project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              project.category.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
         setAllProjects(sortedProjects);
       } else {
         toast.error(getAllProjectResponse?.message);
@@ -94,6 +119,10 @@ function ProjectDashboardFile() {
     }
   }, [projectId]);
 
+  useEffect(() => {
+    fetchData();
+  }, [searchQuery]); // Re-fetch data when search query changes
+
   // Handle add button when clicked
   const openPopup = async (project) => {
     setShowPopup(true);
@@ -137,7 +166,7 @@ function ProjectDashboardFile() {
                 <div className="flex items-center">
                   <HiChevronRight className="w-3 h-3 text-gray-400 mx-1" />
                   <NavLink
-                    to="/project"
+                    to="/project/:projectId"
                     className="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors md:ml-2"
                   >
                     Projects
@@ -177,6 +206,11 @@ function ProjectDashboardFile() {
                       type="text"
                       placeholder="Search projects..."
                       className="w-full pl-10 py-2 px-4 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1); // Reset to first page when search query changes
+                      }}
                     />
                   </div>
                   {/* Add New Button to open modal */}
@@ -266,18 +300,27 @@ function ProjectDashboardFile() {
                             </span>
                           </div>
 
-                          {/* Progress */}
-                          <div className="text-center">
-                            <div className="relative w-full h-3 bg-gray-200 rounded-full">
-                              <div
-                                className="absolute top-0 left-0 h-3 bg-green-500 rounded-full"
-                                style={{ width: `${project.progress || 0}%` }}
-                              ></div>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {project.progress || 0}%
-                            </p>
+                          {/* Progress Bar */}
+                          <div className="h-2 bg-gray-200 rounded-full">
+                            <div
+                              className="h-2 bg-blue-600 rounded-full"
+                              style={{
+                                width: `${Math.max(
+                                  1,
+                                  calculateProgress(project.tasks)
+                                )}%`,
+                              }}
+                            ></div>
                           </div>
+                          <p className="text-sm text-gray-500 mt-2">
+                            {Math.round(calculateProgress(project.tasks))}%
+                            Completed (
+                            {project.tasks?.filter(
+                              (task) =>
+                                task.status?.toLowerCase() === "completed"
+                            ).length || 0}
+                            /{project.tasks?.length || 0})
+                          </p>
 
                           {/* Created Info */}
                           <div className="text-center text-xs text-gray-600">

@@ -206,8 +206,8 @@ export default function ProjectCard() {
       <div className="w-1/3">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-2xl sticky top-6">
           {/* Header Banner */}
-          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 h-40 relative overflow-hidden">
-            <div className="flex justify-between items-start p-6">
+          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 h-16 relative overflow-hidden">
+            <div className="flex justify-between items-start p-2">
               <div className="flex justify-end space-x-2">
                 <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all">
                   <Star className="w-4 h-4" />
@@ -264,21 +264,6 @@ export default function ProjectCard() {
             </div>
           </div>
 
-          {/* Description Section */}
-          {projectData.description && (
-            <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-b border-blue-100">
-              <div className="flex items-center mb-2">
-                <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                <span className="text-xs font-semibold text-blue-800">
-                  Project Description
-                </span>
-              </div>
-              <p className="text-xs text-gray-700 bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
-                {projectData.description}
-              </p>
-            </div>
-          )}
-
           {/* project completion */}
           <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100">
             <div className="flex justify-between items-center mb-2">
@@ -301,6 +286,21 @@ export default function ProjectCard() {
               <span>{totalTasks - completedTasks} remaining</span>
             </div>
           </div>
+
+          {/* Description Section */}
+          {projectData.description && (
+            <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-b border-blue-100">
+              <div className="flex items-center mb-2">
+                <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                <span className="text-xs font-semibold text-blue-800">
+                  Project Description
+                </span>
+              </div>
+              <p className="text-xs text-gray-700 bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
+                {projectData.description}
+              </p>
+            </div>
+          )}
 
           <div className="p-6 space-y-4">
             {/* Key Project Details - Condensed */}
@@ -363,7 +363,7 @@ export default function ProjectCard() {
                       Deadline
                     </div>
                     <div className="text-xs font-medium text-red-600">
-                      {projectData.deadline || "Not set"}
+                      {projectData.endDate || "Not set"}
                     </div>
                   </div>
                 </div>
@@ -515,11 +515,9 @@ export default function ProjectCard() {
           </div>
         </div>
       </div>
+
       {/* Right column - Other components */}
       <div className="w-2/3 flex flex-col gap-6">
-        {/* Task Counter */}
-        {/* <ProjectTaskCounter /> */}
-
         {/* Task Table */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
           <div className="p-4">

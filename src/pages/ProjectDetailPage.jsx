@@ -16,8 +16,6 @@ const ProjectDetailPage = () => {
     window.location.href = "/addtask";
   };
 
-  // console.log("projectId", projectId);
-
   return (
     <div className="flex h-screen bg-gray-100 overflow-auto">
       {/* Sidebar */}
@@ -32,7 +30,7 @@ const ProjectDetailPage = () => {
         </div>
         {/* Main content area */}
         <div className="flex-1  bg-gray-100">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto p-2">
             {/* Breadcrumbs */}
             <nav className="flex mb-6" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-3">
@@ -67,45 +65,17 @@ const ProjectDetailPage = () => {
               </ol>
             </nav>
 
-            {/* Header with Action Buttons */}
-            {/* <div className="bg-gradient-to-r from-blue-800 to-purple-600 text-white rounded-xl shadow-xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center mb-4 md:mb-0">
-                <Award className="w-8 h-8 mr-3 text-yellow-300" />
-                <div>
-                  <h1 className="text-2xl font-bold">Project Detail</h1>
-                  <p className="text-blue-100 text-sm">
-                    Viewing all details for {projectData.name}
-                  </p>
-                </div>
-              </div>
-              <div className="flex space-x-3">
-                <button className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md flex items-center text-sm font-medium transition-all duration-200">
-                  <Edit className="w-4 h-4 mr-2" /> Edit
-                </button>
-                <button className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md flex items-center text-sm font-medium transition-all duration-200">
-                  <Share2 className="w-4 h-4 mr-2" /> Share
-                </button>
-                <button className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-md flex items-center text-sm font-medium transition-all duration-200">
-                  <Archive className="w-4 h-4 mr-2" /> Archive
-                </button>
-              </div>
-            </div> */}
-
             {/* Content Area - Left & Right Layout */}
-            <div className="flex flex-col space-y-6">
+            <div className="flex flex-col space-y-2">
               {/* Header Section with Title and possible action buttons */}
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-800">
                   Project Overview
                 </h2>
-                <div className="flex space-x-3">
-                  {/* Optional action buttons could go here */}
-                </div>
               </div>
 
               {/* Main Content Area */}
               <div className="grid grid-cols-1 xl:grid-cols-1 gap-6">
-                {/* Project Card - takes 1/3 space on extra large screens */}
                 <div className="xl:col-span-1 ">
                   <ProjectCard projectId={projectId} />
                 </div>

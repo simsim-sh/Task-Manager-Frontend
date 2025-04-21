@@ -12,6 +12,8 @@ import {
   FaMapMarkerAlt,
   FaSave,
   FaExclamationTriangle,
+  FaFlag,
+  FaCalendarAlt, // Added calendar icon for dates
 } from "react-icons/fa";
 import { HiChevronDown } from "react-icons/hi"; // Heroicons outline
 import { BiTask, BiCategory, BiNote } from "react-icons/bi";
@@ -94,6 +96,12 @@ const scrollbarStyles = `
 
 const AddProject = ({ closePopup, fetchData, selectedProject }) => {
   const navigate = useNavigate();
+  const formatDate = (date) => {
+    if (!date) return ""; // If no date is provided, return an empty string
+    const d = new Date(date);
+    return d.toISOString().split("T")[0]; // Extracts YYYY-MM-DD format
+  };
+
   const [formData, setFormData] = useState({
     title: selectedProject?.title || "",
     category: selectedProject?.category || "",
@@ -106,6 +114,9 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
     assignedTo: selectedProject?.assignedTo || "",
     notes: selectedProject?.notes || "",
     status: selectedProject?.status || "Pending",
+    priority: selectedProject?.priority || "",
+    startDate: formatDate(selectedProject?.startDate), // Format date correctly
+    endDate: formatDate(selectedProject?.endDate), // Format date correctly
   });
 
   // Form validation errors
@@ -161,6 +172,16 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
           delete newErrors.description;
         }
         break;
+      case "companyName":
+        if (!value.trim()) {
+          newErrors.companyName = "Please enter a company name.";
+        } else if (value.trim().length < 10) {
+          newErrors.companyName =
+            "Company name should be at least 10 characters.";
+        } else {
+          delete newErrors.companyName;
+        }
+        break;
       case "contactEmail":
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           newErrors.contactEmail = "Please enter a valid email address";
@@ -169,8 +190,8 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
         }
         break;
       case "contactPhone":
-        if (value && !/^[0-9+-\s()]{7,20}$/.test(value)) {
-          newErrors.contactPhone = "Please enter a valid phone number";
+        if (value && !/^[0-9+-\s()]{10,20}$/.test(value)) {
+          newErrors.contactPhone = "Please enter a 10-digit phone number";
         } else {
           delete newErrors.contactPhone;
         }
@@ -189,7 +210,31 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
           delete newErrors.status;
         }
         break;
-      default:
+      case "priority":
+        if (!value) {
+          newErrors.priority = "Please select a priority";
+        } else {
+          delete newErrors.priority;
+        }
+        break;
+      case "startDate":
+        if (!value) {
+          newErrors.startDate = "Start date is required";
+        } else {
+          delete newErrors.startDate;
+        }
+        break;
+      case "endDate":
+        if (!value) {
+          newErrors.endDate = "End date is required";
+        } else if (
+          formData.startDate &&
+          new Date(value) < new Date(formData.startDate)
+        ) {
+          newErrors.endDate = "End date must be after start date";
+        } else {
+          delete newErrors.endDate;
+        }
         break;
     }
 
@@ -241,6 +286,28 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
       isValid = false;
     }
 
+    if (!formData.priority) {
+      newErrors.priority = "Please select a priority";
+      isValid = false;
+    }
+
+    // Validate start date and end date
+    if (!formData.startDate) {
+      newErrors.startDate = "Start date is required";
+      isValid = false;
+    }
+
+    if (!formData.endDate) {
+      newErrors.endDate = "End date is required";
+      isValid = false;
+    } else if (
+      formData.startDate &&
+      new Date(formData.endDate) < new Date(formData.startDate)
+    ) {
+      newErrors.endDate = "End date must be after start date";
+      isValid = false;
+    }
+
     // Optional fields with format validation
     if (
       formData.contactEmail &&
@@ -282,15 +349,24 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
         ? await updateProjectById(selectedProject._id, formData)
         : await createProject(formData);
 
-      if (!res?.success) return toast.error(res?.message);
+      if (!res || !res.success) {
+        toast.error(res?.message || "Operation failed. Please try again.");
+        return;
+      }
+
       toast.success(
         res?.message ||
           (selectedProject?._id ? "Project Updated" : "Project Created")
       );
-      fetchData();
+      if (fetchData && typeof fetchData === "function") {
+        fetchData();
+      }
       closePopup();
     } catch (error) {
-      toast.error(error.message || "Submission Failed");
+      console.error("Submission error:", error);
+      toast.error(
+        error?.message || "An unexpected error occurred. Please try again."
+      );
     }
   };
 
@@ -324,6 +400,20 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-50 text-gray-800";
+    }
+  };
+
+  // Get priority color
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "High":
+        return "text-red-600";
+      case "Medium":
+        return "text-blue-500";
+      case "Low":
+        return "text-green-600";
+      default:
+        return "text-gray-600";
     }
   };
 
@@ -459,6 +549,92 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
                   <div className="error-message">
                     <FaExclamationTriangle className="mr-1" size={12} />
                     {errors.description}
+                  </div>
+                )}
+              </div>
+
+              {/* Date Fields - Add these fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative">
+                  <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                    <FaCalendarAlt className="text-blue-500 mr-1" size={16} />
+                    Start Date<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    onFocus={handleFocus}
+                    className={`w-full px-3 py-2 border ${
+                      errors.startDate ? "input-error" : "border-gray-300"
+                    } rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white`}
+                  />
+                  {errors.startDate && (
+                    <div className="error-message">
+                      <FaExclamationTriangle className="mr-1" size={12} />
+                      {errors.startDate}
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                    <FaCalendarAlt className="text-blue-500 mr-1" size={16} />
+                    End Date<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={formData.endDate}
+                    onChange={handleInputChange}
+                    onFocus={handleFocus}
+                    className={`w-full px-3 py-2 border ${
+                      errors.endDate ? "input-error" : "border-gray-300"
+                    } rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white`}
+                  />
+                  {errors.endDate && (
+                    <div className="error-message">
+                      <FaExclamationTriangle className="mr-1" size={12} />
+                      {errors.endDate}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Priority Field */}
+              <div className="relative">
+                <label className="flex items-center text-xs font-medium text-gray-600 mb-1">
+                  <FaFlag className="text-blue-500 mr-1" size={16} />
+                  Priority<span className="text-red-500 ml-1">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    name="priority"
+                    value={formData.priority}
+                    onChange={handleInputChange}
+                    onFocus={handleFocus}
+                    className={`w-full appearance-none px-3 py-2 border ${
+                      errors.priority ? "input-error" : "border-gray-300"
+                    } rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all duration-200 bg-gray-50 hover:bg-white ${
+                      formData.priority
+                        ? getPriorityColor(formData.priority)
+                        : ""
+                    }`}
+                  >
+                    <option value="">Select Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <HiChevronDown className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+                {errors.priority && (
+                  <div className="error-message">
+                    <FaExclamationTriangle className="mr-1" size={12} />
+                    {errors.priority}
                   </div>
                 )}
               </div>
