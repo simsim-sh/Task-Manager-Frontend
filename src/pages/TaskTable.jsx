@@ -5,7 +5,7 @@ import TaskForm from "../pages/taskfrom";
 import { GoTasklist } from "react-icons/go";
 import { toast } from "react-hot-toast";
 import { BsClipboardPlus } from "react-icons/bs";
-import { getTaskByTitle } from "../api/service";
+import { getTaskByTitle, getTaskById } from "../api/service";
 import { formatDate } from "../utlis/helper";
 import ProjectTaskCounter from "./ProjectTaskCounter";
 import UserActivityTimeline from "./ProjectActivity";
@@ -67,6 +67,26 @@ const TaskTable = ({ projectTitle }) => {
     }
   };
 
+  // Fetch task by ID
+  const fetchTaskByID = async (taskId) => {
+    try {
+      setLoading(true);
+      const response = await getTaskById(taskId);
+      const taskData = response?.data;
+      if (!taskData) {
+        toast.error("No task data returned.");
+        return;
+      }
+      setTaskById(taskData);
+      navigate("/taskdetail", { state: { task: taskData } });
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      toast.error("Error fetching task. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "Low":
@@ -119,6 +139,13 @@ const TaskTable = ({ projectTitle }) => {
       setTaskById(null);
       setIsEditMode(false);
     }, 300);
+  };
+
+  // Handle navigation to task detail page
+  const navigateToTaskDetail = (taskId) => {
+    navigate(`/task/${taskId}`);
+    // You can also use toast to notify the user
+    toast.success("Navigating to task details");
   };
 
   return (
@@ -180,7 +207,6 @@ const TaskTable = ({ projectTitle }) => {
               </button>
               <TaskForm
                 onClose={closeForm}
-                // fetchTasks={fetchTasks}
                 taskData={taskById}
                 isEditMode={isEditMode}
                 redirectAfterSubmit="/project"
@@ -199,80 +225,87 @@ const TaskTable = ({ projectTitle }) => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : (
+          // Added max height and overflow-y-auto for vertical scrolling
           <div className="overflow-x-auto w-full">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-blue-900 text-white">
-                  <th className=" px-4 text-left w-6"></th>
-                  <th className="px-4 text-left text-sm">Task Name</th>
-                  <th className="py-3 px-4 text-left">Hours</th>
-                  <th className="py-3 px-4 text-left">Priority</th>
-                  <th className="py-3 px-4 text-left">Assigned To</th>
-                  <th className="py-3 px-4 text-left">Status</th>
-                  <th className="py-3 px-4 text-left">Activity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {projectTitleTask?.length > 0 ? (
-                  projectTitleTask?.map((task) => (
-                    <tr
-                      key={task?._id || task?.taskName}
-                      className="border-b border-gray-200 hover:bg-gray-50"
-                    >
-                      <td className="py-3 px-4">
-                        <div className="w-4 h-4 rounded-full bg-blue-200"></div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="font-medium">{task?.name}</div>
-                        <div className="text-gray-500 text-sm">
-                          {task?.taskName}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">{task?.hours}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                            task?.priority
-                          )}`}
-                        >
-                          {task?.priority}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">{task?.assignedTo}</td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            task?.status
-                          )}`}
-                        >
-                          {task?.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="text-sm">
-                          <div className="flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Created: {formatDate(task?.createdAt) || "N/A"}
+            <div className="max-h-96 overflow-y-auto rounded-b-xl shadow-md">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 z-10">
+                  <tr className="bg-blue-900 text-white">
+                    <th className="px-4 text-left w-6"></th>
+                    <th className="px-4 text-left text-sm">Task Name</th>
+                    <th className="py-3 px-4 text-left">Hours</th>
+                    <th className="py-3 px-4 text-left">Priority</th>
+                    <th className="py-3 px-4 text-left">Assigned To</th>
+                    <th className="py-3 px-4 text-left">Status</th>
+                    <th className="py-3 px-4 text-left">Activity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {projectTitleTask?.length > 0 ? (
+                    projectTitleTask?.map((task) => (
+                      <tr
+                        key={task?._id || task?.taskName}
+                        className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors duration-150"
+                        onClick={() => fetchTaskByID(task._id)}
+                      >
+                        <td className="py-3 px-4">
+                          <div className="w-4 h-4 rounded-full bg-blue-200"></div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="font-medium">{task?.name}</div>
+                          <div className="text-gray-500 text-sm">
+                            {task?.taskName}
                           </div>
-                          {task?.activity?.updated && (
-                            <div className="flex items-center mt-1">
+                        </td>
+                        <td className="py-3 px-4">{task?.hours}</td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                              task?.priority
+                            )}`}
+                          >
+                            {task?.priority}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">{task?.assignedTo}</td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              task?.status
+                            )}`}
+                          >
+                            {task?.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="text-sm">
+                            <div className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              Updated: {task?.activity?.updated}
+                              Created: {formatDate(task?.createdAt) || "N/A"}
                             </div>
-                          )}
-                        </div>
+                            {task?.activity?.updated && (
+                              <div className="flex items-center mt-1">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Updated: {task?.activity?.updated}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="8"
+                        className="py-6 text-center text-gray-500"
+                      >
+                        No tasks available.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="py-6 text-center text-gray-500">
-                      No tasks available.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

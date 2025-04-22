@@ -16,6 +16,18 @@ export default function ProjectTaskCounter({
   setLoading,
   completedTasks,
 }) {
+  // console.log("Props received in ProjectTaskCounter:", {
+  //   projectTitleTask,
+  //   loading,
+  //   totalTasks,
+  //   NewTasks,
+  //   holdTasks,
+  //   inProgressTasks,
+  //   activeTasks,
+  //   setProjectTitleTask,
+  //   setLoading,
+  //   completedTasks,
+  // });
   const [projectTitle, setProjectTitle] = useState("");
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
@@ -123,7 +135,7 @@ export default function ProjectTaskCounter({
 
         {/* Hold Tasks */}
         <CounterCard
-          title="Hold"
+          title="hold"
           value={holdTasks}
           color="amber"
           Icon={FiPlayCircle}
@@ -147,6 +159,7 @@ export default function ProjectTaskCounter({
 
 // Small component for each counter card
 function CounterCard({ title, value, color, Icon, percentage, loading }) {
+  console.log("CounterCard:", { title, value, color, percentage, loading });
   return (
     <div
       className={`relative overflow-hidden bg-white rounded-xl shadow-md border-l-4 border-${color}-500`}
