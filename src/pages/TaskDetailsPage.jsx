@@ -17,21 +17,28 @@ import {
   Info,
   AlertCircle,
   BookOpen,
+  Edit,
 } from "lucide-react";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { TbHomeHeart } from "react-icons/tb";
 import { TiChevronRight } from "react-icons/ti";
 import { formatDate } from "../utlis/helper";
 
 const TaskDetailsPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const taskByID = location.state?.task;
 
   if (!taskByID) {
     return <div className="p-4 text-gray-600">No task data found.</div>;
   }
+
+  // Function to handle edit button click
+  const handleEditClick = () => {
+    navigate("/edit-task", { state: { task: taskByID } });
+  };
 
   // Convert assignedToWork to array if it's not already one
   const assignedToArray = Array.isArray(taskByID?.assignedToWork)
@@ -129,10 +136,20 @@ const TaskDetailsPage = () => {
               </ol>
             </nav>
             <div className="bg-white rounded-lg shadow-md p-6 border-t-4 border-indigo-500">
-              <div className="text-blue-500 p-4 mb-6 flex items-center justify-center">
-                <h2 className="text-2xl font-bold tracking-wide">
-                  TASK DETAILS
-                </h2>
+              <div className="flex justify-between items-center mb-6">
+                <div className="text-blue-500 p-4 flex items-center">
+                  <h2 className="text-2xl font-bold tracking-wide">
+                    TASK DETAILS
+                  </h2>
+                </div>
+                {/* Edit Button Added Here */}
+                <button
+                  onClick={() => openPopup(projectData)}
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors duration-200 shadow-md"
+                >
+                  <Edit size={16} />
+                  <span className="font-medium">Edit Task</span>
+                </button>
               </div>
 
               <div className="flex flex-col md:flex-row gap-6">
@@ -179,10 +196,6 @@ const TaskDetailsPage = () => {
                         {/* Project Title */}
                         <tr className="border-b border-gray-100">
                           <td className="text-sm py-3 px-3 bg-gray-50 font-medium flex items-center gap-2">
-                            {/* <FileDescription
-                              size={14}
-                              className="text-indigo-500"
-                            /> */}
                             PROJECT*
                           </td>
                           <td className="text-sm py-3 px-3 font-medium text-right text-gray-700">
@@ -233,7 +246,7 @@ const TaskDetailsPage = () => {
                           </td>
                           <td className="text-sm py-3 px-3 text-right text-gray-700">
                             <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium">
-                              {taskByID?.assignedType || "N/A"}
+                              {taskByID?.assignedTo || "N/A"}
                             </span>
                           </td>
                         </tr>

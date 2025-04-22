@@ -311,16 +311,16 @@ function ProjectDashboardFile() {
                                 )}%`,
                               }}
                             ></div>
+                            <p className="text-sm text-gray-500 mt-2">
+                              {Math.round(calculateProgress(project.tasks))}%
+                              Completed (
+                              {project.tasks?.filter(
+                                (task) =>
+                                  task.status?.toLowerCase() === "completed"
+                              ).length || 0}
+                              /{project.tasks?.length || 0})
+                            </p>
                           </div>
-                          <p className="text-sm text-gray-500 mt-2">
-                            {Math.round(calculateProgress(project.tasks))}%
-                            Completed (
-                            {project.tasks?.filter(
-                              (task) =>
-                                task.status?.toLowerCase() === "completed"
-                            ).length || 0}
-                            /{project.tasks?.length || 0})
-                          </p>
 
                           {/* Created Info */}
                           <div className="text-center text-xs text-gray-600">

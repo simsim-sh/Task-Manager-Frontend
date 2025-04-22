@@ -37,14 +37,14 @@ export default function ProjectTaskCounter({
     setLoading(true);
     try {
       const response = await getTaskBytitle();
-      if (!response.ok) {
+      if (!response.success) {
         toast.error(response?.message || "Failed to fetch tasks");
       }
-      const data = await response.json();
+      // const data = await response.json();
       setLastRefresh(new Date());
     } catch (err) {
       setError(err.message);
-      toast?.error?.("Error fetching tasks. Please try again.");
+      // toast?.error?.("Error fetching tasks. Please try again.");
     } finally {
       setLoading(false);
     }

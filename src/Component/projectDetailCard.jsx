@@ -51,6 +51,7 @@ export default function ProjectCard() {
       try {
         setLoading(true);
         const response = await getProjectById(projectId);
+        console.log("Project response:", response.data.data);
         setProjectData(response.data.data);
       } catch (err) {
         console.error("Error fetching project:", err);
@@ -285,6 +286,19 @@ export default function ProjectCard() {
               <span>{completedTasks} tasks completed</span>
               <span>{totalTasks - completedTasks} remaining</span>
             </div>
+            {/* <div
+              className="h-2 bg-blue-600 rounded-full"
+              style={{
+                width: `${Math.max(1, calculateProgress(project.tasks))}%`,
+              }}
+            ></div>
+            <p className="text-sm text-gray-500 mt-2">
+              {Math.round(calculateProgress(project.tasks))}% Completed (
+              {project.tasks?.filter(
+                (task) => task.status?.toLowerCase() === "completed"
+              ).length || 0}
+              /{project.tasks?.length || 0})
+            </p> */}
           </div>
 
           {/* Description Section */}
@@ -363,7 +377,7 @@ export default function ProjectCard() {
                       Deadline
                     </div>
                     <div className="text-xs font-medium text-red-600">
-                      {projectData.endDate || "Not set"}
+                      {formatDate(projectData.endDate) || "Not set"}
                     </div>
                   </div>
                 </div>
