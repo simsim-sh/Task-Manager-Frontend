@@ -18,6 +18,7 @@ import {
   AlertCircle,
   BookOpen,
   Edit,
+  X,
 } from "lucide-react";
 import Header from "../Component/Header";
 import Sidebar from "../Component/Sidebar";
@@ -25,20 +26,48 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { TbHomeHeart } from "react-icons/tb";
 import { TiChevronRight } from "react-icons/ti";
 import { formatDate } from "../utlis/helper";
+import { updateTaskById } from "../api/service";
+import { useState } from "react";
+import TaskForm from "../pages/taskfrom";
 
 const TaskDetailsPage = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [taskData, setTaskData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const taskByID = location.state?.task;
+
+  // Function to open the edit form popup
+  const openEditForm = () => {
+    setTaskData(taskByID); // save task data
+    setShowPopup(true); // open the popup
+  };
+
+  // Function to close the popup
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
+  // Function to refresh tasks after update
+  const fetchTasks = async (taskId, formData) => {
+    try {
+      const response = await updateTaskById(taskId, formData);
+      console.log("Task updated successfully:", response);
+
+      // After successful update, you can navigate
+      navigate("/taskdetail");
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
 
   if (!taskByID) {
     return <div className="p-4 text-gray-600">No task data found.</div>;
   }
 
-  // Function to handle edit button click
-  const handleEditClick = () => {
-    navigate("/edit-task", { state: { task: taskByID } });
-  };
+  if (!taskByID) {
+    return <div className="p-4 text-gray-600">No task data found.</div>;
+  }
 
   // Convert assignedToWork to array if it's not already one
   const assignedToArray = Array.isArray(taskByID?.assignedToWork)
@@ -144,7 +173,7 @@ const TaskDetailsPage = () => {
                 </div>
                 {/* Edit Button Added Here */}
                 <button
-                  onClick={() => openPopup(projectData)}
+                  onClick={openEditForm}
                   className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md transition-colors duration-200 shadow-md"
                 >
                   <Edit size={16} />
@@ -476,6 +505,44 @@ const TaskDetailsPage = () => {
                     </button>
                   </div>
                 </div>
+
+                {showPopup && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50">
+                    <div
+                      className="bg-white h-full w-full max-w-lg shadow-lg transform transition-transform duration-300 ease-in-out"
+                      style={{
+                        transform: showPopup
+                          ? "translateX(0)"
+                          : "translateX(100%)",
+                        animation: showPopup
+                          ? "slideIn 0.3s forwards"
+                          : "slideOut 0.3s forwards",
+                      }}
+                    >
+                      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <h3 className="text-lg font-medium text-gray-900">
+                          Edit Task
+                        </h3>
+                        <button
+                          onClick={closePopup}
+                          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full p-1 transition-colors duration-200"
+                          aria-label="Close"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+                      <div className="overflow-y-auto h-[calc(100%-60px)]">
+                        <TaskForm
+                          isEditMode={true}
+                          formData={taskByID}
+                          taskData={taskByID}
+                          onClose={closePopup}
+                          fetchTasks={fetchTasks}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

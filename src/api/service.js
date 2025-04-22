@@ -112,7 +112,7 @@ export const getTaskById = async (taskId) => {
 // Update task by ID
 export const updateTaskById = async (taskId, formData) => {
   try {
-    const response = await axios.post(
+    const response = await axios.put(  
       `${TASKURL}/updateTaskById/${taskId}`,
       formData
     );
