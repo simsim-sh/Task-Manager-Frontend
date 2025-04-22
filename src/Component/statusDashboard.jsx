@@ -50,7 +50,7 @@ const StatusDashboard = () => {
           (task) => task.status?.toLowerCase().trim() === "active"
         ).length,
         NewTasks: tasks.filter(
-          (task) => task.status?.toLowerCase().trim() === "New"
+          (task) => task.status?.toLowerCase().trim() === "new"
         ).length,
         completedTasks: tasks.filter(
           (task) => task.status?.toLowerCase().trim() === "completed"
@@ -58,13 +58,9 @@ const StatusDashboard = () => {
         inactiveTasks: tasks.filter(
           (task) => task.status?.toLowerCase().trim() === "inactive"
         ).length,
-        overdueTasks: tasks.filter((task) => {
-          return (
-            task.dueDate &&
-            new Date(task.dueDate) < new Date() &&
-            task.status !== "completed"
-          );
-        }).length,
+        holdTasks: tasks.filter(
+          (task) => task.status?.toLowerCase().trim() === "hold"
+        ).length,
       };
 
       setProjectData({ stats });
@@ -195,23 +191,23 @@ const StatusDashboard = () => {
       <div className="mt-3 max-w-sm">
         <NavLink
           to="/projectdetail"
-          className="bg-white rounded-md shadow-sm p-3 hover:shadow transition-all duration-200 border-l-4 border-red-500 flex items-center justify-between group"
+          className="bg-white rounded-md shadow-sm p-3 hover:shadow transition-all duration-200 border-l-4 border-yellow-500 flex items-center justify-between group"
         >
           <div className="flex items-center">
-            <div className="bg-red-50 w-8 h-8 rounded-full flex items-center justify-center mr-3 group-hover:bg-red-100">
-              <AlertTriangle className="w-4 h-4 text-red-600" />
+            <div className="bg-yellow-50 w-8 h-8 rounded-full flex items-center justify-center mr-3 group-hover:bg-yellow-100">
+              <AlertTriangle className="w-4 h-4 text-yellow-600" />
             </div>
             <div>
               <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Overdue Tasks
+                Hold Tasks
               </div>
-              <div className="text-lg font-bold text-red-600">
-                {loading ? "..." : projectData.stats.overdueTasks}
+              <div className="text-lg font-bold text-yellow-600">
+                {loading ? "..." : projectData.stats.holdTasks}
               </div>
             </div>
           </div>
-          <span className="text-xs text-red-500 font-medium">
-            Requires attention
+          <span className="text-xs text-yellow-500 font-medium">
+            Requires review
           </span>
         </NavLink>
       </div>

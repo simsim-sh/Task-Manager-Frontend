@@ -821,7 +821,7 @@ const AddProject = ({ closePopup, fetchData, selectedProject }) => {
                       <option value="New">New</option>
                       <option value="In Progress">In Progress</option>
                       <option value="Completed">Completed</option>
-                      <option value="On Hold">Hold</option>
+                      <option value="Hold">Hold</option>
                       <option value="Active">Active</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
