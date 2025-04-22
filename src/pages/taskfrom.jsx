@@ -6,6 +6,7 @@ import {
   getAllProject,
   getAllUsers,
   getTaskById,
+  updateTaskById, // Make sure this function exists in your service
 } from "../api/service";
 import {
   TbLayoutGridAdd,
@@ -19,11 +20,12 @@ import {
   TbUsers,
   TbCategory,
   TbUserPlus,
+  TbEdit, // Added for edit mode icon
 } from "react-icons/tb";
 import { IoMdAdd } from "react-icons/io";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { FaPlus, FaTimes, FaEdit } from "react-icons/fa"; // Added FaEdit
 
-const TaskForm = ({ onClose, fetchTasks, taskData, isEditMode }) => {
+const TaskForm = ({ isEditMode, taskData, onClose, fetchTasks }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -51,6 +53,28 @@ const TaskForm = ({ onClose, fetchTasks, taskData, isEditMode }) => {
   const formRef = useRef(null);
   const submitButtonRef = useRef(null);
   const dropdownRef = useRef(null); // Add a ref for the dropdown
+
+  // Effect to populate form data when in edit mode
+  useEffect(() => {
+    if (isEditMode && taskData) {
+      setFormData({
+        taskName: taskData.taskName || "",
+        title: taskData.title || "",
+        hours: taskData.hours || "",
+        priority: taskData.priority || "",
+        endDate: taskData.endDate ? taskData.endDate.split("T")[0] : "", // Format date for input
+        startDate: taskData.startDate ? taskData.startDate.split("T")[0] : "", // Format date for input
+        assignedUsers: taskData.assignedToWork || [], // Map from assignedToWork to assignedUsers
+        assignedType: taskData.assignedType || "",
+        reviewer1: taskData.reviewer1 || "",
+        reviewer2: taskData.reviewer2 || "",
+        status: taskData.status || "",
+        description: taskData.description || "",
+        onHoldReason: taskData.onHoldReason || "",
+        onHoldDescription: taskData.onHoldDescription || "",
+      });
+    }
+  }, [isEditMode, taskData]);
 
   // Filter users based on search term
   const filteredUsers = users.filter(
@@ -172,18 +196,34 @@ const TaskForm = ({ onClose, fetchTasks, taskData, isEditMode }) => {
 
       console.log("Submitting data:", submitData);
 
-      const response = await createTask(submitData);
+      let response;
 
-      if (response?.success) {
-        toast.success(response.message || "Task created successfully!");
-        navigate("/taskmanagement");
+      if (isEditMode) {
+        // Update existing task
+        response = await updateTaskById(taskData._id, submitData);
+        if (response?.success) {
+          toast.success(response.message || "Task updated successfully!");
+        } else {
+          toast.error(response?.message || "Failed to update task");
+        }
       } else {
-        toast.error(response?.message || "Failed to create task");
+        // Create new task
+        response = await createTask(submitData);
+        if (response?.success) {
+          toast.success(response.message || "Task created successfully!");
+        } else {
+          toast.error(response?.message || "Failed to create task");
+        }
       }
-      await fetchTasks();
+
+      await fetchTasks(taskData._id, submitData);
       await onClose();
+      navigate("/taskmanagement");
     } catch (error) {
-      console.error("Error creating task:", error);
+      console.error(
+        `Error ${isEditMode ? "updating" : "creating"} task:`,
+        error
+      );
       toast.error("Server error! Try again.");
     } finally {
       setLoading(false);
@@ -239,9 +279,9 @@ const TaskForm = ({ onClose, fetchTasks, taskData, isEditMode }) => {
       <div className="relative py-5 px-6">
         <h2 className="text-xl font-bold text-black relative z-10 flex items-center">
           <span className="mr-3 bg-blue-500 text-white p-2 rounded-full">
-            <TbLayoutGridAdd size={20} />
+            {isEditMode ? <TbEdit size={20} /> : <TbLayoutGridAdd size={20} />}
           </span>
-          Create New Task
+          {isEditMode ? "Edit Task" : "Create New Task"}
         </h2>
       </div>
       <div className="p-6 bg-white max-h-[80vh] overflow-y-auto" ref={formRef}>
@@ -261,19 +301,6 @@ const TaskForm = ({ onClose, fetchTasks, taskData, isEditMode }) => {
                 required
                 className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
               />
-              {/* <select
-                name="taskName"
-                value={formData.taskName}
-                onChange={handleChange}
-                required
-                className="w-full border-2 border-blue-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors"
-              >
-                <option value="">Select</option>
-                <option value="UI_Design">UI Design</option>
-                <option value="UI_Creation">UI Creation</option>
-                <option value="Testing">Testing</option>
-                <option value="Integration">Integration</option>
-              </select> */}
             </div>
 
             {/* Project Dropdown */}
@@ -596,17 +623,25 @@ const TaskForm = ({ onClose, fetchTasks, taskData, isEditMode }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-48 py-3 px-6 bg-blue-600  text-white font-bold text-lg rounded-lg relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
+              className="w-48 py-3 px-6 bg-blue-600 text-white font-bold text-lg rounded-lg relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <IoMdAdd />
-                  Creating Task...
+                  {isEditMode ? "Updating..." : "Creating..."}
                 </span>
               ) : (
                 <span className="flex items-center justify-center">
-                  <FaPlus className="h-5 w-5 mr-2" />
-                  Create Task
+                  {isEditMode ? (
+                    <>
+                      <FaEdit className="h-5 w-5 mr-2" />
+                      Update Task
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus className="h-5 w-5 mr-2" />
+                      Create Task
+                    </>
+                  )}
                 </span>
               )}
             </button>

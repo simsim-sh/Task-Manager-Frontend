@@ -143,11 +143,6 @@ const TaskManagement = () => {
     setTimeout(() => setFormVisible(true), 10);
   };
 
-  // const closeForm = () => {
-  //   setFormVisible(false);
-  //   setTimeout(() => setShowForm(false), 300);
-  // };
-
   const closeForm = () => {
     setFormVisible(false);
     setTimeout(() => {
@@ -593,15 +588,6 @@ const TaskManagement = () => {
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex space-x-3">
-                            <NavLink
-                              to="#"
-                              className="p-1.5 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
-                            >
-                              <Edit
-                                onClick={() => handleEditClick(task._id)}
-                                className="w-4 h-4 text-blue-600 cursor-pointer"
-                              />
-                            </NavLink>
                             <button
                               className="p-1.5 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
                               onClick={() =>
