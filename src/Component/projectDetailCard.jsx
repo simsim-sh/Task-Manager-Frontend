@@ -46,6 +46,15 @@ export default function ProjectCard() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [shouldReNew, setShouldReNew] = useState(false);
 
+  // Function to calculate progress based on completed tasks
+  const calculateProgress = (tasks) => {
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) return 0;
+    const completedTasks = tasks.filter(
+      (task) => task.status?.toLowerCase() === "completed"
+    ).length;
+    return (completedTasks / tasks.length) * 100;
+  };
+
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -273,32 +282,35 @@ export default function ProjectCard() {
                 Project Progress
               </span>
               <span className="text-xs font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-full border border-blue-100">
-                {progressPercentage.toFixed(0)}% Complete
+                <p className="">
+                  {Math.round(calculateProgress(projectData.tasks))}% Completed
+                  (
+                  {projectData.tasks?.filter(
+                    (task) => task.status?.toLowerCase() === "completed"
+                  ).length || 0}
+                  /{projectData.tasks?.length || 0})
+                </p>
               </span>
             </div>
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner">
-              <div
-                className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
-            </div>
+            <div
+              style={{ width: `${progressPercentage}%` }}
+              className="h-2 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner"
+            ></div>
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>{completedTasks} tasks completed</span>
-              <span>{totalTasks - completedTasks} remaining</span>
+              <span>
+                {projectData.tasks?.filter(
+                  (task) => task.status?.toLowerCase() === "completed"
+                ).length || 0}{" "}
+                Tasks Completed
+              </span>
+              {/* <span>{totalTasks - completedTasks} remaining</span> */}
             </div>
-            {/* <div
+            <div
               className="h-2 bg-blue-600 rounded-full"
               style={{
-                width: `${Math.max(1, calculateProgress(project.tasks))}%`,
+                width: `${Math.max(1, calculateProgress(projectData.tasks))}%`,
               }}
             ></div>
-            <p className="text-sm text-gray-500 mt-2">
-              {Math.round(calculateProgress(project.tasks))}% Completed (
-              {project.tasks?.filter(
-                (task) => task.status?.toLowerCase() === "completed"
-              ).length || 0}
-              /{project.tasks?.length || 0})
-            </p> */}
           </div>
 
           {/* Description Section */}
