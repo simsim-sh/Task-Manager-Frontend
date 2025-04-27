@@ -19,11 +19,11 @@ const SignUp = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    userType: "",
+    role: "",
     designation: "",
     permission: "",
     postModule: "",
-    status: "active",
+    status: "",
     termsAccepted: false,
   });
 
@@ -50,7 +50,7 @@ const SignUp = () => {
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
-    if (!formData.userType) newErrors.userType = "User Type is required";
+    if (!formData.role) newErrors.role = "User Type is required";
     if (!formData.designation)
       newErrors.designation = "Designation is required";
     if (!formData.permission) newErrors.permission = "Permission is required";
@@ -191,8 +191,8 @@ const SignUp = () => {
                 </label>
                 <div className="relative">
                   <select
-                    name="userType"
-                    value={formData.userType}
+                    name="role"
+                    value={formData.role}
                     onChange={handleChange}
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                   >
@@ -205,8 +205,8 @@ const SignUp = () => {
                     <FaUser className="text-gray-400" />
                   </div>
                 </div>
-                {errors.userType && (
-                  <p className="text-red-500 text-sm mt-1">{errors.userType}</p>
+                {errors.role && (
+                  <p className="text-red-500 text-sm mt-1">{errors.role}</p>
                 )}
               </div>
 

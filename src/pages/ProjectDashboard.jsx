@@ -11,7 +11,7 @@ import {
   deleteProjectById,
   getAllProject,
 } from "../api/service";
-import AddProjects from "../Component/addProjectpopup";
+import AddProjects from "../Component/AddProjectpopup";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
 import ProjectCounters from "../pages/ProjectCounters";
 import Swal from "sweetalert2";

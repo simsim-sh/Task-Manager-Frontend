@@ -8,8 +8,8 @@ import TaskManagement from "./pages/TaskManagement";
 import TaskDetailsPage from "./pages/TaskDetailsPage";
 import AddTask from "./pages/AddTask";
 import AddProjectForm from "./pages/AddProjectForm";
-import AddUserPage from "./pages/adduser";
-import TaskForm from "./pages/taskfrom";
+import AddUserPage from "./pages/UserManagementPage";
+import TaskForm from "./pages/TaskFrom";
 import Layout from "./Calender/Layout";
 
 const router = createBrowserRouter([

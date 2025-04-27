@@ -30,7 +30,7 @@ import { useParams } from "react-router-dom";
 import { getProjectById } from "../api/service";
 import UserActivityTimeline from "../pages/ProjectActivity";
 import TaskTable from "../pages/TaskTable";
-import AddProjects from "../Component/addProjectpopup";
+import AddProjects from "./AddProjectpopup";
 import ProjectTaskCounter from "../pages/ProjecttaskCounter";
 
 export default function ProjectCard() {
@@ -47,10 +47,11 @@ export default function ProjectCard() {
   const [shouldReNew, setShouldReNew] = useState(false);
 
   // Function to calculate progress based on completed tasks
+
   const calculateProgress = (tasks) => {
     if (!tasks || !Array.isArray(tasks) || tasks.length === 0) return 0;
     const completedTasks = tasks.filter(
-      (task) => task.status?.toLowerCase() === "completed"
+      (task) => task.status?.toLowerCase().trim() === "completed"
     ).length;
     return (completedTasks / tasks.length) * 100;
   };
@@ -100,11 +101,6 @@ export default function ProjectCard() {
       </div>
     );
   }
-
-  // Calculate progress with null checks
-  const completedTasks = projectData?.stats?.completedTasks || 0;
-  const totalTasks = projectData?.stats?.totalTasks || 1;
-  const progressPercentage = (completedTasks / totalTasks) * 100;
 
   // Format date for better display
   const formatDate = (dateString) => {
@@ -292,10 +288,17 @@ export default function ProjectCard() {
                 </p>
               </span>
             </div>
-            <div
-              style={{ width: `${progressPercentage}%` }}
-              className="h-2 w-full bg-gray-200 rounded-full overflow-hidden shadow-inner"
-            ></div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+              <div
+                className="h-2 bg-blue-600 rounded-full"
+                style={{
+                  width: `${Math.max(
+                    1,
+                    calculateProgress(projectData.tasks)
+                  )}%`,
+                }}
+              ></div>
+            </div>
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>
                 {projectData.tasks?.filter(
@@ -303,14 +306,7 @@ export default function ProjectCard() {
                 ).length || 0}{" "}
                 Tasks Completed
               </span>
-              {/* <span>{totalTasks - completedTasks} remaining</span> */}
             </div>
-            <div
-              className="h-2 bg-blue-600 rounded-full"
-              style={{
-                width: `${Math.max(1, calculateProgress(projectData.tasks))}%`,
-              }}
-            ></div>
           </div>
 
           {/* Description Section */}

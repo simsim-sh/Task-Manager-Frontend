@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { Clock, AlertCircle, Sparkles } from "lucide-react";
-import TaskForm from "../pages/taskfrom";
+import TaskForm from "./TaskFrom";
 import { GoTasklist } from "react-icons/go";
 import { toast } from "react-hot-toast";
 import { BsClipboardPlus } from "react-icons/bs";

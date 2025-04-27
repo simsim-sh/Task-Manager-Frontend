@@ -1,25 +1,58 @@
-import { AUTHURL, PROJECTURL, TASKURL, ACTIVITYURL } from "./client";
+import { AUTHURL, PROJECTURL, TASKURL, ACTIVITYURL, USERURL} from "./client";
 import { catchError } from "../utlis/helper";
 import axios from "axios";
 
-// Register
+
+
+// Register API
 export const register = async (formData) => {
   try {
-    const response = await axios.post(`${AUTHURL}/register`, formData);
+    const response = await axios.post(`${AUTHURL}/register`, formData, {
+      withCredentials: true,
+    });
+
     return response.data;
   } catch (error) {
+    // If the error has a response object, log the response data and the status code
+    if (error.response) {
+      console.error('Error occurred during registration:', error.response.data); // Response data
+      console.error('Status Code:', error.response.status); // Status code (e.g., 400, 500, etc.)
+      return error.response.data; // Return the error response data from the server
+    }
+
+    // If no response (e.g., network error), log a more general error
+    console.error('Network or server error:', error.message); // Error message
+    return { success: false, error: 'An error occurred. Please try again later.' }; // Return a generic error
+  }
+};
+
+// Login API
+export const login = async (formData) => {
+  try {
+    const response = await axios.post(`${AUTHURL}/login`, formData, {
+      withCredentials: true, // This is used if you want to use cookies for session management.
+    });
+
+    // If login is successful, store the token in localStorage
+    if (response.data.success && response.data.token) {
+      localStorage.setItem("jwtToken", response.data.token); // Store the token in localStorage
+      const decodedToken = decodeJwtToken(response.data.token);
+       localStorage.setItem("role", decodedToken.role); 
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Login error:", error);
     return catchError(error);
   }
 };
 
-// Login
-export const login = async (formData) => {
-  try {
-    const response = await axios.post(`${AUTHURL}/login`, formData);
-    return response.data;
-  } catch (error) {
-    return catchError(error);
-  }
+
+const decodeJwtToken = (token) => {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace('-', '+').replace('_', '/');
+  const decoded = JSON.parse(window.atob(base64));
+  return decoded;
 };
 
 // Create project
@@ -134,36 +167,83 @@ export const deleteTaskByTitle = async (title) => {
   }
 };
 
+
+// create user
+export const createUser = async (userData) => {
+  try {
+    const token = localStorage.getItem("jwtToken");
+
+    // Send POST request to create a new user
+    const response = await axios.post(`${USERURL}`, userData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token for authorization
+      },
+    });
+
+    return response.data; // Return the response data (created user data)
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return catchError(error); // Handle errors
+  }
+};
+
 // Get all user
 export const getAllUsers = async () => {
   try {
-    const response = await axios.get(`${AUTHURL}/getAllUsers`);
-    return response.data;
+    const token = localStorage.getItem("jwtToken");
+
+    // Send request to the backend API with Bearer token for authentication
+    const response = await axios.get(`${USERURL}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token for authorization
+      },
+    });
+
+    return response.data; // Return the response data
   } catch (error) {
-    return catchError(error);
+    console.error("Error fetching users:", error);
+    return catchError(error); // Handle errors
   }
 };
 
-export const updateUser = async (email, formData) => {
+// update user by ID
+export const updateUserById = async (userId, formData) => {
   try {
-    const response = await axios.put(
-      `${AUTHURL}/updateUser/${email}`,
-      formData
-    );
-    return response.data; // This returns the response from the backend (success message, updated user data)
+    const token = localStorage.getItem("jwtToken");
+
+    // Send PUT request to update user data
+    const response = await axios.put(`${USERURL}/${userId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token for authorization
+      },
+    });
+
+    return response.data; // Return the response data
   } catch (error) {
-    return catchError(error); // Handle any errors
+    console.error("Error updating user:", error);
+    return catchError(error); // Handle errors
   }
 };
 
-export const deleteUser = async (email) => {
+// delete user by ID
+export const deleteUserById = async (userId) => {
   try {
-    const response = await axios.delete(`${AUTHURL}/deleteUser/${email}`);
-    return response.data;
+    const token = localStorage.getItem("jwtToken");
+
+    // Send DELETE request to delete a user by userId
+    const response = await axios.delete(`${USERURL}/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Attach the token for authorization
+      },
+    });
+
+    return response.data; // Return the response data
   } catch (error) {
-    return catchError(error);
+    console.error("Error deleting user:", error);
+    return catchError(error); // Handle errors
   }
 };
+
 
 // donut chart api
 export const getProjectStatusSummary = async () => {
