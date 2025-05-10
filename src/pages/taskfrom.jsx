@@ -139,7 +139,7 @@ const TaskForm = ({ isEditMode, taskData, onClose, fetchTasks }) => {
   const removeUser = (userName) => {
     setFormData((prev) => ({
       ...prev,
-      assignedUsers: prev.assignedUsers.filter((user) => user !== userName),
+      assignedUsers: prev?.assignedUsers?.filter((user) => user !== userName),
     }));
   };
 
