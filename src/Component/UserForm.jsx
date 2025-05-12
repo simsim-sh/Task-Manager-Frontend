@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TbCamera, TbX } from "react-icons/tb";
+import { Eye, EyeOff } from "lucide-react";
 import { createUser } from "../api/service"; // Import the API function
 import toast from "react-hot-toast"; // Make sure you have this imported
 
@@ -9,6 +10,8 @@ const UserForm = ({
   isEditing = false,
   userData = null,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "", // Changed from fullName to match your API
     email: "",
@@ -93,6 +96,10 @@ const UserForm = ({
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
@@ -160,14 +167,14 @@ const UserForm = ({
             />
           </label>
 
-          <label className="block">
+          <label className="block relative">
             <span className="text-gray-700 font-medium">
               {isEditing
                 ? "Password (leave blank to keep current)"
                 : "Password *"}
             </span>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // Toggle between password and text type
               name="password"
               placeholder={
                 isEditing
@@ -176,9 +183,16 @@ const UserForm = ({
               }
               value={formData.password}
               onChange={handleChange}
-              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500 pr-10" // Added pr-10 for space for the eye icon
               required={!isEditing}
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-3 text-gray-400"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </label>
 
           <label className="block">
