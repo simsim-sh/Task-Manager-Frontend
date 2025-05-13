@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TbCamera, TbX } from "react-icons/tb";
 import { createUser } from "../api/service";
 import toast from "react-hot-toast";
+import { Eye } from "lucide-react";
 
 const UserForm = ({
   closePopup,
