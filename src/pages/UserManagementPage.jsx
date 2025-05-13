@@ -102,7 +102,6 @@ const UserManagementPage = () => {
     setIsLoading(true);
     try {
       let response;
-
       if (isEditing) {
         // Update existing user
         response = await updateUserById(selectedUser._id, userData);
@@ -110,13 +109,12 @@ const UserManagementPage = () => {
         // Create new user
         response = await createUser(userData);
       }
-
       if (response?.success) {
         toast.success(
           isEditing ? "User updated successfully" : "User created successfully"
         );
-        fetchData(); // Refresh data
-        closePopup(); // Close the form
+        fetchData();
+        closePopup();
       } else {
         toast.error(
           response?.message ||

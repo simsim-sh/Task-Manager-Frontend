@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { TbCamera, TbX } from "react-icons/tb";
-import { createUser } from "../api/service"; // Import the API function
-import toast from "react-hot-toast"; // Make sure you have this imported
+import { createUser } from "../api/service";
+import toast from "react-hot-toast";
 
 const UserForm = ({
   closePopup,
@@ -10,18 +10,17 @@ const UserForm = ({
   userData = null,
 }) => {
   const [formData, setFormData] = useState({
-    name: "", // Changed from fullName to match your API
+    name: "",
     email: "",
-    phone: "",
-    department: "",
+    password: "",
+    userType: "",
     designation: "",
-    description: "",
+    permission: [],
+    postModule: [],
+    status: "",
+    termsAccepted: false,
+    department: "",
     profileImage: "",
-    password: "", // Default password that can be changed later
-    role: "", // Default user type
-    status: "", // Default status
-    permission: [], // Permissions array
-    postModule: [], // Post modules array
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,16 +32,14 @@ const UserForm = ({
       setFormData({
         name: userData.name || "",
         email: userData.email || "",
-        phone: userData.phone || "",
-        department: userData.department || "",
+        userType: userData.userType || "",
         designation: userData.designation || "",
-        description: userData.description || "",
-        profileImage: userData.profileImage || "",
-        // Don't pre-populate password for security reasons
-        role: userData.role || userData.userType || "",
-        status: userData.status || "",
         permission: userData.permission || [],
         postModule: userData.postModule || [],
+        status: userData.status || "",
+        termsAccepted: userData.termsAccepted || false,
+        department: userData.department || "",
+        profileImage: userData.profileImage || "",
       });
     }
   }, [isEditing, userData]);
@@ -55,7 +52,7 @@ const UserForm = ({
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file); // Store the actual file for upload
+      setImageFile(file);
       setFormData({ ...formData, profileImage: URL.createObjectURL(file) });
     }
   };
@@ -63,26 +60,22 @@ const UserForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       // Create FormData for file upload
       const userFormData = { ...formData };
-
       // If there's an image file, handle it
       if (imageFile) {
         // In a real implementation, you'd upload the image to a server
         // and get a URL back to store in userData.profileImage
         // For now, we'll just keep the URL as is
       }
-
       // If editing, don't send password if it's empty
       if (isEditing && !userFormData.password) {
         delete userFormData.password;
       }
-
       // Call the parent's addUser function (which will call either createUser or updateUserById)
+      // return console.log("userFormData", userFormData);
       await addUser(userFormData);
-
       // Close popup will be handled by parent component after successful operation
     } catch (error) {
       const actionType = isEditing ? "updating" : "creating";
@@ -191,10 +184,25 @@ const UserForm = ({
               required
             >
               <option value="">Select Department</option>
-              <option value="HR">HR</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Finance">Finance</option>
-              <option value="IT">IT</option>
+              <option value="hr">HR</option>
+              <option value="marketing">Marketing</option>
+              <option value="finance">Finance</option>
+              <option value="it">IT</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-gray-700 font-medium">Post Module *</span>
+            <select
+              name="postModule"
+              value={formData.postModule}
+              onChange={handleChange}
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              required
+            >
+              <option value="">Select Post Module</option>
+              <option value="blog">Blog</option>
+              <option value="news">News</option>
+              <option value="project">Project</option>
             </select>
           </label>
 
@@ -218,8 +226,8 @@ const UserForm = ({
           <label className="block">
             <span className="text-gray-700 font-medium">User Type *</span>
             <select
-              name="role"
-              value={formData.role}
+              name="userType"
+              value={formData.userType}
               onChange={handleChange}
               className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               required

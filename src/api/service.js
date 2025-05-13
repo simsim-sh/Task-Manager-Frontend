@@ -1,8 +1,6 @@
-import { AUTHURL, PROJECTURL, TASKURL, ACTIVITYURL, USERURL} from "./client";
+import { AUTHURL, PROJECTURL, TASKURL, ACTIVITYURL } from "./client";
 import { catchError } from "../utlis/helper";
 import axios from "axios";
-
-
 
 // Register API
 export const register = async (formData) => {
@@ -10,19 +8,21 @@ export const register = async (formData) => {
     const response = await axios.post(`${AUTHURL}/register`, formData, {
       withCredentials: true,
     });
-
     return response.data;
   } catch (error) {
-    // If the error has a response object, log the response data and the status code
     if (error.response) {
-      console.error('Error occurred during registration:', error.response.data); // Response data
-      console.error('Status Code:', error.response.status); // Status code (e.g., 400, 500, etc.)
-      return error.response.data; // Return the error response data from the server
+      console.error(
+        "Error occurred during registration:",
+        error?.response?.data
+      );
+      console.error("Status Code:", error?.response?.status);
+      return error.response.data;
     }
-
-    // If no response (e.g., network error), log a more general error
-    console.error('Network or server error:', error.message); // Error message
-    return { success: false, error: 'An error occurred. Please try again later.' }; // Return a generic error
+    console.error("Network or server error:", error.message);
+    return {
+      success: false,
+      error: "An error occurred. Please try again later.",
+    };
   }
 };
 
@@ -30,16 +30,14 @@ export const register = async (formData) => {
 export const login = async (formData) => {
   try {
     const response = await axios.post(`${AUTHURL}/login`, formData, {
-      withCredentials: true, // This is used if you want to use cookies for session management.
+      withCredentials: true,
     });
-
     // If login is successful, store the token in localStorage
     if (response.data.success && response.data.token) {
-      localStorage.setItem("jwtToken", response.data.token); // Store the token in localStorage
+      localStorage.setItem("jwtToken", response.data.token);
       const decodedToken = decodeJwtToken(response.data.token);
-       localStorage.setItem("role", decodedToken.role); 
+      localStorage.setItem("role", decodedToken.role);
     }
-
     return response.data;
   } catch (error) {
     console.error("Login error:", error);
@@ -47,10 +45,9 @@ export const login = async (formData) => {
   }
 };
 
-
 const decodeJwtToken = (token) => {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace('-', '+').replace('_', '/');
+  const base64Url = token.split(".")[1];
+  const base64 = base64Url.replace("-", "+").replace("_", "/");
   const decoded = JSON.parse(window.atob(base64));
   return decoded;
 };
@@ -145,7 +142,7 @@ export const getTaskById = async (taskId) => {
 // Update task by ID
 export const updateTaskById = async (taskId, formData) => {
   try {
-    const response = await axios.put(  
+    const response = await axios.put(
       `${TASKURL}/updateTaskById/${taskId}`,
       formData
     );
@@ -167,23 +164,20 @@ export const deleteTaskByTitle = async (title) => {
   }
 };
 
-
 // create user
 export const createUser = async (userData) => {
   try {
     const token = localStorage.getItem("jwtToken");
-
     // Send POST request to create a new user
-    const response = await axios.post(`${USERURL}`, userData, {
+    const response = await axios.post(`${AUTHURL}/register`, userData, {
       headers: {
-        Authorization: `Bearer ${token}`, // Attach the token for authorization
+        Authorization: `Bearer ${token}`,
       },
     });
-
-    return response.data; // Return the response data (created user data)
+    return response.data;
   } catch (error) {
     console.error("Error creating user:", error);
-    return catchError(error); // Handle errors
+    return catchError(error);
   }
 };
 
@@ -191,18 +185,15 @@ export const createUser = async (userData) => {
 export const getAllUsers = async () => {
   try {
     const token = localStorage.getItem("jwtToken");
-
-    // Send request to the backend API with Bearer token for authentication
-    const response = await axios.get(`${USERURL}`, {
+    const response = await axios.get(`${AUTHURL}/getAllUsers`, {
       headers: {
-        Authorization: `Bearer ${token}`, // Attach the token for authorization
+        Authorization: `Bearer ${token}`,
       },
     });
-
-    return response.data; // Return the response data
+    return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
-    return catchError(error); // Handle errors
+    return catchError(error);
   }
 };
 
@@ -210,18 +201,16 @@ export const getAllUsers = async () => {
 export const updateUserById = async (userId, formData) => {
   try {
     const token = localStorage.getItem("jwtToken");
-
     // Send PUT request to update user data
-    const response = await axios.put(`${USERURL}/${userId}`, formData, {
+    const response = await axios.put(`${AUTHURL}/${userId}`, formData, {
       headers: {
-        Authorization: `Bearer ${token}`, // Attach the token for authorization
+        Authorization: `Bearer ${token}`,
       },
     });
-
-    return response.data; // Return the response data
+    return response.data;
   } catch (error) {
     console.error("Error updating user:", error);
-    return catchError(error); // Handle errors
+    return catchError(error);
   }
 };
 
@@ -229,21 +218,17 @@ export const updateUserById = async (userId, formData) => {
 export const deleteUserById = async (userId) => {
   try {
     const token = localStorage.getItem("jwtToken");
-
-    // Send DELETE request to delete a user by userId
-    const response = await axios.delete(`${USERURL}/${userId}`, {
+    const response = await axios.delete(`${AUTHURL}/${userId}`, {
       headers: {
-        Authorization: `Bearer ${token}`, // Attach the token for authorization
+        Authorization: `Bearer ${token}`,
       },
     });
-
-    return response.data; // Return the response data
+    return response.data;
   } catch (error) {
     console.error("Error deleting user:", error);
-    return catchError(error); // Handle errors
+    return catchError(error);
   }
 };
-
 
 // donut chart api
 export const getProjectStatusSummary = async () => {
