@@ -14,7 +14,7 @@ import { getAllTasks, deleteTaskByTitle, getTaskById } from "../api/service";
 import Sidebar from "../Component/Sidebar";
 import Header from "../Component/Header";
 import StatusDashboard from "../Component/statusDashboard";
-import TaskForm from "./TaskFrom";
+import TaskForm from "./TaskForm";
 import { TbHomeHeart } from "react-icons/tb";
 import { TiChevronRight } from "react-icons/ti";
 import { IoMdAdd } from "react-icons/io";

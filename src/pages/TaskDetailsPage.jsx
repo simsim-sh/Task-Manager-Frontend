@@ -28,7 +28,7 @@ import { TiChevronRight } from "react-icons/ti";
 import { formatDate } from "../utlis/helper";
 import { updateTaskById } from "../api/service";
 import { useState } from "react";
-import TaskForm from "./TaskFrom";
+import TaskForm from "./TaskForm";
 
 const TaskDetailsPage = () => {
   const [showPopup, setShowPopup] = useState(false);
